@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "a production-quality messaging app designed for contractors and service business operators to centralize communication with clients, team members, and vendors. The app combines real-time chat infrastructure with AI-powered features for task extraction, priority detection, and decision tracking. The main purpose app is to be able to track communications with different parties, organize, centralize that information within other platforms later on. Example user story is contractor talking to worker and the worker sending pictures of the currents state of the project. The contractor should be easily able to find that information later on and have a single source of truth between him the workers and the client"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Project Communication Hub (Priority: P1)
 
@@ -87,7 +87,7 @@ A contractor juggles multiple projects with different timelines and commitments.
 - How does the system handle message delivery failures across channels?
 - What happens when project participants change (worker leaves, new subcontractor joins)?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -107,7 +107,7 @@ A contractor juggles multiple projects with different timelines and commitments.
 - **FR-014**: System MUST support multi-channel integration (SMS, email, in-app) in unified threads
 - **FR-015**: System MUST enable project-based organization with searchable metadata and context
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Project**: Represents a construction job or service project with participants, timeline, and communication history
 - **Thread**: A conversation within a project context, can span multiple communication channels
@@ -117,7 +117,7 @@ A contractor juggles multiple projects with different timelines and commitments.
 - **Decision**: Important agreements or commitments extracted from communications
 - **ActionItem**: Tasks or commitments identified by AI from project communications
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

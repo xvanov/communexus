@@ -7,6 +7,7 @@ Contractors and service business operators face a critical communication fragmen
 ## Problems It Solves
 
 ### Primary Pain Points
+
 - **Fragmented Communication**: Messages scattered across SMS, phone, and multiple apps
 - **Missed Tasks**: Action items buried in long message threads
 - **Lost Context**: Difficulty tracking client decisions and agreements
@@ -14,6 +15,7 @@ Contractors and service business operators face a critical communication fragmen
 - **Context Switching**: Lost context when switching between job sites or clients
 
 ### Specific Contractor Scenarios
+
 - Client requests: "Can you start the tile work tomorrow?"
 - Vendor updates: "Material delivery delayed to Friday"
 - Team coordination: "Need measurements for the kitchen install"
@@ -22,6 +24,7 @@ Contractors and service business operators face a critical communication fragmen
 ## How It Should Work
 
 ### Core User Experience
+
 1. **Centralized Project Threads**: All project communications in one place
 2. **Real-Time Messaging**: Sub-200ms delivery with offline support
 3. **AI-Powered Intelligence**: Automatic task extraction, priority detection, decision tracking
@@ -29,6 +32,7 @@ Contractors and service business operators face a critical communication fragmen
 5. **Search & Discovery**: Find any project information within 2 seconds
 
 ### User Journey
+
 1. Contractor creates project thread with workers and clients
 2. All communications flow through unified thread
 3. AI automatically identifies action items and urgent messages
@@ -38,12 +42,14 @@ Contractors and service business operators face a critical communication fragmen
 ## User Experience Goals
 
 ### Immediate Value
+
 - Eliminate communication chaos
 - Never miss critical project updates
 - Quick access to project information
 - Professional client communication
 
 ### Long-term Vision
+
 - Embeddable communication platform
 - Multi-channel integration (SMS, email, WhatsApp)
 - SDK for third-party applications
@@ -52,6 +58,7 @@ Contractors and service business operators face a critical communication fragmen
 ## Success Criteria
 
 ### Measurable Outcomes
+
 - 50% reduction in missed project communications
 - 2-second search response time
 - 99.9% message delivery reliability
@@ -59,8 +66,8 @@ Contractors and service business operators face a critical communication fragmen
 - 95% missed follow-up detection by AI assistant
 
 ### User Satisfaction
+
 - Contractors report significant productivity gains
 - Reduced stress from communication management
 - Improved client relationships through better organization
 - Faster project completion through better coordination
-

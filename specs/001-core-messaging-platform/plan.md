@@ -20,13 +20,14 @@ Build a production-quality messaging app for contractors with AI-powered feature
 **Performance Goals**: <200ms message delivery, 60fps scrolling, <2s app launch, <5s AI responses  
 **Constraints**: Offline-capable, sub-200ms real-time delivery, 2+ device testing required  
 **Scale/Scope**: 1000+ concurrent users, 50+ screens, multi-project support  
-**CI/CD**: GitHub Actions pipeline for automated testing, building, and deployment  
+**CI/CD**: GitHub Actions pipeline for automated testing, building, and deployment
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ### Assignment-First Development Compliance
+
 - [x] Feature directly contributes to 90+ rubric points
 - [x] Aligns with three-phase architecture (MVP → Assignment → Platform)
 - [x] Supports real-time messaging excellence requirements
@@ -34,6 +35,7 @@ Build a production-quality messaging app for contractors with AI-powered feature
 - [x] Meets mobile-first performance standards
 
 ### Technical Standards Compliance
+
 - [x] Uses approved technology stack (React Native + Firebase + OpenAI)
 - [x] Follows modular architecture with clear separation
 - [x] Secures API keys in Cloud Functions
@@ -41,6 +43,7 @@ Build a production-quality messaging app for contractors with AI-powered feature
 - [x] Includes proper documentation and comments
 
 ### Development Workflow Compliance
+
 - [x] Passes appropriate phase gate requirements
 - [x] Includes mandatory testing scenarios
 - [x] Meets quality gate performance targets
@@ -124,22 +127,24 @@ tests/
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+_Fill ONLY if Constitution Check has violations that must be justified_
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Multi-phase architecture | Assignment requirements + platform vision | Single-phase insufficient for rubric scoring and long-term goals |
-| AI integration complexity | Required for 30 points on rubric | Basic messaging alone insufficient for high score |
-| Offline-first architecture | Mobile app quality requirements | Online-only fails offline testing scenarios |
+| Violation                  | Why Needed                                | Simpler Alternative Rejected Because                             |
+| -------------------------- | ----------------------------------------- | ---------------------------------------------------------------- |
+| Multi-phase architecture   | Assignment requirements + platform vision | Single-phase insufficient for rubric scoring and long-term goals |
+| AI integration complexity  | Required for 30 points on rubric          | Basic messaging alone insufficient for high score                |
+| Offline-first architecture | Mobile app quality requirements           | Online-only fails offline testing scenarios                      |
 
 ## Phase 0: Research & Architecture (Parallel Foundation)
 
 ### PR-001: Project Setup & Infrastructure
+
 **Scope**: Complete project initialization and development environment
 **Dependencies**: None
 **Parallelizable**: Yes (can work alongside other setup tasks)
 
 **Tasks**:
+
 - Initialize Expo React Native project with TypeScript
 - Configure Firebase project with all required services
 - Set up development environment (ESLint, Prettier, TypeScript strict)
@@ -149,6 +154,7 @@ tests/
 - Setup GitHub Actions CI/CD pipeline for automated testing and deployment
 
 **Deliverables**:
+
 - Working Expo project that builds and runs
 - Firebase project with Firestore, Auth, Storage, Functions, FCM enabled
 - Development environment ready for team collaboration
@@ -157,11 +163,13 @@ tests/
 ---
 
 ### PR-002: Firebase Backend Foundation
+
 **Scope**: Core Firebase services and data schema implementation
 **Dependencies**: PR-001 (project setup)
 **Parallelizable**: Yes (independent of frontend work)
 
 **Tasks**:
+
 - Implement Firestore security rules for users, threads, messages
 - Create Firebase Cloud Functions structure and deployment pipeline
 - Implement user authentication (email/password + Google)
@@ -170,6 +178,7 @@ tests/
 - Implement basic CRUD operations for core entities
 
 **Deliverables**:
+
 - Deployed Firebase project with working authentication
 - Firestore collections with proper security rules
 - Cloud Functions deployment pipeline
@@ -178,11 +187,13 @@ tests/
 ---
 
 ### PR-003: Real-Time Messaging Engine
+
 **Scope**: Core messaging infrastructure with Firestore real-time listeners
 **Dependencies**: PR-002 (Firebase foundation)
 **Parallelizable**: Yes (can work alongside UI components)
 
 **Tasks**:
+
 - Implement Firestore real-time listeners for messages
 - Create message sending/receiving service
 - Implement optimistic UI updates
@@ -191,6 +202,7 @@ tests/
 - Implement auto-reconnection logic
 
 **Deliverables**:
+
 - Working real-time messaging between users
 - Offline support with message queuing
 - Message status tracking and delivery confirmation
@@ -198,11 +210,13 @@ tests/
 ---
 
 ### PR-004: User Authentication & Presence System
+
 **Scope**: User management, online/offline status, and typing indicators
 **Dependencies**: PR-002 (Firebase foundation)
 **Parallelizable**: Yes (independent of messaging engine)
 
 **Tasks**:
+
 - Implement Firebase Auth integration
 - Create user profile management
 - Build presence system (online/offline/away)
@@ -211,6 +225,7 @@ tests/
 - Create user settings and preferences
 
 **Deliverables**:
+
 - Complete authentication flow
 - Real-time presence indicators
 - Typing indicators working across users
@@ -221,11 +236,13 @@ tests/
 ## Phase 1: Core Messaging Features (Parallel Implementation)
 
 ### PR-005: Chat List & Thread Management
+
 **Scope**: Thread list UI with unread counts and last message preview
 **Dependencies**: PR-003 (messaging engine), PR-004 (user system)
 **Parallelizable**: Yes (UI work independent of other screens)
 
 **Tasks**:
+
 - Create ChatListScreen with thread list
 - Implement thread creation (one-on-one and group)
 - Add unread message counting
@@ -234,6 +251,7 @@ tests/
 - Add thread sorting (by last message, unread count)
 
 **Deliverables**:
+
 - Functional chat list screen
 - Thread creation and management
 - Unread count tracking
@@ -242,11 +260,13 @@ tests/
 ---
 
 ### PR-006: Chat Screen & Message UI
+
 **Scope**: Individual chat interface with message bubbles and input
 **Dependencies**: PR-003 (messaging engine)
 **Parallelizable**: Yes (UI work independent of other screens)
 
 **Tasks**:
+
 - Create ChatScreen with message list
 - Implement MessageBubble component with sender attribution
 - Build ChatInput with text input and send button
@@ -255,6 +275,7 @@ tests/
 - Create message context menus
 
 **Deliverables**:
+
 - Complete chat interface
 - Message bubbles with proper styling
 - Message input and sending
@@ -263,11 +284,13 @@ tests/
 ---
 
 ### PR-007: Group Chat & Participant Management
+
 **Scope**: Multi-user conversations with participant management
 **Dependencies**: PR-003 (messaging engine), PR-004 (user system)
 **Parallelizable**: Yes (independent of one-on-one chat)
 
 **Tasks**:
+
 - Implement group chat creation and management
 - Add participant list with online status
 - Create group settings and member management
@@ -276,6 +299,7 @@ tests/
 - Create group chat specific UI elements
 
 **Deliverables**:
+
 - Working group chat functionality
 - Participant management
 - Group settings and customization
@@ -284,11 +308,13 @@ tests/
 ---
 
 ### PR-008: Media Sharing & File Upload
+
 **Scope**: Image and document sharing with Firebase Storage
 **Dependencies**: PR-002 (Firebase foundation)
 **Parallelizable**: Yes (independent of text messaging)
 
 **Tasks**:
+
 - Implement Firebase Storage integration
 - Create image picker and camera integration
 - Build file upload progress indicators
@@ -297,6 +323,7 @@ tests/
 - Create media message bubbles
 
 **Deliverables**:
+
 - Image sharing functionality
 - File upload with progress tracking
 - Media preview and viewing
@@ -305,11 +332,13 @@ tests/
 ---
 
 ### PR-009: Push Notifications & Background Handling
+
 **Scope**: Push notifications and app lifecycle management
 **Dependencies**: PR-002 (Firebase foundation)
 **Parallelizable**: Yes (independent of core messaging)
 
 **Tasks**:
+
 - Implement Firebase Cloud Messaging
 - Create push notification handling
 - Add background app state management
@@ -318,6 +347,7 @@ tests/
 - Add notification settings and preferences
 
 **Deliverables**:
+
 - Working push notifications
 - Background message handling
 - App lifecycle management
@@ -326,11 +356,13 @@ tests/
 ---
 
 ### PR-010: Offline Support & Data Persistence
+
 **Scope**: Local data caching and offline functionality
 **Dependencies**: PR-003 (messaging engine)
 **Parallelizable**: Yes (can work alongside other features)
 
 **Tasks**:
+
 - Implement Expo SQLite for local storage
 - Create offline message queue
 - Build data synchronization logic
@@ -339,6 +371,7 @@ tests/
 - Create offline indicator UI
 
 **Deliverables**:
+
 - Complete offline support
 - Local data persistence
 - Offline message queuing
@@ -349,11 +382,13 @@ tests/
 ## Phase 2: AI Features Implementation (Parallel AI Development)
 
 ### PR-011: AI Infrastructure & OpenAI Integration
+
 **Scope**: Core AI service setup and OpenAI API integration
 **Dependencies**: PR-002 (Firebase foundation)
 **Parallelizable**: Yes (foundation for all AI features)
 
 **Tasks**:
+
 - Set up OpenAI API integration in Cloud Functions
 - Create AI service abstraction layer
 - Implement API key security and rate limiting
@@ -362,6 +397,7 @@ tests/
 - Set up LangChain framework for advanced features
 
 **Deliverables**:
+
 - Working OpenAI API integration
 - Secure AI service layer
 - Rate limiting and caching
@@ -370,11 +406,13 @@ tests/
 ---
 
 ### PR-012: Thread Summarization Feature
+
 **Scope**: AI-powered conversation summarization
 **Dependencies**: PR-011 (AI infrastructure)
 **Parallelizable**: Yes (independent AI feature)
 
 **Tasks**:
+
 - Implement thread summarization Cloud Function
 - Create summary UI modal and components
 - Add summary caching and freshness tracking
@@ -383,6 +421,7 @@ tests/
 - Create summary performance optimization
 
 **Deliverables**:
+
 - Working thread summarization
 - Summary UI components
 - Caching and performance optimization
@@ -391,11 +430,13 @@ tests/
 ---
 
 ### PR-013: Action Item Extraction Feature
+
 **Scope**: AI-powered task and action item identification
 **Dependencies**: PR-011 (AI infrastructure)
 **Parallelizable**: Yes (independent AI feature)
 
 **Tasks**:
+
 - Implement action item extraction Cloud Function
 - Create action item list UI components
 - Add action item status tracking
@@ -404,6 +445,7 @@ tests/
 - Add action item completion tracking
 
 **Deliverables**:
+
 - Working action item extraction
 - Action item management UI
 - Status tracking and completion
@@ -412,11 +454,13 @@ tests/
 ---
 
 ### PR-014: Smart Search Feature
+
 **Scope**: AI-enhanced semantic search across messages
 **Dependencies**: PR-011 (AI infrastructure)
 **Parallelizable**: Yes (independent AI feature)
 
 **Tasks**:
+
 - Implement semantic search Cloud Function
 - Create search UI with filters and sorting
 - Add search result highlighting and context
@@ -425,6 +469,7 @@ tests/
 - Create search performance optimization
 
 **Deliverables**:
+
 - Working semantic search
 - Advanced search UI
 - Search history and suggestions
@@ -433,11 +478,13 @@ tests/
 ---
 
 ### PR-015: Priority Message Detection Feature
+
 **Scope**: AI-powered urgent message identification
 **Dependencies**: PR-011 (AI infrastructure)
 **Parallelizable**: Yes (independent AI feature)
 
 **Tasks**:
+
 - Implement priority detection Cloud Function
 - Create priority badge UI components
 - Add priority notification escalation
@@ -446,6 +493,7 @@ tests/
 - Add priority analytics and reporting
 
 **Deliverables**:
+
 - Working priority detection
 - Priority UI indicators
 - Notification escalation
@@ -454,11 +502,13 @@ tests/
 ---
 
 ### PR-016: Decision Tracking Feature
+
 **Scope**: AI-powered decision identification and storage
 **Dependencies**: PR-011 (AI infrastructure)
 **Parallelizable**: Yes (independent AI feature)
 
 **Tasks**:
+
 - Implement decision extraction Cloud Function
 - Create decision tracking UI components
 - Add decision context and participant tracking
@@ -467,6 +517,7 @@ tests/
 - Add decision timeline and history
 
 **Deliverables**:
+
 - Working decision tracking
 - Decision management UI
 - Context and participant tracking
@@ -475,11 +526,13 @@ tests/
 ---
 
 ### PR-017: Proactive Assistant (LangChain Agent)
+
 **Scope**: Advanced AI agent with proactive suggestions
 **Dependencies**: PR-011 (AI infrastructure), PR-012-PR-016 (all AI features)
 **Parallelizable**: No (depends on other AI features)
 
 **Tasks**:
+
 - Implement LangChain agent with conversation memory
 - Create proactive suggestion system
 - Add message drafting capabilities
@@ -488,6 +541,7 @@ tests/
 - Add assistant learning and personalization
 
 **Deliverables**:
+
 - Working proactive assistant
 - Suggestion and drafting system
 - Follow-up detection
@@ -498,11 +552,13 @@ tests/
 ## Phase 3: Platform Evolution (Multi-Channel Integration)
 
 ### PR-018: Multi-Channel Architecture Foundation
+
 **Scope**: Channel abstraction layer and routing system
 **Dependencies**: All Phase 1 and Phase 2 features
 **Parallelizable**: Yes (can work alongside other Phase 3 features)
 
 **Tasks**:
+
 - Create channel abstraction layer
 - Implement message routing system
 - Add channel configuration management
@@ -511,6 +567,7 @@ tests/
 - Add channel analytics and reporting
 
 **Deliverables**:
+
 - Channel abstraction system
 - Message routing infrastructure
 - Channel management capabilities
@@ -519,11 +576,13 @@ tests/
 ---
 
 ### PR-019: SMS Integration (Twilio)
+
 **Scope**: SMS channel integration with Twilio
 **Dependencies**: PR-018 (multi-channel foundation)
 **Parallelizable**: Yes (independent channel implementation)
 
 **Tasks**:
+
 - Integrate Twilio SMS API
 - Implement SMS webhook handling
 - Create SMS message formatting and parsing
@@ -532,6 +591,7 @@ tests/
 - Create SMS-specific UI components
 
 **Deliverables**:
+
 - Working SMS integration
 - SMS webhook handling
 - Delivery status tracking
@@ -540,11 +600,13 @@ tests/
 ---
 
 ### PR-020: Email Integration (SendGrid)
+
 **Scope**: Email channel integration with SendGrid
 **Dependencies**: PR-018 (multi-channel foundation)
 **Parallelizable**: Yes (independent channel implementation)
 
 **Tasks**:
+
 - Integrate SendGrid email API
 - Implement email parsing and threading
 - Create email-specific message formatting
@@ -553,6 +615,7 @@ tests/
 - Create email-specific UI components
 
 **Deliverables**:
+
 - Working email integration
 - Email parsing and threading
 - Template system
@@ -561,11 +624,13 @@ tests/
 ---
 
 ### PR-021: Embeddable SDK Development
+
 **Scope**: Extract core engine into embeddable SDK
 **Dependencies**: All previous phases
 **Parallelizable**: Yes (can work alongside other Phase 3 features)
 
 **Tasks**:
+
 - Extract core messaging engine
 - Create embeddable React components
 - Build SDK documentation and examples
@@ -574,6 +639,7 @@ tests/
 - Add SDK versioning and updates
 
 **Deliverables**:
+
 - Embeddable SDK package
 - React component library
 - Documentation and examples
@@ -584,12 +650,14 @@ tests/
 ## Parallel Execution Strategy
 
 ### Phase 0 (Foundation) - 4 Parallel PRs
+
 - PR-001: Project Setup (blocks all others)
 - PR-002: Firebase Backend (parallel with PR-001)
 - PR-003: Messaging Engine (depends on PR-002)
 - PR-004: User System (depends on PR-002)
 
 ### Phase 1 (Core Features) - 6 Parallel PRs
+
 - PR-005: Chat List (depends on PR-003, PR-004)
 - PR-006: Chat Screen (depends on PR-003)
 - PR-007: Group Chat (depends on PR-003, PR-004)
@@ -598,6 +666,7 @@ tests/
 - PR-010: Offline Support (depends on PR-003)
 
 ### Phase 2 (AI Features) - 7 PRs (6 Parallel + 1 Sequential)
+
 - PR-011: AI Infrastructure (foundation for all AI)
 - PR-012: Thread Summarization (depends on PR-011)
 - PR-013: Action Extraction (depends on PR-011)
@@ -607,6 +676,7 @@ tests/
 - PR-017: Proactive Assistant (depends on PR-011-PR-016)
 
 ### Phase 3 (Platform) - 4 Parallel PRs
+
 - PR-018: Multi-Channel Foundation (depends on all previous)
 - PR-019: SMS Integration (depends on PR-018)
 - PR-020: Email Integration (depends on PR-018)
@@ -621,12 +691,12 @@ tests/
 
 ## Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Firebase cold start latency | AI features >5s | Pre-warm functions, implement caching |
-| OpenAI API rate limits | Features fail | Implement retry logic, rate limiting |
-| Complex offline sync | Data conflicts | Implement conflict resolution, last-write-wins |
-| Multi-channel complexity | Integration issues | Start with single channel, add incrementally |
+| Risk                        | Impact             | Mitigation                                     |
+| --------------------------- | ------------------ | ---------------------------------------------- |
+| Firebase cold start latency | AI features >5s    | Pre-warm functions, implement caching          |
+| OpenAI API rate limits      | Features fail      | Implement retry logic, rate limiting           |
+| Complex offline sync        | Data conflicts     | Implement conflict resolution, last-write-wins |
+| Multi-channel complexity    | Integration issues | Start with single channel, add incrementally   |
 
 ## Success Metrics
 

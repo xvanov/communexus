@@ -29,9 +29,10 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ### Assignment-First Development Compliance
+
 - [ ] Feature directly contributes to 90+ rubric points
 - [ ] Aligns with three-phase architecture (MVP → Assignment → Platform)
 - [ ] Supports real-time messaging excellence requirements
@@ -39,6 +40,7 @@
 - [ ] Meets mobile-first performance standards
 
 ### Technical Standards Compliance
+
 - [ ] Uses approved technology stack (React Native + Firebase + OpenAI)
 - [ ] Follows modular architecture with clear separation
 - [ ] Secures API keys in Cloud Functions
@@ -46,6 +48,7 @@
 - [ ] Includes proper documentation and comments
 
 ### Development Workflow Compliance
+
 - [ ] Passes appropriate phase gate requirements
 - [ ] Includes mandatory testing scenarios
 - [ ] Meets quality gate performance targets
@@ -66,6 +69,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -114,10 +118,9 @@ directories captured above]
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+_Fill ONLY if Constitution Check has violations that must be justified_
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
-
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

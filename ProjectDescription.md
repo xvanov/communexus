@@ -64,17 +64,11 @@ Core Pain Points
 Required AI Features (All 5)
 Advanced Features (Only 1)
 Remote Team Professional
-Persona	Who They Are	Core Pain Points	Required AI Features (All 5)	Advanced Features (Only 1)
-Service Business Operator	Independent property managers, landlords, or small-business contractors who coordinate with tenants, clients, and vendors through text, email, and phone.	"• Fragmented communication across SMS, email, and chat apps 
-• Missed messages or decisions due to context overload 
-• Manual follow-ups and lost task tracking 
-• Difficulty organizing documentation and agreements"	"1. Thread Summarization: Condenses long tenant or client conversations into key points.
-2. Action Item Extraction: Identifies to-dos such as “schedule plumber” or “collect rent.”
-3. Smart Search: Retrieves any message or attachment by intent or keyword across all channels.
-4. Priority Message Detection: Flags urgent issues (e.g., leaks, payment delays).
-5. Decision Tracking: Records agreements or instructions for easy reference and dispute protection."	A) Proactive Assistant: Detects follow-up needs (e.g., rent reminders, maintenance confirmations) and automatically drafts or schedules responses.
-
-
+Persona Who They Are Core Pain Points Required AI Features (All 5) Advanced Features (Only 1)
+Service Business Operator Independent property managers, landlords, or small-business contractors who coordinate with tenants, clients, and vendors through text, email, and phone. "• Fragmented communication across SMS, email, and chat apps
+• Missed messages or decisions due to context overload
+• Manual follow-ups and lost task tracking
+• Difficulty organizing documentation and agreements" "1. Thread Summarization: Condenses long tenant or client conversations into key points. 2. Action Item Extraction: Identifies to-dos such as “schedule plumber” or “collect rent.” 3. Smart Search: Retrieves any message or attachment by intent or keyword across all channels. 4. Priority Message Detection: Flags urgent issues (e.g., leaks, payment delays). 5. Decision Tracking: Records agreements or instructions for easy reference and dispute protection." A) Proactive Assistant: Detects follow-up needs (e.g., rent reminders, maintenance confirmations) and automatically drafts or schedules responses.
 
 AI Features Implementation
 All AI features should be built using LLMs (like GPT-4 or Claude), function calling/tool use, and RAG pipelines for accessing conversation history. This is not about training ML models—it's about leveraging existing AI capabilities through prompting and tool integration.
@@ -154,7 +148,6 @@ Submit the following by Sunday 10:59 PM CT:
 GitHub Repository - with comprehensive README with setup instructions
 Demo Video (5-7 minutes) showing:
 
-
 Real-time messaging between two devices
 Group chat with 3+ participants
 Offline scenario (go offline, receive messages, come online)
@@ -163,20 +156,17 @@ All 5 required AI features in action with clear examples
 Your advanced AI capability with specific use cases
 Deployed Application:
 
-
 iOS: TestFlight link
 Android: APK download link or Google Play internal testing link
 React Native: Expo Go link
 Note: If deployment is blocked, provide detailed local setup instructions.
-Persona Brainlift  - 1-page document explaining:
-
+Persona Brainlift - 1-page document explaining:
 
 Your chosen persona and why
 Their specific pain points you're addressing
 How each AI feature solves a real problem
 Key technical decisions you made
 Social Post - Share your project on X (Twitter) or LinkedIn with:
-
 
 Brief description of what you built (2-3 sentences)
 Key features and your chosen persona
@@ -188,4 +178,3 @@ Remember: WhatsApp was built by two developers in months. With modern AI coding 
 The closer you get to that experience, the more you'll understand what it takes to build the next generation of messaging apps.
 A simple, reliable messaging app with truly useful AI features beats any feature-rich app with flaky message delivery or gimmicky AI.
 Build something people would actually want to use every day.
-

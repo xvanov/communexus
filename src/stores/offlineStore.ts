@@ -1,11 +1,12 @@
 // offlineStore.ts - Pending messages queue
 // TODO: Implement offline state store
 import { create } from 'zustand';
+import { Message } from '../types/Message';
 
 interface OfflineState {
-  pendingMessages: any[];
+  pendingMessages: Message[];
   isOffline: boolean;
-  addPendingMessage: (message: any) => void;
+  addPendingMessage: (message: Message) => void;
   removePendingMessage: (messageId: string) => void;
   setOfflineStatus: (isOffline: boolean) => void;
 }
@@ -13,15 +14,15 @@ interface OfflineState {
 export const useOfflineStore = create<OfflineState>(set => ({
   pendingMessages: [],
   isOffline: false,
-  addPendingMessage: message =>
+  addPendingMessage: (message: Message) =>
     set(state => ({
       pendingMessages: [...state.pendingMessages, message],
     })),
-  removePendingMessage: messageId =>
+  removePendingMessage: (messageId: string) =>
     set(state => ({
       pendingMessages: state.pendingMessages.filter(
         msg => msg.id !== messageId
       ),
     })),
-  setOfflineStatus: isOffline => set({ isOffline }),
+  setOfflineStatus: (isOffline: boolean) => set({ isOffline }),
 }));

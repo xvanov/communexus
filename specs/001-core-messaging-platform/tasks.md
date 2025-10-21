@@ -1,5 +1,5 @@
 ---
-description: "Task list template for feature implementation"
+description: 'Task list template for feature implementation'
 ---
 
 # Tasks: Communexus Core Messaging Platform
@@ -12,11 +12,13 @@ description: "Task list template for feature implementation"
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
+
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
+
 - **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
@@ -51,6 +53,9 @@ description: "Task list template for feature implementation"
 - [ ] T014 [P] Implement basic CRUD operations for core entities
 - [ ] T015 Setup Firebase Cloud Messaging (FCM) for push notifications
 - [ ] T016 [P] Configure Expo SQLite for local data persistence
+- [ ] T017 [P] Setup Firebase Hosting for web app deployment
+- [ ] T018 [P] Configure EAS Build for mobile app updates
+- [ ] T019 [P] Setup environment-specific deployments (staging/production)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

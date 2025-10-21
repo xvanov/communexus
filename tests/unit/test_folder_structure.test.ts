@@ -39,7 +39,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
         expect(existsSync(screensDir)).toBe(true);
       });
 
-      requiredScreens.forEach((screen) => {
+      requiredScreens.forEach(screen => {
         it(`should have ${screen}`, () => {
           expect(existsSync(join(screensDir, screen))).toBe(true);
         });
@@ -54,7 +54,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
         expect(existsSync(componentsDir)).toBe(true);
       });
 
-      requiredComponentDirs.forEach((dir) => {
+      requiredComponentDirs.forEach(dir => {
         it(`should have components/${dir}/ directory`, () => {
           expect(existsSync(join(componentsDir, dir))).toBe(true);
         });
@@ -76,7 +76,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
         expect(existsSync(servicesDir)).toBe(true);
       });
 
-      requiredServices.forEach((service) => {
+      requiredServices.forEach(service => {
         it(`should have services/${service}`, () => {
           expect(existsSync(join(servicesDir, service))).toBe(true);
         });
@@ -97,7 +97,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
         expect(existsSync(hooksDir)).toBe(true);
       });
 
-      requiredHooks.forEach((hook) => {
+      requiredHooks.forEach(hook => {
         it(`should have hooks/${hook}`, () => {
           expect(existsSync(join(hooksDir, hook))).toBe(true);
         });
@@ -106,13 +106,17 @@ describe('T007: Folder Structure per Architecture Plan', () => {
 
     describe('Stores Directory', () => {
       const storesDir = join(projectRoot, 'src/stores');
-      const requiredStores = ['userStore.ts', 'chatStore.ts', 'offlineStore.ts'];
+      const requiredStores = [
+        'userStore.ts',
+        'chatStore.ts',
+        'offlineStore.ts',
+      ];
 
       it('should have stores/ directory', () => {
         expect(existsSync(storesDir)).toBe(true);
       });
 
-      requiredStores.forEach((store) => {
+      requiredStores.forEach(store => {
         it(`should have stores/${store}`, () => {
           expect(existsSync(join(storesDir, store))).toBe(true);
         });
@@ -121,13 +125,18 @@ describe('T007: Folder Structure per Architecture Plan', () => {
 
     describe('Types Directory', () => {
       const typesDir = join(projectRoot, 'src/types');
-      const requiredTypes = ['User.ts', 'Thread.ts', 'Message.ts', 'AIFeatures.ts'];
+      const requiredTypes = [
+        'User.ts',
+        'Thread.ts',
+        'Message.ts',
+        'AIFeatures.ts',
+      ];
 
       it('should have types/ directory', () => {
         expect(existsSync(typesDir)).toBe(true);
       });
 
-      requiredTypes.forEach((type) => {
+      requiredTypes.forEach(type => {
         it(`should have types/${type}`, () => {
           expect(existsSync(join(typesDir, type))).toBe(true);
         });
@@ -136,13 +145,17 @@ describe('T007: Folder Structure per Architecture Plan', () => {
 
     describe('Utils Directory', () => {
       const utilsDir = join(projectRoot, 'src/utils');
-      const requiredUtils = ['dateFormat.ts', 'messageHelpers.ts', 'validation.ts'];
+      const requiredUtils = [
+        'dateFormat.ts',
+        'messageHelpers.ts',
+        'validation.ts',
+      ];
 
       it('should have utils/ directory', () => {
         expect(existsSync(utilsDir)).toBe(true);
       });
 
-      requiredUtils.forEach((util) => {
+      requiredUtils.forEach(util => {
         it(`should have utils/${util}`, () => {
           expect(existsSync(join(utilsDir, util))).toBe(true);
         });
@@ -167,7 +180,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
         expect(existsSync(functionsSrcDir)).toBe(true);
       });
 
-      requiredFunctions.forEach((func) => {
+      requiredFunctions.forEach(func => {
         it(`should have functions/src/${func}`, () => {
           expect(existsSync(join(functionsSrcDir, func))).toBe(true);
         });
@@ -176,11 +189,15 @@ describe('T007: Folder Structure per Architecture Plan', () => {
 
     describe('Functions Configuration', () => {
       it('should have functions/package.json', () => {
-        expect(existsSync(join(projectRoot, 'functions/package.json'))).toBe(true);
+        expect(existsSync(join(projectRoot, 'functions/package.json'))).toBe(
+          true
+        );
       });
 
       it('should have functions/tsconfig.json', () => {
-        expect(existsSync(join(projectRoot, 'functions/tsconfig.json'))).toBe(true);
+        expect(existsSync(join(projectRoot, 'functions/tsconfig.json'))).toBe(
+          true
+        );
       });
     });
   });
@@ -188,7 +205,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
   describe('Test Structure (tests/)', () => {
     const testDirs = ['contract', 'integration', 'unit'];
 
-    testDirs.forEach((dir) => {
+    testDirs.forEach(dir => {
       it(`should have tests/${dir}/ directory`, () => {
         expect(existsSync(join(projectRoot, 'tests', dir))).toBe(true);
       });
@@ -203,7 +220,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
       expect(existsSync(specsDir)).toBe(true);
     });
 
-    requiredDocs.forEach((doc) => {
+    requiredDocs.forEach(doc => {
       it(`should have specs/001-core-messaging-platform/${doc}`, () => {
         expect(existsSync(join(specsDir, doc))).toBe(true);
       });
@@ -223,7 +240,7 @@ describe('T007: Folder Structure per Architecture Plan', () => {
       '.prettierignore',
     ];
 
-    requiredConfigFiles.forEach((file) => {
+    requiredConfigFiles.forEach(file => {
       it(`should have ${file}`, () => {
         expect(existsSync(join(projectRoot, file))).toBe(true);
       });

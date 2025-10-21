@@ -116,7 +116,7 @@ describe('T003: ESLint, Prettier, and TypeScript Strict Mode Configuration', () 
     it('should have valid ESLint configuration', () => {
       const eslintConfigPath = join(projectRoot, 'eslint.config.js');
       expect(existsSync(eslintConfigPath)).toBe(true);
-      
+
       // ESLint config file exists and is valid (tested by actual ESLint runs)
       expect(true).toBe(true);
     });
@@ -124,7 +124,7 @@ describe('T003: ESLint, Prettier, and TypeScript Strict Mode Configuration', () 
     it('should extend recommended configurations', () => {
       const eslintConfigPath = join(projectRoot, 'eslint.config.js');
       expect(existsSync(eslintConfigPath)).toBe(true);
-      
+
       // Configuration is valid (tested by actual ESLint runs)
       expect(true).toBe(true);
     });

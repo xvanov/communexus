@@ -1,12 +1,14 @@
 // messaging.ts - Send/receive messages with Firestore real-time listeners
 // TODO: Implement real-time messaging with optimistic UI updates
-export const sendMessage = async (_message: any) => {
+import { Message } from '../types/Message';
+
+export const sendMessage = async (_message: Message) => {
   // TODO: Implement message sending
 };
 
 export const subscribeToMessages = (
   _threadId: string,
-  _callback: (messages: any[]) => void
+  _callback: (messages: Message[]) => void
 ) => {
   // TODO: Implement real-time message subscription
 };

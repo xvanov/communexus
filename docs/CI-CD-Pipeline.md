@@ -7,26 +7,37 @@ This project includes a comprehensive GitHub Actions CI/CD pipeline that automat
 ## Pipeline Jobs
 
 ### 1. Test Suite (`test`)
+
 - **Triggers**: Every push and pull request
 - **Runs**: ESLint, Prettier, TypeScript type checking, Jest tests
 - **Artifacts**: Test results and coverage reports
 
 ### 2. Build Project (`build`)
+
 - **Triggers**: After successful test completion
 - **Runs**: Firebase Functions build, Expo project build
 - **Artifacts**: Build artifacts for deployment
 
-### 3. Deploy Firebase Functions (`deploy-firebase`)
+### 3. Deploy Firebase Services (`deploy-firebase`)
+
 - **Triggers**: Only on pushes to `main` branch
-- **Runs**: Firebase Functions deployment
+- **Runs**: Firebase Functions, Firestore rules, Storage rules, Hosting, EAS Build
+- **Requirements**: `FIREBASE_TOKEN` and `EXPO_TOKEN` secrets must be configured
+
+### 4. Deploy to Staging (`deploy-staging`)
+
+- **Triggers**: Only on pushes to `develop` branch
+- **Runs**: Firebase Functions, Firestore rules, Storage rules to staging environment
 - **Requirements**: `FIREBASE_TOKEN` secret must be configured
 
-### 4. Security Scan (`security-scan`)
+### 5. Security Scan (`security-scan`)
+
 - **Triggers**: Every push and pull request
 - **Runs**: npm audit, CodeQL analysis
 - **Purpose**: Identify security vulnerabilities
 
-### 5. Notify Status (`notify`)
+### 6. Notify Status (`notify`)
+
 - **Triggers**: After all other jobs complete
 - **Purpose**: Provide status notifications
 
@@ -36,29 +47,40 @@ Configure these secrets in your GitHub repository settings:
 
 - `FIREBASE_TOKEN`: Firebase CLI token for deployment
   - Generate with: `firebase login:ci`
-  - Required for: Firebase Functions deployment
+  - Required for: Firebase Functions, Firestore rules, Storage rules, Hosting deployment
+
+- `EXPO_TOKEN`: Expo CLI token for mobile app builds
+  - Generate with: `eas login`
+  - Required for: EAS Build mobile app updates
 
 ## Pipeline Features
 
 ### Code Quality Gates
+
 - **ESLint**: Code linting with React Native rules
 - **Prettier**: Code formatting validation
 - **TypeScript**: Strict type checking
 - **Jest**: Unit test execution
 
 ### Security Features
+
 - **npm audit**: Dependency vulnerability scanning
 - **CodeQL**: Static code analysis for security issues
 - **Secret management**: Secure handling of sensitive data
 
 ### Deployment Features
-- **Conditional deployment**: Only deploys from `main` branch
+
+- **Conditional deployment**: Only deploys from `main` branch to production
+- **Staging deployment**: Deploys from `develop` branch to staging environment
 - **Artifact management**: Build artifacts preserved for debugging
 - **Rollback capability**: Previous builds available for rollback
+- **Automatic app updates**: Mobile app builds and updates automatically on merge to main
+- **Multi-service deployment**: Functions, Firestore rules, Storage rules, Hosting, and mobile app
 
 ## Local Development
 
 ### Pre-commit Checks
+
 Run these commands locally before pushing:
 
 ```bash
@@ -75,6 +97,7 @@ npm run build
 ```
 
 ### CI/CD Testing
+
 Test the pipeline locally using GitHub Actions CLI:
 
 ```bash
@@ -98,11 +121,13 @@ The pipeline is configured in `.github/workflows/ci-cd.yml` and includes:
 ## Monitoring
 
 ### Pipeline Status
+
 - View pipeline runs in GitHub Actions tab
 - Monitor job status and logs
 - Set up notifications for failures
 
 ### Metrics
+
 - Test coverage reports
 - Build time tracking
 - Deployment success rates

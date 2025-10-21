@@ -12,12 +12,9 @@ module.exports = {
     '/lib/**/*', // Ignore built files.
     '.eslintrc.js', // Ignore this config file
   ],
-  plugins: [
-    '@typescript-eslint',
-    'import',
-  ],
+  plugins: ['@typescript-eslint', 'import'],
   rules: {
-    'quotes': ['error', 'single'],
+    quotes: ['error', 'single'],
     'import/no-unresolved': 0,
   },
 };

@@ -21,11 +21,11 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
     it('should have test job configuration', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       expect(existsSync(workflowFile)).toBe(true);
-      
+
       // Read and verify workflow content
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('test:');
       expect(workflowContent).toContain('Test Suite');
       expect(workflowContent).toContain('npm run lint');
@@ -38,7 +38,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('build:');
       expect(workflowContent).toContain('Build Project');
       expect(workflowContent).toContain('needs: test');
@@ -50,10 +50,10 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('deploy-firebase:');
       expect(workflowContent).toContain('Deploy Firebase Functions');
-      expect(workflowContent).toContain('if: github.ref == \'refs/heads/main\'');
+      expect(workflowContent).toContain("if: github.ref == 'refs/heads/main'");
       expect(workflowContent).toContain('firebase deploy --only functions');
     });
 
@@ -61,7 +61,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('security-scan:');
       expect(workflowContent).toContain('Security Scan');
       expect(workflowContent).toContain('npm audit');
@@ -74,19 +74,19 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('on:');
       expect(workflowContent).toContain('push:');
-      expect(workflowContent).toContain('branches: [ main, develop ]');
+      expect(workflowContent).toContain('branches: [main, develop]');
     });
 
     it('should trigger on pull requests to main branch', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('pull_request:');
-      expect(workflowContent).toContain('branches: [ main ]');
+      expect(workflowContent).toContain('branches: [main]');
     });
   });
 
@@ -95,7 +95,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('Run ESLint');
       expect(workflowContent).toContain('Check Prettier formatting');
       expect(workflowContent).toContain('Run TypeScript type checking');
@@ -105,7 +105,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('Run Jest tests');
       expect(workflowContent).toContain('Upload test results');
     });
@@ -114,7 +114,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('Build Firebase Functions');
       expect(workflowContent).toContain('Build Expo project');
       expect(workflowContent).toContain('Upload build artifacts');
@@ -124,7 +124,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('Setup Firebase CLI');
       expect(workflowContent).toContain('Deploy Firebase Functions');
       expect(workflowContent).toContain('FIREBASE_TOKEN');
@@ -136,7 +136,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('secrets.FIREBASE_TOKEN');
       expect(workflowContent).toContain('${{ secrets.FIREBASE_TOKEN }}');
     });
@@ -145,7 +145,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('npm audit');
       expect(workflowContent).toContain('codeql-action');
     });
@@ -156,10 +156,12 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
-      
+
       expect(workflowContent).toContain('needs: test');
       expect(workflowContent).toContain('needs: [test, build]');
-      expect(workflowContent).toContain('needs: [test, build, deploy-firebase, security-scan]');
+      expect(workflowContent).toContain(
+        'needs: [test, build, deploy-firebase, deploy-staging, security-scan]'
+      );
     });
   });
 });

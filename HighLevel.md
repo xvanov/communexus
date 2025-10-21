@@ -63,11 +63,11 @@ Payment systems (Stripe, QuickBooks)
 AI assistant layer for summarization, sentiment, intent extraction
 
 ⚙️ Example use cases
-Industry	Use	Example
-Property management	SMS tenants + email vendors + log maintenance chats	“Rent reminder” or “Plumber arriving tomorrow”
-Contractors	Centralize client messages, subcontractor updates	“Tile delivery delayed – see thread”
-Sales / CRM	Auto-log text/email with leads	“Conversation history” synced to HubSpot
-Field services	Job updates via SMS but logged to app	“Tech en route” notifications
+Industry Use Example
+Property management SMS tenants + email vendors + log maintenance chats “Rent reminder” or “Plumber arriving tomorrow”
+Contractors Centralize client messages, subcontractor updates “Tile delivery delayed – see thread”
+Sales / CRM Auto-log text/email with leads “Conversation history” synced to HubSpot
+Field services Job updates via SMS but logged to app “Tech en route” notifications
 🔐 Legal / compliance layer (critical)
 
 TCPA / A2P 10DLC handling

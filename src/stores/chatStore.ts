@@ -1,19 +1,20 @@
 // chatStore.ts - Active thread and draft messages
 // TODO: Implement chat state store
 import { create } from 'zustand';
+import { Thread } from '../types/Thread';
 
 interface ChatState {
-  activeThread: any | null;
+  activeThread: Thread | null;
   draftMessages: Record<string, string>;
-  setActiveThread: (thread: any) => void;
+  setActiveThread: (thread: Thread) => void;
   setDraftMessage: (threadId: string, message: string) => void;
 }
 
 export const useChatStore = create<ChatState>(set => ({
   activeThread: null,
   draftMessages: {},
-  setActiveThread: thread => set({ activeThread: thread }),
-  setDraftMessage: (threadId, message) =>
+  setActiveThread: (thread: Thread) => set({ activeThread: thread }),
+  setDraftMessage: (threadId: string, message: string) =>
     set(state => ({
       draftMessages: { ...state.draftMessages, [threadId]: message },
     })),

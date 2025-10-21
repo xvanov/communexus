@@ -37,10 +37,10 @@ export default [
     },
     plugins: {
       '@typescript-eslint': typescript,
-      'react': react,
+      react: react,
       'react-hooks': reactHooks,
       'react-native': reactNative,
-      'prettier': prettier,
+      prettier: prettier,
     },
     rules: {
       ...typescript.configs.recommended.rules,
@@ -53,7 +53,10 @@ export default [
       'react/prop-types': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-require-imports': 'off',
       'react-native/no-unused-styles': 'error',

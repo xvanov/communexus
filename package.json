@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered messaging app for contractors and service business operators",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "start": "expo start",
@@ -30,7 +31,8 @@
     "react": "^19.1.0",
     "react-native": "^0.81.4",
     "react-native-web": "^0.21.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
