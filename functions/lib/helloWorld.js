@@ -7,7 +7,7 @@ exports.helloWorld = (0, https_1.onCall)(async (request) => {
     return {
         message: 'Hello from Communexus Firebase Cloud Functions!',
         timestamp: new Date().toISOString(),
-        success: true
+        success: true,
     };
 });
 //# sourceMappingURL=helloWorld.js.map
