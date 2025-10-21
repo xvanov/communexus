@@ -208,3 +208,4 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+*codeql*

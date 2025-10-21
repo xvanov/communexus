@@ -1,9 +1,9 @@
 <!--
 Sync Impact Report:
-Version change: 0.0.0 → 1.0.0 (initial constitution)
-Modified principles: N/A (new constitution)
-Added sections: Core Principles, Technical Standards, Development Workflow, Governance
-Removed sections: N/A (new constitution)
+Version change: 1.0.0 → 1.1.0 (added CI/CD verification requirement)
+Modified principles: Quality Gates - Added Task Completion Verification requirement
+Added sections: Task Completion Verification (detailed CI/CD pipeline checks)
+Removed sections: N/A
 Templates requiring updates:
   ✅ plan-template.md - Constitution Check section updated
   ⚠ pending - spec-template.md (no constitution references found)
@@ -83,9 +83,19 @@ App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1
 - **User Experience**: Optimistic UI updates, clear status indicators, natural interactions
 - **Documentation**: Clear README, setup instructions, demo video, persona brainlift
 - **CI/CD**: Automated testing, linting, type checking, and deployment on every push/PR
+- **Task Completion Verification**: Before declaring any task complete, ALL CI/CD pipeline checks MUST pass locally:
+  - ESLint (no errors, warnings acceptable)
+  - Prettier formatting check
+  - TypeScript compilation check
+  - Jest test suite (all tests passing)
+  - Firebase Functions build
+  - Expo app build
+  - Security audit (npm audit)
+  - CodeQL analysis (if available locally, otherwise verify CI passes)
+  - Full pipeline simulation must complete successfully
 
 ## Governance
 
 Constitution supersedes all other development practices. Amendments require documentation of impact on rubric scoring and platform evolution path. All PRs must verify compliance with phase requirements and performance targets. Complexity must be justified against assignment scoring criteria.
 
-**Version**: 1.0.0 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19
+**Version**: 1.1.0 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19
