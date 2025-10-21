@@ -87,21 +87,21 @@ jobs:
           key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-functions-
-      
+
       - name: Install Firebase Functions dependencies
         run: |
           cd functions
           npm ci --prefer-offline --no-audit
-          
+
       - name: Build Firebase Functions
         run: |
           cd functions
           npm run build
-          
+
       - name: Build Expo project
         run: |
           npx expo export --platform all
-          
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -145,12 +145,12 @@ jobs:
         run: |
           cd functions
           npm ci --prefer-offline --no-audit
-          
+
       - name: Build Firebase Functions
         run: |
           cd functions
           npm run build
-          
+
       - name: Deploy Firebase Functions
         run: |
           firebase use communexus
@@ -223,12 +223,12 @@ jobs:
         run: |
           cd functions
           npm ci --prefer-offline --no-audit
-          
+
       - name: Build Firebase Functions
         run: |
           cd functions
           npm run build
-          
+
       - name: Deploy to Staging Firebase Project
         run: |
           firebase use staging
