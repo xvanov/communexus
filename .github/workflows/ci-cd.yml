@@ -80,28 +80,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-    - name: Cache Firebase Functions dependencies
-      uses: actions/cache@v4
-      with:
-        path: functions/node_modules
-        key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-functions-
+      - name: Cache Firebase Functions dependencies
+        uses: actions/cache@v4
+        with:
+          path: functions/node_modules
+          key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-functions-
       
-    - name: Install Firebase Functions dependencies
-      run: |
-        cd functions
-        npm ci --prefer-offline --no-audit
-        
-    - name: Build Firebase Functions
-      run: |
-        cd functions
-        npm run build
-
+      - name: Install Firebase Functions dependencies
+        run: |
+          cd functions
+          npm ci --prefer-offline --no-audit
+          
+      - name: Build Firebase Functions
+        run: |
+          cd functions
+          npm run build
+          
       - name: Build Expo project
         run: |
           npx expo export --platform all
-
+          
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
