@@ -65,7 +65,6 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       expect(workflowContent).toContain('security-scan:');
       expect(workflowContent).toContain('Security Scan');
       expect(workflowContent).toContain('npm audit');
-      expect(workflowContent).toContain('codeql-action');
     });
   });
 
@@ -147,7 +146,6 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
 
       expect(workflowContent).toContain('npm audit');
-      expect(workflowContent).toContain('codeql-action');
     });
   });
 

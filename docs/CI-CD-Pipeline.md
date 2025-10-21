@@ -33,8 +33,8 @@ This project includes a comprehensive GitHub Actions CI/CD pipeline that automat
 ### 5. Security Scan (`security-scan`)
 
 - **Triggers**: Every push and pull request
-- **Runs**: npm audit, CodeQL analysis
-- **Purpose**: Identify security vulnerabilities
+- **Runs**: npm audit for dependency vulnerability scanning
+- **Purpose**: Identify security vulnerabilities in dependencies
 
 ### 6. Notify Status (`notify`)
 

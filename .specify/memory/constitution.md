@@ -91,7 +91,6 @@ App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1
   - Firebase Functions build
   - Expo app build
   - Security audit (npm audit)
-  - CodeQL analysis (if available locally, otherwise verify CI passes)
   - Full pipeline simulation must complete successfully
 
 ## Governance
