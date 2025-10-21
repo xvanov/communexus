@@ -4,7 +4,6 @@ export const requestNotificationPermission = async () => {
   // TODO: Implement notification permission request
 };
 
-export const sendPushNotification = async (token: string, message: any) => {
+export const sendPushNotification = async (_token: string, _message: any) => {
   // TODO: Implement push notification sending
 };
-

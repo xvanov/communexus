@@ -4,4 +4,3 @@ export const useThreads = () => {
   // TODO: Implement thread subscription
   return { threads: [], loading: false, error: null };
 };
-

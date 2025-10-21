@@ -13,13 +13,13 @@ describe('T001: Project Structure', () => {
       'src/screens/GroupCreateScreen.tsx',
       'src/screens/SettingsScreen.tsx',
       'src/screens/AssistantScreen.tsx',
-      
+
       // Components directories
       'src/components/chat',
       'src/components/thread',
       'src/components/ai',
       'src/components/common',
-      
+
       // Services
       'src/services/firebase.ts',
       'src/services/auth.ts',
@@ -27,29 +27,29 @@ describe('T001: Project Structure', () => {
       'src/services/storage.ts',
       'src/services/ai.ts',
       'src/services/notifications.ts',
-      
+
       // Hooks
       'src/hooks/useMessages.ts',
       'src/hooks/useThreads.ts',
       'src/hooks/usePresence.ts',
       'src/hooks/useTyping.ts',
       'src/hooks/useOfflineQueue.ts',
-      
+
       // Stores
       'src/stores/userStore.ts',
       'src/stores/chatStore.ts',
       'src/stores/offlineStore.ts',
-      
+
       // Types
       'src/types/User.ts',
       'src/types/Thread.ts',
       'src/types/Message.ts',
       'src/types/AIFeatures.ts',
-      
+
       // Utils
       'src/utils/dateFormat.ts',
       'src/utils/messageHelpers.ts',
-      'src/utils/validation.ts'
+      'src/utils/validation.ts',
     ];
 
     mobileStructure.forEach(path => {
@@ -68,7 +68,7 @@ describe('T001: Project Structure', () => {
       'functions/src/aiPriorityDetection.ts',
       'functions/src/aiSmartSearch.ts',
       'functions/src/aiProactiveAgent.ts',
-      'functions/src/sendNotification.ts'
+      'functions/src/sendNotification.ts',
     ];
 
     backendStructure.forEach(path => {
@@ -80,11 +80,7 @@ describe('T001: Project Structure', () => {
   });
 
   describe('Test Structure', () => {
-    const testStructure = [
-      'tests/contract',
-      'tests/integration',
-      'tests/unit'
-    ];
+    const testStructure = ['tests/contract', 'tests/integration', 'tests/unit'];
 
     testStructure.forEach(path => {
       it(`should have ${path} directory`, () => {
@@ -99,7 +95,7 @@ describe('T001: Project Structure', () => {
       'package.json',
       'tsconfig.json',
       '.env.example',
-      'app.json'
+      'app.json',
     ];
 
     configFiles.forEach(file => {
@@ -110,4 +106,3 @@ describe('T001: Project Structure', () => {
     });
   });
 });
-

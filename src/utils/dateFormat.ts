@@ -9,4 +9,3 @@ export const formatThreadTime = (date: Date): string => {
   // TODO: Implement thread time formatting
   return date.toLocaleDateString();
 };
-

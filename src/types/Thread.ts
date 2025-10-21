@@ -21,4 +21,3 @@ export interface Thread {
   createdAt: Date;
   updatedAt: Date;
 }
-

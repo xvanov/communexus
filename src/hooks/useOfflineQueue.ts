@@ -4,4 +4,3 @@ export const useOfflineQueue = () => {
   // TODO: Implement offline queue management
   return { queue: [], addToQueue: () => {}, processQueue: () => {} };
 };
-

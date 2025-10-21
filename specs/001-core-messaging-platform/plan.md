@@ -11,15 +11,16 @@ Build a production-quality messaging app for contractors with AI-powered feature
 
 ## Technical Context
 
-**Language/Version**: TypeScript 5.0+, React Native (Expo SDK 50+), Node.js 18+  
+**Language/Version**: TypeScript 5.0+, React Native (Expo SDK 54+), Node.js 18+  
 **Primary Dependencies**: Firebase (Firestore, Cloud Functions, Auth, Storage, FCM), OpenAI GPT-4 API, LangChain  
 **Storage**: Firebase Firestore (real-time), Expo SQLite (local cache), Firebase Storage (media)  
-**Testing**: Jest, React Native Testing Library, Firebase Emulator Suite  
+**Testing**: Jest, React Native Testing Library, Firebase Emulator Suite, GitHub Actions CI/CD  
 **Target Platform**: iOS/Android via Expo Go, Firebase Cloud Functions  
 **Project Type**: Mobile + Backend (React Native + Firebase)  
 **Performance Goals**: <200ms message delivery, 60fps scrolling, <2s app launch, <5s AI responses  
 **Constraints**: Offline-capable, sub-200ms real-time delivery, 2+ device testing required  
 **Scale/Scope**: 1000+ concurrent users, 50+ screens, multi-project support  
+**CI/CD**: GitHub Actions pipeline for automated testing, building, and deployment  
 
 ## Constitution Check
 
@@ -145,11 +146,13 @@ tests/
 - Create folder structure per architecture plan
 - Configure environment variables and .env.example
 - Set up Git repository with proper .gitignore
+- Setup GitHub Actions CI/CD pipeline for automated testing and deployment
 
 **Deliverables**:
 - Working Expo project that builds and runs
 - Firebase project with Firestore, Auth, Storage, Functions, FCM enabled
 - Development environment ready for team collaboration
+- CI/CD pipeline with automated testing, linting, and deployment
 
 ---
 

@@ -9,12 +9,12 @@ interface ChatState {
   setDraftMessage: (threadId: string, message: string) => void;
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>(set => ({
   activeThread: null,
   draftMessages: {},
-  setActiveThread: (thread) => set({ activeThread: thread }),
-  setDraftMessage: (threadId, message) => set((state) => ({
-    draftMessages: { ...state.draftMessages, [threadId]: message }
-  })),
+  setActiveThread: thread => set({ activeThread: thread }),
+  setDraftMessage: (threadId, message) =>
+    set(state => ({
+      draftMessages: { ...state.draftMessages, [threadId]: message },
+    })),
 }));
-

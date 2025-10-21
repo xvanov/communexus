@@ -35,4 +35,3 @@ export interface ActionItem {
   status: 'pending' | 'completed';
   createdAt: Date;
 }
-

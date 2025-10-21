@@ -3,4 +3,3 @@
 export const initializeFirebase = () => {
   // TODO: Implement Firebase initialization
 };
-

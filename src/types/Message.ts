@@ -20,4 +20,3 @@ export interface Message {
   isDecision?: boolean;
   deleted: boolean;
 }
-

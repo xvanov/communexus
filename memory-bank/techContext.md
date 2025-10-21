@@ -4,7 +4,7 @@
 
 ### Mobile Development
 - **React Native**: Cross-platform mobile development
-- **Expo SDK 50+**: Development platform and tooling
+- **Expo SDK 54**: Development platform and tooling (upgraded from SDK 50)
 - **TypeScript 5.0+**: Type-safe JavaScript with strict mode
 - **Expo Router**: File-based navigation system
 
@@ -92,11 +92,11 @@ npm test
 ### Core Dependencies
 ```json
 {
-  "expo": "~50.0.0",
-  "react": "18.2.0",
-  "react-native": "0.73.0",
+  "expo": "~54.0.0",
+  "react": "^19.1.0",
+  "react-native": "^0.81.4",
   "typescript": "^5.0.0",
-  "@expo/vector-icons": "^14.0.0",
+  "@expo/vector-icons": "^15.0.2",
   "expo-sqlite": "~13.0.0",
   "expo-notifications": "~0.27.0"
 }
@@ -131,20 +131,21 @@ npm test
 ## Development Tools
 
 ### Code Quality
-- **ESLint**: Code linting with React Native rules
-- **Prettier**: Code formatting
-- **TypeScript Strict**: Strict type checking
-- **Husky**: Git hooks for quality gates
+- **ESLint**: Code linting with React Native rules (v9 with modern config)
+- **Prettier**: Code formatting with integration
+- **TypeScript Strict**: Strict type checking with enhanced options
+- **GitHub Actions**: CI/CD pipeline for automated testing and deployment
 
 ### Testing
-- **Jest**: Unit testing framework
+- **Jest**: Unit testing framework with TypeScript support
 - **React Native Testing Library**: Component testing
 - **Firebase Emulator Suite**: Local Firebase testing
+- **CI/CD Pipeline**: Automated testing on every push/PR
 
 ### Deployment
 - **Expo Go**: Development and testing
 - **Firebase Hosting**: Cloud Functions deployment
-- **GitHub Actions**: CI/CD pipeline (future)
+- **GitHub Actions**: CI/CD pipeline with automated testing, building, and deployment
 
 ## Security Considerations
 

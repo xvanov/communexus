@@ -9,4 +9,3 @@ export const validateMessage = (text: string): boolean => {
   // TODO: Implement message validation
   return text.trim().length > 0;
 };
-

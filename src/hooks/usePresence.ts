@@ -4,4 +4,3 @@ export const usePresence = () => {
   // TODO: Implement presence tracking
   return { isOnline: true, lastSeen: null };
 };
-

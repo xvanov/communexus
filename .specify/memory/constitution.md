@@ -33,11 +33,12 @@ App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1
 ## Technical Standards
 
 ### Technology Stack Requirements
-- **Mobile**: React Native (Expo SDK 50+), TypeScript strict mode
+- **Mobile**: React Native (Expo SDK 54+), TypeScript strict mode
 - **Backend**: Firebase (Firestore, Cloud Functions, Auth, Storage, FCM)
 - **AI**: OpenAI GPT-4 API via Cloud Functions, LangChain for Proactive Assistant
 - **State**: Zustand for global state, React Query for server state
 - **Testing**: Physical devices required, Expo Go for distribution
+- **CI/CD**: GitHub Actions pipeline for automated testing, building, and deployment
 
 ### Code Organization
 - **Structure**: Modular architecture with clear separation between core engine, business logic, and UI
@@ -70,6 +71,7 @@ App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1
 - **Reliability**: Zero message loss, graceful error handling, offline resilience
 - **User Experience**: Optimistic UI updates, clear status indicators, natural interactions
 - **Documentation**: Clear README, setup instructions, demo video, persona brainlift
+- **CI/CD**: Automated testing, linting, type checking, and deployment on every push/PR
 
 ## Governance
 
