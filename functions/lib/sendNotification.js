@@ -4,7 +4,7 @@ exports.sendNotification = void 0;
 // sendNotification.ts - Push notification Cloud Function
 // TODO: Implement Firebase Cloud Messaging for push notifications
 const https_1 = require("firebase-functions/v2/https");
-exports.sendNotification = (0, https_1.onCall)(async (request) => {
+exports.sendNotification = (0, https_1.onCall)(async (_request) => {
     // TODO: Implement push notification sending
     return { success: true };
 });

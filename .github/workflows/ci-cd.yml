@@ -80,19 +80,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Cache Firebase Functions dependencies
-        uses: actions/cache@v4
-        with:
-          path: functions/node_modules
-          key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-functions-
-
-      - name: Build Firebase Functions
-        run: |
-          cd functions
-          npm ci
-          npm run build
+    - name: Cache Firebase Functions dependencies
+      uses: actions/cache@v4
+      with:
+        path: functions/node_modules
+        key: ${{ runner.os }}-functions-${{ hashFiles('functions/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-functions-
+      
+    - name: Install Firebase Functions dependencies
+      run: |
+        cd functions
+        npm ci --prefer-offline --no-audit
+        
+    - name: Build Firebase Functions
+      run: |
+        cd functions
+        npm run build
 
       - name: Build Expo project
         run: |
@@ -137,11 +141,18 @@ jobs:
       - name: Setup Expo CLI
         run: npm install -g @expo/cli eas-cli
 
-      - name: Deploy Firebase Functions
+      - name: Install Firebase Functions dependencies
         run: |
           cd functions
-          npm ci
+          npm ci --prefer-offline --no-audit
+          
+      - name: Build Firebase Functions
+        run: |
+          cd functions
           npm run build
+          
+      - name: Deploy Firebase Functions
+        run: |
           firebase use communexus
           firebase deploy --only functions --token ${{ secrets.FIREBASE_TOKEN }}
         env:
@@ -170,9 +181,15 @@ jobs:
 
       - name: Build and Deploy Mobile App (EAS)
         run: |
-          eas build --platform all --non-interactive --no-wait
+          eas build --platform all --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Notify Mobile Build Completion
+        run: |
+          echo "📱 Mobile app build completed successfully!"
+          echo "🚀 Your app is ready for installation/update"
+          echo "📲 Check EAS dashboard for build details and QR codes"
 
   deploy-staging:
     name: Deploy to Staging
@@ -202,11 +219,18 @@ jobs:
       - name: Setup Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Deploy to Staging Firebase Project
+      - name: Install Firebase Functions dependencies
         run: |
           cd functions
-          npm ci
+          npm ci --prefer-offline --no-audit
+          
+      - name: Build Firebase Functions
+        run: |
+          cd functions
           npm run build
+          
+      - name: Deploy to Staging Firebase Project
+        run: |
           firebase use staging
           firebase deploy --only functions,firestore:rules,storage --token ${{ secrets.FIREBASE_TOKEN }}
         env:
@@ -246,6 +270,10 @@ jobs:
       - name: Notify Production Deployment
         if: ${{ needs.deploy-firebase.result == 'success' }}
         run: echo "🚀 Production deployment successful! App updated automatically."
+
+      - name: Notify Mobile Build Completion
+        if: ${{ needs.deploy-firebase.result == 'success' }}
+        run: echo "📱 Mobile app build completed! Check EAS dashboard for installation links."
 
       - name: Notify Staging Deployment
         if: ${{ needs.deploy-staging.result == 'success' }}
