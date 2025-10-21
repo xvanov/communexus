@@ -1,50 +1,78 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- 
+Sync Impact Report:
+Version change: 0.0.0 → 1.0.0 (initial constitution)
+Modified principles: N/A (new constitution)
+Added sections: Core Principles, Technical Standards, Development Workflow, Governance
+Removed sections: N/A (new constitution)
+Templates requiring updates: 
+  ✅ plan-template.md - Constitution Check section updated
+  ⚠ pending - spec-template.md (no constitution references found)
+  ⚠ pending - tasks-template.md (no constitution references found)
+Follow-up TODOs: None
+-->
+
+# Communexus Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Assignment-First Development (NON-NEGOTIABLE)
+Every feature MUST directly contribute to achieving 90+ points on the GauntletAI MessageAI project rubric. Features that don't score points are deferred to Phase 3. The MVP gate (24-hour requirement) takes absolute priority over all other considerations. All development decisions must be justified against rubric scoring criteria.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Three-Phase Architecture
+Development MUST follow the three-phase approach: Phase 1 (MVP Gate), Phase 2 (Assignment Submission), Phase 3 (Platform Evolution). Each phase has distinct goals and deliverables. Phase 1 focuses on core messaging infrastructure, Phase 2 adds AI features for scoring, Phase 3 evolves into embeddable multi-channel platform. No phase can be skipped or merged.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Real-Time Messaging Excellence
+Message delivery MUST achieve sub-200ms latency on good networks. Offline support MUST queue messages locally and sync seamlessly on reconnection. Group chat MUST support 3+ users with clear attribution and read receipts. All messaging features MUST be tested on 2+ physical devices before submission.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. AI Feature Integration
+All 5 required AI features MUST be implemented: Thread Summarization, Action Item Extraction, Smart Search, Priority Message Detection, Decision Tracking. The Proactive Assistant MUST use LangChain agent framework for advanced capability scoring. AI features MUST have <5s response times and natural user interactions.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Mobile-First Performance
+App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1000+ messages using FlashList. Lifecycle handling MUST gracefully manage background/foreground transitions without message loss. Push notifications MUST work when app is closed.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technical Standards
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Technology Stack Requirements
+- **Mobile**: React Native (Expo SDK 50+), TypeScript strict mode
+- **Backend**: Firebase (Firestore, Cloud Functions, Auth, Storage, FCM)
+- **AI**: OpenAI GPT-4 API via Cloud Functions, LangChain for Proactive Assistant
+- **State**: Zustand for global state, React Query for server state
+- **Testing**: Physical devices required, Expo Go for distribution
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Code Organization
+- **Structure**: Modular architecture with clear separation between core engine, business logic, and UI
+- **Folder Layout**: `/src/core` (future SDK), `/src/business` (persona logic), `/src/ui` (presentation)
+- **Documentation**: All code MUST be well-commented with TODO markers for extensions
+- **Environment**: API keys MUST be secured in Cloud Functions, never exposed in mobile app
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Data Schema Compliance
+- **Users**: Must include presence tracking (online, lastSeen, typing)
+- **Threads**: Must support group chat with participant details and unread counts
+- **Messages**: Must track delivery status (sending/sent/delivered/read) with timestamps
+- **AI Features**: Must store summaries, decisions, and action items with metadata
+
+## Development Workflow
+
+### Phase Gate Requirements
+- **Phase 1 Gate**: All 10 core messaging features functional, tested on 2+ devices
+- **Phase 2 Gate**: 90+ rubric points achieved, demo video complete, all deliverables submitted
+- **Phase 3 Gate**: Multi-channel integration working, SDK extraction possible
+
+### Testing Mandates
+- **Real-Time Test**: Two devices messaging with <200ms delivery
+- **Offline Test**: 5 messages queued offline, all deliver on reconnect
+- **Lifecycle Test**: Background/foreground transitions without message loss
+- **Group Test**: 3+ users with clear attribution and read receipts
+- **AI Test**: All 5 features working with <5s response times
+
+### Quality Gates
+- **Performance**: 60 FPS scrolling, <2s launch, sub-200ms messaging
+- **Reliability**: Zero message loss, graceful error handling, offline resilience
+- **User Experience**: Optimistic UI updates, clear status indicators, natural interactions
+- **Documentation**: Clear README, setup instructions, demo video, persona brainlift
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other development practices. Amendments require documentation of impact on rubric scoring and platform evolution path. All PRs must verify compliance with phase requirements and performance targets. Complexity must be justified against assignment scoring criteria.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19

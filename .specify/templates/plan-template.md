@@ -31,7 +31,25 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Assignment-First Development Compliance
+- [ ] Feature directly contributes to 90+ rubric points
+- [ ] Aligns with three-phase architecture (MVP → Assignment → Platform)
+- [ ] Supports real-time messaging excellence requirements
+- [ ] Integrates with AI feature requirements
+- [ ] Meets mobile-first performance standards
+
+### Technical Standards Compliance
+- [ ] Uses approved technology stack (React Native + Firebase + OpenAI)
+- [ ] Follows modular architecture with clear separation
+- [ ] Secures API keys in Cloud Functions
+- [ ] Complies with data schema requirements
+- [ ] Includes proper documentation and comments
+
+### Development Workflow Compliance
+- [ ] Passes appropriate phase gate requirements
+- [ ] Includes mandatory testing scenarios
+- [ ] Meets quality gate performance targets
+- [ ] Supports incremental delivery strategy
 
 ## Project Structure
 
