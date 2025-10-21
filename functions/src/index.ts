@@ -1,9 +1,9 @@
 // index.ts - All Cloud Function exports
 // TODO: Export all Cloud Functions
-export { helloWorld } from './helloWorld';
-export { aiThreadSummary } from './aiThreadSummary';
-export { aiActionExtraction } from './aiActionExtraction';
-export { aiPriorityDetection } from './aiPriorityDetection';
-export { aiSmartSearch } from './aiSmartSearch';
-export { aiProactiveAgent } from './aiProactiveAgent';
-export { sendNotification } from './sendNotification';
+export { helloWorld } from './helloWorld.js';
+export { aiThreadSummary } from './aiThreadSummary.js';
+export { aiActionExtraction } from './aiActionExtraction.js';
+export { aiPriorityDetection } from './aiPriorityDetection.js';
+export { aiSmartSearch } from './aiSmartSearch.js';
+export { aiProactiveAgent } from './aiProactiveAgent.js';
+export { sendNotification } from './sendNotification.js';
