@@ -41,7 +41,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
 
       expect(workflowContent).toContain('build:');
       expect(workflowContent).toContain('Build Project');
-      expect(workflowContent).toContain('needs: test');
+      expect(workflowContent).toContain('needs: [lint, test]');
       expect(workflowContent).toContain('npm run build');
       expect(workflowContent).toContain('firebase deploy');
     });
@@ -155,10 +155,10 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
 
-      expect(workflowContent).toContain('needs: test');
-      expect(workflowContent).toContain('needs: [test, build]');
+      expect(workflowContent).toContain('needs: [lint, test]');
+      expect(workflowContent).toContain('needs: [lint, test, build]');
       expect(workflowContent).toContain(
-        'needs: [test, build, deploy-firebase, deploy-staging, security-scan]'
+        'needs: [lint, test, build, deploy-firebase, deploy-staging, security-scan]'
       );
     });
   });
