@@ -111,24 +111,28 @@ jobs:
           cd functions
           npm ci
           npm run build
+          firebase use communexus
           firebase deploy --only functions --token ${{ secrets.FIREBASE_TOKEN }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firebase Firestore Rules
         run: |
+          firebase use communexus
           firebase deploy --only firestore:rules --token ${{ secrets.FIREBASE_TOKEN }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firebase Storage Rules
         run: |
+          firebase use communexus
           firebase deploy --only storage --token ${{ secrets.FIREBASE_TOKEN }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firebase Hosting
         run: |
+          firebase use communexus
           firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
