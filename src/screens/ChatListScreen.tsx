@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
@@ -33,27 +34,49 @@ export default function ChatListScreen({ navigation }: any) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { auth } = initializeFirebase();
-              await signOut(auth);
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout');
-            }
+    console.log('Logout button pressed');
+    
+    // For web, use confirm instead of Alert.alert
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to logout?');
+      if (!confirmed) return;
+      
+      try {
+        console.log('Starting logout process...');
+        const { auth } = initializeFirebase();
+        console.log('Current user before logout:', auth.currentUser?.email);
+        await signOut(auth);
+        console.log('Logout successful');
+      } catch (error) {
+        console.error('Logout error:', error);
+        alert('Failed to logout');
+      }
+    } else {
+      // For mobile, use Alert.alert
+      Alert.alert(
+        'Logout',
+        'Are you sure you want to logout?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Logout',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                console.log('Starting logout process...');
+                const { auth } = initializeFirebase();
+                console.log('Current user before logout:', auth.currentUser?.email);
+                await signOut(auth);
+                console.log('Logout successful');
+              } catch (error) {
+                console.error('Logout error:', error);
+                Alert.alert('Error', 'Failed to logout');
+              }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   if (loading) {
@@ -95,7 +118,7 @@ export default function ChatListScreen({ navigation }: any) {
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.contactsButton} onPress={handleContacts}>
-            <Text style={styles.contactsButtonText}>👥</Text>
+            <Text style={styles.contactsButtonText}>Contacts</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Logout</Text>
@@ -143,23 +166,25 @@ export default function ChatListScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     padding: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingTop: 50,
+    backgroundColor: '#1E3A8A',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E7',
+    borderBottomColor: '#1E40AF',
   },
   headerLeft: {
     flex: 1,
@@ -178,7 +203,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     backgroundColor: '#FF3B30',
-    borderRadius: 8,
+    borderRadius: 12,
   },
   logoutButtonText: {
     color: '#FFFFFF',
@@ -189,7 +214,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     backgroundColor: '#34C759',
-    borderRadius: 8,
+    borderRadius: 12,
   },
   contactsButtonText: {
     color: '#FFFFFF',
@@ -197,15 +222,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
   },
   createButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#007AFF',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#1E3A8A',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -216,6 +241,7 @@ const styles = StyleSheet.create({
   },
   threadList: {
     flex: 1,
+    backgroundColor: '#000000',
   },
   loadingText: {
     marginTop: 12,
@@ -239,11 +265,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    backgroundColor: '#000000',
   },
   emptyTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   emptySubtitle: {
@@ -253,10 +280,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emptyButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1E3A8A',
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 25,
   },
   emptyButtonText: {
     color: '#FFFFFF',

@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
-import { createThread } from '../services/threads';
+import { createThread, findOrCreateOneOnOneThread } from '../services/threads';
 import { getAuth, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { initializeFirebase } from '../services/firebase';
 
@@ -69,15 +69,14 @@ export default function GroupCreateScreen({ navigation }: any) {
         })),
       ];
 
-      // Include both UID and email for the current user to ensure visibility
+      // Create participant IDs (simplified for group chats)
       const participantIds = [
-        user.uid, 
-        user.email || '', 
+        user.uid,
         ...emails.map(email => email === 'a@test.com' ? 'a@test.com' : 
                               email === 'b@test.com' ? 'b@test.com' : 
                               email === 'demo@communexus.com' ? 'demo@communexus.com' :
                               `temp_${email}`)
-      ].filter(Boolean);
+      ];
 
       // Create the thread
       const threadId = await createThread(
@@ -144,9 +143,10 @@ export default function GroupCreateScreen({ navigation }: any) {
                          email === 'demo@communexus.com' ? 'demo@communexus.com' :
                          `temp_${email}`;
 
-      // Create participant details for one-on-one chat
-      // Include both the current user's UID and email, and the other user's email
-      const participantDetails = [
+      // For one-on-one chats, use the proper function to prevent duplicates
+      const threadId = await findOrCreateOneOnOneThread(
+        user.uid,
+        otherUserId,
         {
           id: user.uid,
           name: user.displayName || user.email || 'You',
@@ -155,17 +155,7 @@ export default function GroupCreateScreen({ navigation }: any) {
         {
           id: otherUserId,
           name: email,
-        },
-      ];
-
-      // Include both UID and email for the current user to ensure visibility
-      const participantIds = [user.uid, user.email || '', otherUserId].filter(Boolean);
-
-      // Create the thread
-      const threadId = await createThread(
-        participantIds,
-        participantDetails,
-        false // isGroup
+        }
       );
 
       Alert.alert('Success', 'Conversation started!', [

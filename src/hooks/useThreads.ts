@@ -41,83 +41,111 @@ export const useThreads = () => {
     ) : null;
 
     // Subscribe to both queries and merge results
-    const unsubscribe1 = onSnapshot(q1, snapshot => {
-      const threadsFromUid: Thread[] = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        threadsFromUid.push({
-          id: doc.id,
-          participants: data.participants || [],
-          participantDetails: data.participantDetails || [],
-          isGroup: data.isGroup || false,
-          groupName: data.groupName,
-          groupPhotoUrl: data.groupPhotoUrl,
-          lastMessage: data.lastMessage
-            ? {
-                ...data.lastMessage,
-                timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
-              }
-            : {
-                text: '',
-                senderId: '',
-                senderName: '',
-                timestamp: new Date(),
-              },
-          unreadCount: data.unreadCount || {},
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        });
-      });
-      
-      // Merge with existing threads and remove duplicates
-      setThreads(prevThreads => {
-        const allThreads = [...prevThreads, ...threadsFromUid];
-        const uniqueThreads = allThreads.filter((thread, index, self) => 
-          index === self.findIndex(t => t.id === thread.id)
-        );
-        return uniqueThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-      });
-      setLoading(false);
-    });
+    const unsubscribe1 = onSnapshot(q1, 
+      snapshot => {
+        try {
+          const threadsFromUid: Thread[] = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            threadsFromUid.push({
+              id: doc.id,
+              participants: data.participants || [],
+              participantDetails: data.participantDetails || [],
+              isGroup: data.isGroup || false,
+              groupName: data.groupName,
+              groupPhotoUrl: data.groupPhotoUrl,
+              lastMessage: data.lastMessage
+                ? {
+                    ...data.lastMessage,
+                    timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+                  }
+                : {
+                    text: '',
+                    senderId: '',
+                    senderName: '',
+                    timestamp: new Date(),
+                  },
+              unreadCount: data.unreadCount || {},
+              createdAt: data.createdAt?.toDate() || new Date(),
+              updatedAt: data.updatedAt?.toDate() || new Date(),
+            });
+          });
+          
+          // Merge with existing threads and remove duplicates
+          setThreads(prevThreads => {
+            const allThreads = [...prevThreads, ...threadsFromUid];
+            const uniqueThreads = allThreads.filter((thread, index, self) => 
+              index === self.findIndex(t => t.id === thread.id)
+            );
+            return uniqueThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+          });
+          setLoading(false);
+          setError(null);
+        } catch (err) {
+          console.error('Error processing threads from UID:', err);
+          setError('Failed to load threads');
+          setLoading(false);
+        }
+      },
+      error => {
+        console.error('Error subscribing to threads:', error);
+        setError('Failed to load threads');
+        setLoading(false);
+      }
+    );
 
-    const unsubscribe2 = q2 ? onSnapshot(q2, snapshot => {
-      const threadsFromEmail: Thread[] = [];
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        threadsFromEmail.push({
-          id: doc.id,
-          participants: data.participants || [],
-          participantDetails: data.participantDetails || [],
-          isGroup: data.isGroup || false,
-          groupName: data.groupName,
-          groupPhotoUrl: data.groupPhotoUrl,
-          lastMessage: data.lastMessage
-            ? {
-                ...data.lastMessage,
-                timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
-              }
-            : {
-                text: '',
-                senderId: '',
-                senderName: '',
-                timestamp: new Date(),
-              },
-          unreadCount: data.unreadCount || {},
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-        });
-      });
-      
-      // Merge with existing threads and remove duplicates
-      setThreads(prevThreads => {
-        const allThreads = [...prevThreads, ...threadsFromEmail];
-        const uniqueThreads = allThreads.filter((thread, index, self) => 
-          index === self.findIndex(t => t.id === thread.id)
-        );
-        return uniqueThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
-      });
-      setLoading(false);
-    }) : null;
+    const unsubscribe2 = q2 ? onSnapshot(q2, 
+      snapshot => {
+        try {
+          const threadsFromEmail: Thread[] = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            threadsFromEmail.push({
+              id: doc.id,
+              participants: data.participants || [],
+              participantDetails: data.participantDetails || [],
+              isGroup: data.isGroup || false,
+              groupName: data.groupName,
+              groupPhotoUrl: data.groupPhotoUrl,
+              lastMessage: data.lastMessage
+                ? {
+                    ...data.lastMessage,
+                    timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+                  }
+                : {
+                    text: '',
+                    senderId: '',
+                    senderName: '',
+                    timestamp: new Date(),
+                  },
+              unreadCount: data.unreadCount || {},
+              createdAt: data.createdAt?.toDate() || new Date(),
+              updatedAt: data.updatedAt?.toDate() || new Date(),
+            });
+          });
+          
+          // Merge with existing threads and remove duplicates
+          setThreads(prevThreads => {
+            const allThreads = [...prevThreads, ...threadsFromEmail];
+            const uniqueThreads = allThreads.filter((thread, index, self) => 
+              index === self.findIndex(t => t.id === thread.id)
+            );
+            return uniqueThreads.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+          });
+          setLoading(false);
+          setError(null);
+        } catch (err) {
+          console.error('Error processing threads from email:', err);
+          setError('Failed to load threads');
+          setLoading(false);
+        }
+      },
+      error => {
+        console.error('Error subscribing to threads by email:', error);
+        setError('Failed to load threads');
+        setLoading(false);
+      }
+    ) : null;
 
     return () => {
       unsubscribe1();

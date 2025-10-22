@@ -15,6 +15,15 @@
 - **Message Status**: Track sending/sent/delivered/read status
 - **Test Users**: Built-in test accounts for easy testing
 
+### 🚨 Phase 3.5: Stability, Modernization & Automated Testing (IN PROGRESS)
+
+- **Automated UI Testing**: Appium + WebDriverIO for cross-platform testing
+- **Bug Fixes**: Resolving critical issues making app unusable
+- **Notification System**: Real-time push notifications with FCM
+- **Thread Management**: Preventing chat duplication and improving reliability
+- **UI Modernization**: Modern design system and improved UX
+- **Cross-Platform Consistency**: Ensuring identical behavior across platforms
+
 ### 🔄 Phase 4: AI-Powered Project Intelligence (Next)
 
 - **Thread Summarization**: AI-generated summaries of long conversations
@@ -48,6 +57,44 @@
 - **Authentication**: Firebase Auth (email/password)
 - **Storage**: Firebase Storage for media files
 - **Development**: Expo Go for mobile testing
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+# Run unit tests
+npm test
+
+# Run tests with Firebase emulators
+npm run test:emul
+```
+
+### E2E Tests (Phase 3.5.1)
+```bash
+# Install Appium and drivers
+npm install -g appium@latest
+appium driver install xcuitest  # iOS
+appium driver install uiautomator2  # Android
+
+# Start Firebase emulators
+firebase emulators:start --only firestore,auth,storage --project demo-communexus
+
+# Start Appium server
+npm run appium:server
+
+# Run E2E tests
+npm run test:e2e          # All platforms
+npm run test:e2e:ios      # iOS only
+npm run test:e2e:android # Android only
+```
+
+### Test Coverage
+- **Unit Tests**: Jest for business logic and utilities
+- **Integration Tests**: Firebase emulators for backend services
+- **E2E Tests**: Appium + WebDriverIO for UI automation
+- **Cross-Platform**: Automated testing on iOS and Android
+
+See [tests/e2e/README.md](tests/e2e/README.md) for detailed E2E testing documentation.
 
 ## 📱 Getting Started
 
@@ -148,8 +195,10 @@ The app includes built-in test users for easy testing:
 1. Open the app
 2. On the AuthScreen, tap **"👥 Create Test Users"**
 3. This creates two test accounts:
-   - `a@test.com` / `password`
-   - `b@test.com` / `password`
+   - `john@test.com` / `password`
+   - `jane@test.com` / `password`
+   - `alice@test.com` / `password`
+   - `bob@test.com` / `password`
 
 #### Demo Account
 - `demo@communexus.com` / `demo123`

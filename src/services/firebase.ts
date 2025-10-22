@@ -1,6 +1,8 @@
 // firebase.ts - Firebase initialization and configuration
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence, connectAuthEmulator, Auth, getAuth } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import {
   getFirestore,
   connectFirestoreEmulator,
@@ -44,14 +46,29 @@ export const initializeFirebase = (
     app =
       getApps()[0] ||
       initializeApp({
-        apiKey: process.env.FIREBASE_API_KEY || 'fake',
-        authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'localhost',
+        apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'demo-communexus.firebaseapp.com',
         projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
         storageBucket:
           process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
-        appId: process.env.FIREBASE_APP_ID || 'demo',
+        appId: process.env.FIREBASE_APP_ID || '1:123456789:web:abcdef123456',
       });
-    auth = getAuth(app);
+    // Initialize Auth with platform-specific persistence
+    if (Platform.OS === 'web') {
+      // For web, use regular getAuth
+      auth = getAuth(app);
+    } else {
+      // For React Native, try to use initializeAuth with AsyncStorage
+      try {
+        auth = initializeAuth(app, {
+          persistence: getReactNativePersistence(AsyncStorage)
+        });
+      } catch (error) {
+        console.log('AsyncStorage not available, using default auth:', error);
+        // Fallback to regular auth if AsyncStorage fails
+        auth = getAuth(app);
+      }
+    }
 
     const useEmulator =
       config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true); // Default to true for development

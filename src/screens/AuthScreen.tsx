@@ -7,16 +7,19 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { initializeFirebase } from '../services/firebase';
-import { initializeTestUserContacts } from '../services/contacts';
+import { initializeTestUserContacts, autoCreateTestUsers } from '../services/contacts';
+import { Logo } from '../components/Logo';
 
 export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showDemoUsers, setShowDemoUsers] = useState(false);
 
   const handleAuth = async () => {
     if (!email.trim() || !password.trim()) {
@@ -54,73 +57,66 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
   };
 
   const handleDemoLogin = async () => {
+    if (Platform.OS === 'web') {
+      // For web, show demo user selection buttons
+      setShowDemoUsers(true);
+    } else {
+      // For mobile, use Alert.alert
+      Alert.alert(
+        'Choose Demo User',
+        'Select a demo user to sign in with:',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'John', onPress: () => signInAsDemoUser('john@test.com') },
+          { text: 'Jane', onPress: () => signInAsDemoUser('jane@test.com') },
+          { text: 'Alice', onPress: () => signInAsDemoUser('alice@test.com') },
+          { text: 'Bob', onPress: () => signInAsDemoUser('bob@test.com') },
+        ]
+      );
+    }
+  };
+
+  const handleCreateDemoUsers = async () => {
     setLoading(true);
     try {
-      const { auth } = initializeFirebase();
-      await signInWithEmailAndPassword(auth, 'demo@communexus.com', 'demo123');
-      
-      // Initialize contacts for demo user
-      try {
-        if (auth.currentUser) {
-          await initializeTestUserContacts(auth.currentUser.uid);
-        }
-      } catch (contactError) {
-        // eslint-disable-next-line no-console
-        console.log('Contacts initialization skipped:', contactError);
-      }
-      
-      onAuthSuccess();
+      console.log('Manually creating demo users...');
+      await autoCreateTestUsers();
+      Alert.alert('Success', 'Demo users created successfully! You can now sign in with them.');
     } catch (error: any) {
-      // If demo user doesn't exist, create it
-      try {
-        const { auth } = initializeFirebase();
-        await createUserWithEmailAndPassword(auth, 'demo@communexus.com', 'demo123');
-        
-        // Initialize contacts for demo user
-        try {
-          if (auth.currentUser) {
-            await initializeTestUserContacts(auth.currentUser.uid);
-          }
-        } catch (contactError) {
-          // eslint-disable-next-line no-console
-          console.log('Contacts initialization skipped:', contactError);
-        }
-        
-        onAuthSuccess();
-      } catch (createError: any) {
-        Alert.alert('Error', 'Failed to create demo account');
-      }
+      console.error('Failed to create demo users:', error);
+      Alert.alert('Error', `Failed to create demo users: ${error.message}\n\nMake sure Firebase emulators are running:\nnpx firebase emulators:start --only firestore,auth,storage --project demo-communexus`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateTestUsers = async () => {
+  const signInAsDemoUser = async (email: string) => {
     setLoading(true);
     try {
       const { auth } = initializeFirebase();
       
-      const testUsers = [
-        { email: 'a@test.com', password: 'password' },
-        { email: 'b@test.com', password: 'password' }
-      ];
-
-      for (const user of testUsers) {
-        try {
-          await createUserWithEmailAndPassword(auth, user.email, user.password);
-          Alert.alert('Success', `Created user: ${user.email}`);
-        } catch (error: any) {
-          if (error.code === 'auth/email-already-in-use') {
-            Alert.alert('Info', `User already exists: ${user.email}`);
-          } else {
-            Alert.alert('Error', `Failed to create user ${user.email}: ${error.message}`);
-          }
+      // Auto-create test users first
+      console.log('Creating test users before sign in...');
+      await autoCreateTestUsers();
+      
+      // Sign in with selected user
+      console.log(`Signing in as ${email}...`);
+      await signInWithEmailAndPassword(auth, email, 'password');
+      
+      // Initialize contacts for test user
+      try {
+        if (auth.currentUser) {
+          await initializeTestUserContacts(auth.currentUser.uid);
         }
+      } catch (contactError) {
+        console.log('Contacts initialization skipped:', contactError);
       }
       
-      Alert.alert('Complete', 'Test users created! You can now sign in with them.');
+      console.log('Demo user sign in successful');
+      onAuthSuccess();
     } catch (error: any) {
-      Alert.alert('Error', `Failed to create test users: ${error.message}`);
+      console.error('Demo login error:', error);
+      Alert.alert('Error', `Failed to sign in as ${email}: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -129,7 +125,10 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>🔥 Communexus</Text>
+        <View style={styles.logoContainer}>
+          <Logo size={80} color="#1E3A8A" />
+        </View>
+        <Text style={styles.title}>Communexus</Text>
         <Text style={styles.subtitle}>Project Communication Hub</Text>
 
         <View style={styles.form}>
@@ -181,25 +180,69 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
             onPress={handleDemoLogin}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>🚀 Try Demo Account</Text>
+            <Text style={styles.buttonText}>Try Demo User</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.testUsersButton]}
-            onPress={handleCreateTestUsers}
+            style={[styles.button, styles.createUsersButton]}
+            onPress={handleCreateDemoUsers}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>👥 Create Test Users</Text>
+            <Text style={styles.buttonText}>Create Demo Users</Text>
           </TouchableOpacity>
+
+          {showDemoUsers && Platform.OS === 'web' && (
+            <View style={styles.demoUserSelection}>
+              <Text style={styles.demoUserTitle}>Choose Demo User:</Text>
+              <View style={styles.demoUserButtons}>
+                <TouchableOpacity
+                  style={styles.demoUserButton}
+                  onPress={() => signInAsDemoUser('john@test.com')}
+                  disabled={loading}
+                >
+                  <Text style={styles.demoUserButtonText}>John</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.demoUserButton}
+                  onPress={() => signInAsDemoUser('jane@test.com')}
+                  disabled={loading}
+                >
+                  <Text style={styles.demoUserButtonText}>Jane</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.demoUserButton}
+                  onPress={() => signInAsDemoUser('alice@test.com')}
+                  disabled={loading}
+                >
+                  <Text style={styles.demoUserButtonText}>Alice</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.demoUserButton}
+                  onPress={() => signInAsDemoUser('bob@test.com')}
+                  disabled={loading}
+                >
+                  <Text style={styles.demoUserButtonText}>Bob</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowDemoUsers(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.infoTitle}>ℹ️ Test Accounts:</Text>
+          <Text style={styles.infoTitle}>Demo Users:</Text>
           <Text style={styles.infoText}>
-            Demo: demo@communexus.com / demo123{'\n'}
-            Test Users: a@test.com / password{'\n'}
-            Test Users: b@test.com / password{'\n'}
-            {'\n'}Or create your own account above!
+            john@test.com / password{'\n'}
+            jane@test.com / password{'\n'}
+            alice@test.com / password{'\n'}
+            bob@test.com / password{'\n'}
+            {'\n'}Click "Try Demo User" to select one,{'\n'}
+            or create your own account above!
           </Text>
         </View>
       </View>
@@ -220,66 +263,116 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   container: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
     flex: 1,
   },
   content: {
-    padding: 20,
-    paddingTop: 60,
+    padding: 32,
+    paddingTop: 80,
+    justifyContent: 'center',
+    flex: 1,
   },
   demoButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#1E3A8A',
     marginTop: 20,
+  },
+  demoUserSelection: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+  },
+  demoUserTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  demoUserButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  demoUserButton: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    minWidth: '45%',
+  },
+  demoUserButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#6C757D',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  createUsersButton: {
+    backgroundColor: '#8B5CF6',
+    marginTop: 10,
   },
   form: {
     marginBottom: 30,
   },
   infoContainer: {
-    backgroundColor: '#E3F2FD',
-    borderRadius: 12,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
     marginTop: 20,
-    padding: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
   },
   infoText: {
-    color: '#1976D2',
+    color: '#8E8E93',
     fontSize: 14,
     lineHeight: 20,
   },
   infoTitle: {
-    color: '#1976D2',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   input: {
-    backgroundColor: 'white',
-    borderColor: '#e0e0e0',
+    backgroundColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
     borderRadius: 12,
     borderWidth: 1,
     fontSize: 16,
     marginBottom: 16,
     padding: 16,
+    color: '#FFFFFF',
   },
   linkButton: {
     alignItems: 'center',
     marginBottom: 16,
   },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 14,
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1E3A8A',
   },
   subtitle: {
-    color: '#666',
-    fontSize: 16,
+    color: '#8E8E93',
+    fontSize: 18,
     marginBottom: 40,
     textAlign: 'center',
   },
   title: {
-    color: '#333',
-    fontSize: 28,
+    color: '#FFFFFF',
+    fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',

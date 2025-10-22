@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Contact, subscribeToContacts, updateUserOnlineStatus, initializeTestUserContacts } from '../services/contacts';
 import { useAuth } from '../hooks/useAuth';
-import { createThread } from '../services/threads';
+import { findOrCreateOneOnOneThread } from '../services/threads';
 
 interface ContactsScreenProps {
   navigation: any;
@@ -32,7 +32,9 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
     setLoading(true);
     
     // Set user as online when they open contacts
-    updateUserOnlineStatus(user.uid, true);
+    updateUserOnlineStatus(user.uid, true).catch(error => {
+      console.log('Failed to update online status on mount:', error);
+    });
 
     const unsubscribe = subscribeToContacts(user.uid, (updatedContacts) => {
       setContacts(updatedContacts);
@@ -42,7 +44,9 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
     return () => {
       unsubscribe();
       // Set user as offline when they leave
-      updateUserOnlineStatus(user.uid, false);
+      updateUserOnlineStatus(user.uid, false).catch(error => {
+        console.log('Failed to update online status on unmount:', error);
+      });
     };
   }, [user?.uid]);
 
@@ -50,8 +54,10 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
     if (!user?.uid) return;
     
     try {
-      // Create participant details for one-on-one chat
-      const participantDetails = [
+      // Use the findOrCreateOneOnOneThread function to prevent duplicates
+      const threadId = await findOrCreateOneOnOneThread(
+        user.uid,
+        contact.id,
         {
           id: user.uid,
           name: user.displayName || user.email || 'You',
@@ -61,37 +67,12 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
           id: contact.id,
           name: contact.name,
           ...(contact.photoUrl && { photoUrl: contact.photoUrl }),
-        },
-      ];
-
-      // Include both UID and email for the current user to ensure visibility
-      const participantIds = [user.uid, user.email || '', contact.id].filter(Boolean);
-
-      // Create the thread
-      const threadId = await createThread(
-        participantIds,
-        participantDetails,
-        false // isGroup
+        }
       );
 
-      // Navigate to chat with the created thread
+      // Navigate to chat with the thread ID
       navigation.navigate('Chat', {
         threadId,
-        thread: {
-          id: threadId,
-          participants: participantIds,
-          participantDetails,
-          isGroup: false,
-          lastMessage: {
-            text: '',
-            senderId: '',
-            senderName: '',
-            timestamp: new Date(),
-          },
-          unreadCount: {},
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
         contact,
       });
     } catch (error) {
@@ -185,39 +166,42 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     padding: 20,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: '#1E3A8A',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E7',
+    borderBottomColor: '#1E40AF',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
+    marginBottom: 8,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#8E8E93',
-    marginTop: 2,
   },
   contactsList: {
     flex: 1,
   },
   contactItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    borderBottomColor: '#1C1C1E',
+    backgroundColor: '#000000',
   },
   contactInfo: {
     flex: 1,
@@ -230,7 +214,7 @@ const styles = StyleSheet.create({
   contactName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: '#FFFFFF',
   },
   onlineIndicator: {
     width: 8,
@@ -269,7 +253,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   initButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1E3A8A',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,

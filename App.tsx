@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { onAuthStateChanged } from 'firebase/auth';
-import { initializeFirebase } from './src/services/firebase';
+import { useAuth } from './src/hooks/useAuth';
 import AuthScreen from './src/screens/AuthScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatScreen from './src/screens/ChatScreen';
@@ -13,43 +12,33 @@ import ContactsScreen from './src/screens/ContactsScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const { auth } = initializeFirebase();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (isLoading) {
+  if (loading) {
     return null; // You could add a loading screen here
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
-      <AuthScreen onAuthSuccess={() => setIsAuthenticated(true)} />
+      <AuthScreen onAuthSuccess={() => {}} />
     );
   }
 
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-      <Stack.Navigator
-        initialRouteName="ChatList"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#007AFF',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
+              <Stack.Navigator
+                initialRouteName="ChatList"
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: '#1E3A8A',
+                  },
+                  headerTintColor: '#FFFFFF',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                    fontSize: 18,
+                  },
+                }}
       >
         <Stack.Screen 
           name="ChatList" 

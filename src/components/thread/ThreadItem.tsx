@@ -46,15 +46,7 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
           </Text>
         </View>
         <View style={styles.threadPreview}>
-          <Text
-            style={[
-              styles.lastMessage,
-              unreadCount > 0 && styles.unreadMessage,
-            ]}
-            numberOfLines={1}
-          >
-            {thread.lastMessage.text || 'No messages yet'}
-          </Text>
+          <View style={styles.spacer} />
           {unreadCount > 0 && (
             <View style={styles.unreadBadge}>
               <Text style={styles.unreadText}>
@@ -70,10 +62,11 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
 
 const styles = StyleSheet.create({
   threadItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    borderBottomColor: '#1C1C1E',
+    backgroundColor: '#000000',
   },
   threadContent: {
     flex: 1,
@@ -87,7 +80,7 @@ const styles = StyleSheet.create({
   threadName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
+    color: '#FFFFFF',
     flex: 1,
   },
   threadTime: {
@@ -96,26 +89,19 @@ const styles = StyleSheet.create({
   },
   threadPreview: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  lastMessage: {
-    fontSize: 14,
-    color: '#8E8E93',
+  spacer: {
     flex: 1,
   },
-  unreadMessage: {
-    color: '#000000',
-    fontWeight: '500',
-  },
   unreadBadge: {
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
+    backgroundColor: '#1E3A8A',
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
   },
   unreadText: {
     color: '#FFFFFF',

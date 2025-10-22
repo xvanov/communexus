@@ -1,11 +1,11 @@
-# Active Context: Communexus Phase 3 - Core Messaging (PARTIALLY FUNCTIONAL)
+# Active Context: Communexus Phase 3.5 - Stability, Modernization & Automated Testing
 
 ## Current Work Focus
 
-**Phase**: Phase 3 - User Story 1 (PARTIALLY FUNCTIONAL ⚠️)  
-**Next Phase**: Bug fixes and stabilization before Phase 4  
-**Mode**: Bug fixing and stabilization  
-**Status**: Core messaging functionality works (messages send between users), but app is almost unusable due to bugs
+**Phase**: Phase 3.5 - Stability, Modernization & Automated Testing (IN PROGRESS 🚨)  
+**Next Phase**: Phase 4 - AI-Powered Project Intelligence  
+**Mode**: Bug fixing, modernization, and automated testing setup  
+**Status**: Phase 3 has critical bugs making app almost unusable - Phase 3.5 required before Phase 4
 
 ## Recent Changes
 
@@ -42,22 +42,58 @@
 
 ## Next Steps
 
-### Immediate Actions (Bug Fixing Priority)
+### Phase 3.5 Implementation (Current Priority)
 
-1. **Fix Firebase Permission Errors**: Resolve remaining Firestore security rule issues
-2. **Stabilize Thread Creation**: Ensure consistent thread creation from contacts
-3. **Fix Contact Navigation**: Resolve errors when clicking on contacts
-4. **Improve Error Handling**: Better error handling and user feedback
-5. **Cross-Platform Consistency**: Ensure web and mobile behave identically
-6. **Online Status Fix**: Proper online/offline status updates
+#### 3.5.1: Appium Setup & Automated Testing Infrastructure
+1. **Install Appium server and dependencies** (appium, webdriverio)
+2. **Configure Appium for iOS and Android testing**
+3. **Create automated test suites for core user flows**
+4. **Implement CI/CD integration for automated testing**
+5. **Create test data management and cleanup utilities**
 
-### Phase 3 Completion Criteria (Not Yet Met)
+#### 3.5.2: Critical Bug Fixes
+1. **Fix Firebase permission errors and security rules**
+2. **Resolve thread creation inconsistencies and visibility issues**
+3. **Fix contact system and online status bugs**
+4. **Resolve infinite loading states in message scenarios**
+5. **Fix contact navigation errors and crashes**
+6. **Implement proper error handling and user feedback**
 
-- ❌ Stable messaging platform without critical bugs
-- ❌ Reliable contact system and navigation
-- ❌ Consistent cross-platform behavior
-- ❌ Proper error handling and user feedback
-- ❌ Usable app experience for testing
+#### 3.5.3: Notification System Implementation
+1. **Implement real-time push notifications with FCM**
+2. **Add in-app notification handling and display**
+3. **Create notification preferences and settings UI**
+4. **Implement notification actions and deep linking**
+
+#### 3.5.4: Thread Management & Duplication Prevention
+1. **Implement proper thread deduplication logic**
+2. **Fix thread visibility and access control**
+3. **Add thread archiving and deletion functionality**
+4. **Implement proper thread search and filtering**
+
+#### 3.5.5: UI/UX Modernization
+1. **Update design system with modern components**
+2. **Improve loading states and error handling UI**
+3. **Add proper animations and transitions**
+4. **Implement dark mode support**
+
+#### 3.5.6: Cross-Platform Consistency
+1. **Ensure identical behavior between web and mobile**
+2. **Fix platform-specific bugs and inconsistencies**
+3. **Implement consistent navigation patterns**
+4. **Ensure feature parity across platforms**
+
+### Phase 3.5 Completion Criteria (Must Be Met)
+
+- ✅ Stable messaging platform without critical bugs
+- ✅ Reliable contact system and navigation
+- ✅ Consistent cross-platform behavior
+- ✅ Proper error handling and user feedback
+- ✅ Usable app experience for testing
+- ✅ Automated UI tests preventing regression
+- ✅ Proper notification system working
+- ✅ No chat duplication issues
+- ✅ Modern, polished UI/UX
 
 ## Active Decisions and Considerations
 

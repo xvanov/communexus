@@ -111,6 +111,82 @@ description: 'Task list template for feature implementation'
 
 ---
 
+## Phase 3.5: Stability, Modernization & Automated Testing (Priority: P1.5) 🚨 CRITICAL
+
+**Goal**: Fix critical bugs, implement proper notifications, prevent chat duplication, modernize UI, and establish automated testing
+
+**Status**: ⚠️ REQUIRED - Phase 3 has critical bugs making app almost unusable
+
+**Independent Test**: App should be fully usable without bugs, with proper notifications, no chat duplication, and automated tests preventing regression
+
+### Phase 3.5.1: Appium Setup & Automated Testing Infrastructure
+
+- [ ] T044 [P] [US1.5] Install Appium server and dependencies (appium, webdriverio)
+- [ ] T045 [P] [US1.5] Configure Appium for iOS and Android testing
+- [ ] T046 [P] [US1.5] Create automated test suites for core user flows
+- [ ] T047 [P] [US1.5] Implement CI/CD integration for automated testing
+- [ ] T048 [P] [US1.5] Create test data management and cleanup utilities
+- [ ] T049 [P] [US1.5] Add automated tests for authentication flow
+- [ ] T050 [P] [US1.5] Add automated tests for thread creation and messaging
+- [ ] T051 [P] [US1.5] Add automated tests for contact system
+- [ ] T052 [P] [US1.5] Add automated tests for cross-platform consistency
+
+### Phase 3.5.2: Critical Bug Fixes
+
+- [ ] T053 [US1.5] Fix Firebase permission errors and security rules
+- [ ] T054 [US1.5] Resolve thread creation inconsistencies and visibility issues
+- [ ] T055 [US1.5] Fix contact system and online status bugs
+- [ ] T056 [US1.5] Resolve infinite loading states in message scenarios
+- [ ] T057 [US1.5] Fix contact navigation errors and crashes
+- [ ] T058 [US1.5] Implement proper error handling and user feedback
+- [ ] T059 [US1.5] Fix thread deduplication logic to prevent multiple chats
+- [ ] T060 [US1.5] Resolve cross-platform behavior differences
+
+### Phase 3.5.3: Notification System Implementation
+
+- [ ] T061 [P] [US1.5] Implement real-time push notifications with FCM
+- [ ] T062 [P] [US1.5] Add in-app notification handling and display
+- [ ] T063 [P] [US1.5] Create notification preferences and settings UI
+- [ ] T064 [P] [US1.5] Implement notification actions and deep linking
+- [ ] T065 [P] [US1.5] Add notification history and management
+- [ ] T066 [P] [US1.5] Implement notification sound and vibration
+- [ ] T067 [P] [US1.5] Add notification badges and unread counts
+- [ ] T068 [P] [US1.5] Create notification testing and validation
+
+### Phase 3.5.4: Thread Management & Duplication Prevention
+
+- [ ] T069 [US1.5] Implement proper thread deduplication logic
+- [ ] T070 [US1.5] Fix thread visibility and access control
+- [ ] T071 [US1.5] Add thread archiving and deletion functionality
+- [ ] T072 [US1.5] Implement proper thread search and filtering
+- [ ] T073 [US1.5] Add thread management UI improvements
+- [ ] T074 [US1.5] Implement thread sorting and organization
+- [ ] T075 [US1.5] Add thread metadata and context tracking
+
+### Phase 3.5.5: UI/UX Modernization
+
+- [ ] T076 [P] [US1.5] Update design system with modern components
+- [ ] T077 [P] [US1.5] Improve loading states and error handling UI
+- [ ] T078 [P] [US1.5] Add proper animations and transitions
+- [ ] T079 [P] [US1.5] Implement dark mode support
+- [ ] T080 [P] [US1.5] Improve accessibility features and compliance
+- [ ] T081 [P] [US1.5] Add proper empty states and onboarding
+- [ ] T082 [P] [US1.5] Implement responsive design improvements
+- [ ] T083 [P] [US1.5] Add haptic feedback and micro-interactions
+
+### Phase 3.5.6: Cross-Platform Consistency
+
+- [ ] T084 [US1.5] Ensure identical behavior between web and mobile
+- [ ] T085 [US1.5] Fix platform-specific bugs and inconsistencies
+- [ ] T086 [US1.5] Implement consistent navigation patterns
+- [ ] T087 [US1.5] Add platform-specific optimizations
+- [ ] T088 [US1.5] Ensure feature parity across platforms
+- [ ] T089 [US1.5] Test and validate cross-platform functionality
+
+**Checkpoint**: ✅ App is fully usable without critical bugs, with proper notifications, no chat duplication, modern UI, and automated tests preventing regression
+
+---
+
 ## Phase 4: User Story 2 - AI-Powered Project Intelligence (Priority: P2)
 
 **Goal**: AI features for thread summarization, action extraction, priority detection, and decision tracking
@@ -119,27 +195,27 @@ description: 'Task list template for feature implementation'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T036 [P] [US2] Contract test for AI thread summarization in tests/contract/test_ai_summary.py
-- [ ] T037 [P] [US2] Integration test for action item extraction in tests/integration/test_action_extraction.py
-- [ ] T038 [P] [US2] Unit test for priority detection in tests/unit/test_priority_detection.py
+- [ ] T090 [P] [US2] Contract test for AI thread summarization in tests/contract/test_ai_summary.py
+- [ ] T091 [P] [US2] Integration test for action item extraction in tests/integration/test_action_extraction.py
+- [ ] T092 [P] [US2] Unit test for priority detection in tests/unit/test_priority_detection.py
 
 ### Implementation for User Story 2
 
-- [ ] T039 [P] [US2] Create AI service abstraction in src/services/ai.ts
-- [ ] T040 [P] [US2] Implement OpenAI API integration in functions/src/aiThreadSummary.ts
-- [ ] T041 [P] [US2] Implement OpenAI API integration in functions/src/aiActionExtraction.ts
-- [ ] T042 [P] [US2] Implement OpenAI API integration in functions/src/aiPriorityDetection.ts
-- [ ] T043 [P] [US2] Implement OpenAI API integration in functions/src/aiSmartSearch.ts
-- [ ] T044 [P] [US2] Implement OpenAI API integration in functions/src/aiDecisionTracking.ts
-- [ ] T045 [US2] Create thread summarization UI in src/components/ai/SummaryModal.tsx
-- [ ] T046 [US2] Create action item list UI in src/components/ai/ActionItemList.tsx
-- [ ] T047 [US2] Create priority badge UI in src/components/common/PriorityBadge.tsx
-- [ ] T048 [US2] Create decision tracking UI in src/components/ai/DecisionCard.tsx
-- [ ] T049 [US2] Implement AI response caching and error handling
-- [ ] T050 [US2] Add AI feature configuration and settings
-- [ ] T051 [US2] Create AI feature loading states and error handling
-- [ ] T052 [US2] Implement AI feature performance optimization
-- [ ] T053 [US2] Add AI feature analytics and usage tracking
+- [ ] T093 [P] [US2] Create AI service abstraction in src/services/ai.ts
+- [ ] T094 [P] [US2] Implement OpenAI API integration in functions/src/aiThreadSummary.ts
+- [ ] T095 [P] [US2] Implement OpenAI API integration in functions/src/aiActionExtraction.ts
+- [ ] T096 [P] [US2] Implement OpenAI API integration in functions/src/aiPriorityDetection.ts
+- [ ] T097 [P] [US2] Implement OpenAI API integration in functions/src/aiSmartSearch.ts
+- [ ] T098 [P] [US2] Implement OpenAI API integration in functions/src/aiDecisionTracking.ts
+- [ ] T099 [US2] Create thread summarization UI in src/components/ai/SummaryModal.tsx
+- [ ] T100 [US2] Create action item list UI in src/components/ai/ActionItemList.tsx
+- [ ] T101 [US2] Create priority badge UI in src/components/common/PriorityBadge.tsx
+- [ ] T102 [US2] Create decision tracking UI in src/components/ai/DecisionCard.tsx
+- [ ] T103 [US2] Implement AI response caching and error handling
+- [ ] T104 [US2] Add AI feature configuration and settings
+- [ ] T105 [US2] Create AI feature loading states and error handling
+- [ ] T106 [US2] Implement AI feature performance optimization
+- [ ] T107 [US2] Add AI feature analytics and usage tracking
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -153,24 +229,24 @@ description: 'Task list template for feature implementation'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T054 [P] [US3] Contract test for SMS webhook handling in tests/contract/test_sms_webhook.py
-- [ ] T055 [P] [US3] Integration test for email parsing in tests/integration/test_email_parsing.py
-- [ ] T056 [P] [US3] Unit test for channel routing in tests/unit/test_channel_routing.py
+- [ ] T108 [P] [US3] Contract test for SMS webhook handling in tests/contract/test_sms_webhook.py
+- [ ] T109 [P] [US3] Integration test for email parsing in tests/integration/test_email_parsing.py
+- [ ] T110 [P] [US3] Unit test for channel routing in tests/unit/test_channel_routing.py
 
 ### Implementation for User Story 3
 
-- [ ] T057 [P] [US3] Create channel abstraction layer in src/services/channels.ts
-- [ ] T058 [P] [US3] Implement Twilio SMS integration in functions/src/smsHandler.ts
-- [ ] T059 [P] [US3] Implement SendGrid email integration in functions/src/emailHandler.ts
-- [ ] T060 [P] [US3] Create message routing system in functions/src/messageRouter.ts
-- [ ] T061 [US3] Implement SMS webhook handling and parsing
-- [ ] T062 [US3] Implement email parsing and threading
-- [ ] T063 [US3] Create channel-specific message formatting
-- [ ] T064 [US3] Add channel status and health monitoring
-- [ ] T065 [US3] Implement channel configuration management
-- [ ] T066 [US3] Create multi-channel UI indicators
-- [ ] T067 [US3] Add channel analytics and reporting
-- [ ] T068 [US3] Implement channel-specific error handling
+- [ ] T111 [P] [US3] Create channel abstraction layer in src/services/channels.ts
+- [ ] T112 [P] [US3] Implement Twilio SMS integration in functions/src/smsHandler.ts
+- [ ] T113 [P] [US3] Implement SendGrid email integration in functions/src/emailHandler.ts
+- [ ] T114 [P] [US3] Create message routing system in functions/src/messageRouter.ts
+- [ ] T115 [US3] Implement SMS webhook handling and parsing
+- [ ] T116 [US3] Implement email parsing and threading
+- [ ] T117 [US3] Create channel-specific message formatting
+- [ ] T118 [US3] Add channel status and health monitoring
+- [ ] T119 [US3] Implement channel configuration management
+- [ ] T120 [US3] Create multi-channel UI indicators
+- [ ] T121 [US3] Add channel analytics and reporting
+- [ ] T122 [US3] Implement channel-specific error handling
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -184,23 +260,23 @@ description: 'Task list template for feature implementation'
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T069 [P] [US4] Contract test for LangChain agent in tests/contract/test_proactive_agent.py
-- [ ] T070 [P] [US4] Integration test for follow-up detection in tests/integration/test_followup_detection.py
-- [ ] T071 [P] [US4] Unit test for message drafting in tests/unit/test_message_drafting.py
+- [ ] T123 [P] [US4] Contract test for LangChain agent in tests/contract/test_proactive_agent.py
+- [ ] T124 [P] [US4] Integration test for follow-up detection in tests/integration/test_followup_detection.py
+- [ ] T125 [P] [US4] Unit test for message drafting in tests/unit/test_message_drafting.py
 
 ### Implementation for User Story 4
 
-- [ ] T072 [P] [US4] Set up LangChain framework in functions/src/aiProactiveAgent.ts
-- [ ] T073 [P] [US4] Implement conversation memory and context management
-- [ ] T074 [P] [US4] Create proactive suggestion system
-- [ ] T075 [P] [US4] Implement message drafting capabilities
-- [ ] T076 [P] [US4] Add follow-up detection and reminder system
-- [ ] T077 [US4] Create AssistantScreen UI in src/screens/AssistantScreen.tsx
-- [ ] T078 [US4] Implement assistant interaction flow
-- [ ] T079 [US4] Add assistant learning and personalization
-- [ ] T080 [US4] Create assistant suggestion UI components
-- [ ] T081 [US4] Implement assistant notification system
-- [ ] T082 [US4] Add assistant analytics and performance tracking
+- [ ] T126 [P] [US4] Set up LangChain framework in functions/src/aiProactiveAgent.ts
+- [ ] T127 [P] [US4] Implement conversation memory and context management
+- [ ] T128 [P] [US4] Create proactive suggestion system
+- [ ] T129 [P] [US4] Implement message drafting capabilities
+- [ ] T130 [P] [US4] Add follow-up detection and reminder system
+- [ ] T131 [US4] Create AssistantScreen UI in src/screens/AssistantScreen.tsx
+- [ ] T132 [US4] Implement assistant interaction flow
+- [ ] T133 [US4] Add assistant learning and personalization
+- [ ] T134 [US4] Create assistant suggestion UI components
+- [ ] T135 [US4] Implement assistant notification system
+- [ ] T136 [US4] Add assistant analytics and performance tracking
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -210,24 +286,24 @@ description: 'Task list template for feature implementation'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T083 [P] Documentation updates in docs/
-- [ ] T084 [P] Code cleanup and refactoring
-- [ ] T085 [P] Performance optimization across all stories
-- [ ] T086 [P] Additional unit tests in tests/unit/
-- [ ] T087 [P] Security hardening and API key protection
-- [ ] T088 [P] Error handling and recovery improvements
-- [ ] T089 [P] Accessibility features and improvements
-- [ ] T090 [P] Internationalization support
-- [ ] T091 [P] Dark mode and theme support
-- [ ] T092 [P] Offline-first architecture optimization
-- [ ] T093 [P] Push notification optimization
-- [ ] T094 [P] Real-time performance optimization
-- [ ] T095 [P] AI feature response time optimization
-- [ ] T096 [P] Multi-channel reliability improvements
-- [ ] T097 [P] Assistant personalization improvements
-- [ ] T098 [P] Run quickstart.md validation
-- [ ] T099 [P] Demo video preparation and testing
-- [ ] T100 [P] Final deployment and testing
+- [ ] T137 [P] Documentation updates in docs/
+- [ ] T138 [P] Code cleanup and refactoring
+- [ ] T139 [P] Performance optimization across all stories
+- [ ] T140 [P] Additional unit tests in tests/unit/
+- [ ] T141 [P] Security hardening and API key protection
+- [ ] T142 [P] Error handling and recovery improvements
+- [ ] T143 [P] Accessibility features and improvements
+- [ ] T144 [P] Internationalization support
+- [ ] T145 [P] Dark mode and theme support
+- [ ] T146 [P] Offline-first architecture optimization
+- [ ] T147 [P] Push notification optimization
+- [ ] T148 [P] Real-time performance optimization
+- [ ] T149 [P] AI feature response time optimization
+- [ ] T150 [P] Multi-channel reliability improvements
+- [ ] T151 [P] Assistant personalization improvements
+- [ ] T152 [P] Run quickstart.md validation
+- [ ] T153 [P] Demo video preparation and testing
+- [ ] T154 [P] Final deployment and testing
 
 ---
 

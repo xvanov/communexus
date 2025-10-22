@@ -15,7 +15,7 @@ import {
 import { getDb } from './firebase';
 import { Thread } from '../types/Thread';
 
-// Create a new thread
+// Create a new thread with deduplication logic
 export const createThread = async (
   participants: string[],
   participantDetails: { id: string; name: string; photoUrl?: string }[],
@@ -25,6 +25,14 @@ export const createThread = async (
 ): Promise<string> => {
   const db = getDb();
   const col = collection(db, 'threads');
+
+  // For one-on-one chats, check if thread already exists
+  if (!isGroup && participants.length === 2) {
+    const existingThreadId = await findExistingOneOnOneThread(participants[0], participants[1]);
+    if (existingThreadId) {
+      return existingThreadId;
+    }
+  }
 
   const threadData = {
     participants,
@@ -40,6 +48,34 @@ export const createThread = async (
 
   const docRef = await addDoc(col, threadData);
   return docRef.id;
+};
+
+// Helper function to find existing one-on-one thread
+const findExistingOneOnOneThread = async (userId1: string, userId2: string): Promise<string | null> => {
+  const db = getDb();
+  const col = collection(db, 'threads');
+
+  // Check if thread already exists between these two users
+  const q = query(
+    col,
+    where('participants', 'array-contains', userId1),
+    where('isGroup', '==', false)
+  );
+
+  const snapshot = await getDocs(q);
+
+  for (const doc of snapshot.docs) {
+    const data = doc.data();
+    if (
+      data.participants.length === 2 &&
+      data.participants.includes(userId1) &&
+      data.participants.includes(userId2)
+    ) {
+      return doc.id;
+    }
+  }
+
+  return null;
 };
 
 // Get a single thread

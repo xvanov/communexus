@@ -1,6 +1,6 @@
 // contacts.ts - Service for managing user contacts and online status
 import { getDb } from './firebase';
-import { collection, doc, getDocs, setDoc, updateDoc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, updateDoc, onSnapshot, query, where, getDoc } from 'firebase/firestore';
 import { User } from '../types/User';
 
 export interface Contact {
@@ -62,7 +62,7 @@ export const subscribeToContacts = (
         name: data.name,
         email: data.email,
         photoUrl: data.photoUrl,
-        online: data.online,
+        online: data.online || false,
         lastSeen: data.lastSeen?.toDate() || new Date(),
       });
     });
@@ -70,62 +70,137 @@ export const subscribeToContacts = (
   });
 };
 
-// Update user's online status
+// Update user's online status with proper error handling
 export const updateUserOnlineStatus = async (userId: string, online: boolean): Promise<void> => {
   const db = getDb();
   const userRef = doc(db, 'users', userId);
   
-  // Use setDoc with merge to create or update the user document
-  await setDoc(userRef, {
-    online,
-    lastSeen: new Date(),
-  }, { merge: true });
-  
-  // Also update in all contact lists
-  const contactsRef = collection(db, 'users', userId, 'contacts');
-  const snapshot = await getDocs(contactsRef);
-  
-  const updatePromises = snapshot.docs.map((contactDoc) => {
-    const contactRef = doc(db, 'users', contactDoc.id, 'contacts', userId);
-    return setDoc(contactRef, {
+  try {
+    // Update user's own status only
+    await setDoc(userRef, {
       online,
       lastSeen: new Date(),
     }, { merge: true });
-  });
-  
-  await Promise.all(updatePromises);
+    
+    console.log(`Updated online status for ${userId}: ${online}`);
+  } catch (error) {
+    console.error('Failed to update online status:', error);
+    throw error;
+  }
 };
 
-// Initialize test users as contacts for each other
+// Auto-create test users if they don't exist
+export const autoCreateTestUsers = async (): Promise<void> => {
+  try {
+    // Import Firebase directly
+    const { initializeApp, getApps } = await import('firebase/app');
+    const { connectAuthEmulator, getAuth } = await import('firebase/auth');
+    const { createUserWithEmailAndPassword } = await import('firebase/auth');
+    
+    // Initialize Firebase app
+    let app = getApps()[0];
+    if (!app) {
+      app = initializeApp({
+        apiKey: 'AIzaSyC-fake-key-for-emulator',
+        authDomain: 'demo-communexus.firebaseapp.com',
+        projectId: 'demo-communexus',
+        storageBucket: 'demo-communexus.appspot.com',
+        appId: '1:123456789:web:abcdef123456',
+      });
+    }
+    
+    // Use simple getAuth (no AsyncStorage needed for user creation)
+    const auth = getAuth(app);
+    
+    // Connect to emulator
+    try {
+      connectAuthEmulator(auth, 'http://127.0.0.1:9099', {
+        disableWarnings: true,
+      });
+    } catch (e) {
+      // Emulator already connected
+    }
+    
+    console.log('Firebase Auth initialized successfully');
+    
+    const testUsers = [
+      { email: 'john@test.com', password: 'password' },
+      { email: 'jane@test.com', password: 'password' },
+      { email: 'alice@test.com', password: 'password' },
+      { email: 'bob@test.com', password: 'password' },
+    ];
+
+    console.log('Auto-creating test users...');
+    
+    for (const user of testUsers) {
+      try {
+        await createUserWithEmailAndPassword(auth, user.email, user.password);
+        console.log(`✅ Created test user: ${user.email}`);
+      } catch (error: any) {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log(`ℹ️ Test user already exists: ${user.email}`);
+        } else {
+          console.error(`❌ Failed to create test user ${user.email}:`, error.message);
+          console.error('Full error:', error);
+        }
+      }
+    }
+    
+    console.log('Test user creation completed');
+  } catch (error: any) {
+    console.error('❌ Firebase initialization failed:', error.message);
+    console.error('Full error:', error);
+    throw error;
+  }
+};
+
+// Initialize test users as contacts for each other with better error handling
 export const initializeTestUserContacts = async (currentUserId: string): Promise<void> => {
   const testUsers = [
     {
-      id: 'a@test.com',
-      name: 'User A',
-      email: 'a@test.com',
+      id: 'john@test.com',
+      name: 'John',
+      email: 'john@test.com',
       online: false,
       lastSeen: new Date(),
     },
     {
-      id: 'b@test.com',
-      name: 'User B', 
-      email: 'b@test.com',
+      id: 'jane@test.com',
+      name: 'Jane',
+      email: 'jane@test.com',
       online: false,
       lastSeen: new Date(),
     },
     {
-      id: 'demo@communexus.com',
-      name: 'Demo User',
-      email: 'demo@communexus.com',
+      id: 'alice@test.com',
+      name: 'Alice',
+      email: 'alice@test.com',
+      online: false,
+      lastSeen: new Date(),
+    },
+    {
+      id: 'bob@test.com',
+      name: 'Bob',
+      email: 'bob@test.com',
       online: false,
       lastSeen: new Date(),
     },
   ];
 
-  // Only add contacts for the current authenticated user
-  for (const contact of testUsers) {
-    if (contact.id !== currentUserId) {
-      await addContact(currentUserId, contact);
+  try {
+    // Only add contacts for the current authenticated user
+    for (const contact of testUsers) {
+      if (contact.id !== currentUserId) {
+        try {
+          await addContact(currentUserId, contact);
+        } catch (error) {
+          console.log(`Failed to add contact ${contact.id}:`, error);
+          // Continue with other contacts even if one fails
+        }
+      }
     }
+  } catch (error) {
+    console.error('Failed to initialize test user contacts:', error);
+    throw error;
   }
 };

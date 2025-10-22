@@ -14,9 +14,11 @@ service cloud.firestore {
     
     // Threads - users can only access threads they're participants in
     match /threads/{threadId} {
-      // Split create from other writes to avoid resource.data access on create
-      // Stabilized: allow authenticated creation; membership enforced on read/update
-      allow create: if request.auth != null;
+      // Allow authenticated users to create threads
+      allow create: if request.auth != null && 
+        request.auth.uid in request.resource.data.participants;
+      
+      // Allow read/update/delete only for participants
       allow read, update, delete: if request.auth != null && 
         (request.auth.uid in resource.data.participants || 
          request.auth.token.email in resource.data.participants);
@@ -24,8 +26,12 @@ service cloud.firestore {
     
     // Messages - users can only access messages in threads they're participants in
     match /threads/{threadId}/messages/{messageId} {
-      // Stabilized: allow authenticated creation; membership enforced on read/update
-      allow create: if request.auth != null;
+      // Allow authenticated users to create messages in threads they participate in
+      allow create: if request.auth != null &&
+        (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
+         request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
+      
+      // Allow read/update/delete only for thread participants
       allow read, update, delete: if request.auth != null &&
         (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
          request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
