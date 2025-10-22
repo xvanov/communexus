@@ -4,7 +4,7 @@ import path from 'path';
 describe('Cloud Functions (T011)', () => {
   test('exports include helloWorld and AI functions', async () => {
     const libPath = path.resolve(process.cwd(), 'functions/lib/index.js');
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+
     const mod = require(libPath);
     expect(mod).toHaveProperty('helloWorld');
     expect(mod).toHaveProperty('aiThreadSummary');

@@ -11,7 +11,10 @@ export const useAuth = () => {
     const { auth } = initializeFirebase();
 
     const unsubscribe = onAuthStateChanged(auth, firebaseUser => {
-      console.log('Auth state changed:', firebaseUser ? firebaseUser.email : 'No user');
+      console.log(
+        'Auth state changed:',
+        firebaseUser ? firebaseUser.email : 'No user'
+      );
       setUser(firebaseUser);
       setLoading(false);
     });

@@ -35,12 +35,12 @@ export default function ChatListScreen({ navigation }: any) {
 
   const handleLogout = async () => {
     console.log('Logout button pressed');
-    
+
     // For web, use confirm instead of Alert.alert
     if (Platform.OS === 'web') {
       const confirmed = window.confirm('Are you sure you want to logout?');
       if (!confirmed) return;
-      
+
       try {
         console.log('Starting logout process...');
         const { auth } = initializeFirebase();
@@ -53,29 +53,28 @@ export default function ChatListScreen({ navigation }: any) {
       }
     } else {
       // For mobile, use Alert.alert
-      Alert.alert(
-        'Logout',
-        'Are you sure you want to logout?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Logout',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                console.log('Starting logout process...');
-                const { auth } = initializeFirebase();
-                console.log('Current user before logout:', auth.currentUser?.email);
-                await signOut(auth);
-                console.log('Logout successful');
-              } catch (error) {
-                console.error('Logout error:', error);
-                Alert.alert('Error', 'Failed to logout');
-              }
-            },
+      Alert.alert('Logout', 'Are you sure you want to logout?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('Starting logout process...');
+              const { auth } = initializeFirebase();
+              console.log(
+                'Current user before logout:',
+                auth.currentUser?.email
+              );
+              await signOut(auth);
+              console.log('Logout successful');
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout');
+            }
           },
-        ]
-      );
+        },
+      ]);
     }
   };
 
@@ -111,21 +110,32 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Communexus</Text>
+          <Text style={styles.headerTitle} testID="chat-list-title">
+            Communexus
+          </Text>
           <Text style={styles.usernameText}>
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.contactsButton} onPress={handleContacts}>
+          <TouchableOpacity
+            style={styles.contactsButton}
+            onPress={handleContacts}
+            testID="contacts-button"
+          >
             <Text style={styles.contactsButtonText}>Contacts</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={handleLogout}
+            testID="logout-button"
+          >
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.createButton}
             onPress={handleCreateThread}
+            testID="new-chat-button"
           >
             <Text style={styles.createButtonText}>+</Text>
           </TouchableOpacity>
@@ -157,6 +167,7 @@ export default function ChatListScreen({ navigation }: any) {
             />
           )}
           style={styles.threadList}
+          testID="thread-list"
         />
       )}
     </View>
@@ -164,130 +175,130 @@ export default function ChatListScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
   centerContainer: {
+    alignItems: 'center',
+    backgroundColor: '#000000',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000000',
     padding: 20,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingTop: 50,
-    backgroundColor: '#1E3A8A',
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E40AF',
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  usernameText: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  logoutButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#FF3B30',
-    borderRadius: 12,
-  },
-  logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
   contactsButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
     backgroundColor: '#34C759',
     borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   contactsButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  container: {
+    backgroundColor: '#000000',
+    flex: 1,
   },
   createButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#1E3A8A',
-    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#1E3A8A',
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
   },
   createButtonText: {
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: 'bold',
   },
-  threadList: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    textAlign: 'center',
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    backgroundColor: '#000000',
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: '#8E8E93',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
   emptyButton: {
     backgroundColor: '#1E3A8A',
+    borderRadius: 25,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 25,
   },
   emptyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  emptySubtitle: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  emptyTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  errorSubtext: {
+    color: '#8E8E93',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    backgroundColor: '#1E3A8A',
+    borderBottomColor: '#1E40AF',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingVertical: 16,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerRight: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  loadingText: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginTop: 12,
+  },
+  logoutButton: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  logoutButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  threadList: {
+    backgroundColor: '#000000',
+    flex: 1,
+  },
+  usernameText: {
+    color: '#8E8E93',
+    fontSize: 14,
+    marginTop: 2,
   },
 });

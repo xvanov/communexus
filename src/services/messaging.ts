@@ -66,7 +66,9 @@ export const sendMessage = async (message: Message): Promise<string> => {
       ...(message.mediaUrl && { mediaUrl: message.mediaUrl }),
       ...(message.mediaType && { mediaType: message.mediaType }),
       ...(message.priority && { priority: message.priority }),
-      ...(message.isDecision !== undefined && { isDecision: message.isDecision }),
+      ...(message.isDecision !== undefined && {
+        isDecision: message.isDecision,
+      }),
       ...(message.deleted !== undefined && { deleted: message.deleted }),
     });
 
@@ -80,7 +82,6 @@ export const sendMessage = async (message: Message): Promise<string> => {
 
     return docRef.id;
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Failed to send message:', error);
     throw error;
   }
@@ -119,36 +120,44 @@ export const subscribeToMessages = (
   const col = collection(db, `threads/${threadId}/messages`);
   const q = query(col, orderBy('createdAt', 'desc'), limit(limitCount));
 
-  return onSnapshot(q, snapshot => {
-    const messages: Message[] = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      messages.push({
-        id: doc.id,
-        threadId: data.threadId,
-        senderId: data.senderId,
-        senderName: data.senderName,
-        senderPhotoUrl: data.senderPhotoUrl,
-        text: data.text,
-        mediaUrl: data.mediaUrl,
-        mediaType: data.mediaType,
-        status: data.status || 'sent',
-        deliveredTo: data.deliveredTo || [],
-        readBy: data.readBy || [],
-        readTimestamps: data.readTimestamps || {},
-        createdAt: data.createdAt?.toDate() || new Date(),
-        sentAt: data.sentAt?.toDate(),
-        deliveredAt: data.deliveredAt?.toDate(),
-        priority: data.priority,
-        isDecision: data.isDecision || false,
-        deleted: data.deleted || false,
+  return onSnapshot(
+    q,
+    snapshot => {
+      const messages: Message[] = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        messages.push({
+          id: doc.id,
+          threadId: data.threadId,
+          senderId: data.senderId,
+          senderName: data.senderName,
+          senderPhotoUrl: data.senderPhotoUrl,
+          text: data.text,
+          mediaUrl: data.mediaUrl,
+          mediaType: data.mediaType,
+          status: data.status || 'sent',
+          deliveredTo: data.deliveredTo || [],
+          readBy: data.readBy || [],
+          readTimestamps: data.readTimestamps || {},
+          createdAt: data.createdAt?.toDate() || new Date(),
+          sentAt: data.sentAt?.toDate(),
+          deliveredAt: data.deliveredAt?.toDate(),
+          priority: data.priority,
+          isDecision: data.isDecision || false,
+          deleted: data.deleted || false,
+        });
       });
-    });
 
-    // Sort by creation time (oldest first for display)
-    messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-    callback(messages);
-  });
+      // Sort by creation time (oldest first for display)
+      messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      callback(messages);
+    },
+    error => {
+      // Handle errors gracefully - call callback with empty array to stop loading
+      console.error('Error subscribing to messages:', error);
+      callback([]);
+    }
+  );
 };
 
 // Subscribe to thread updates

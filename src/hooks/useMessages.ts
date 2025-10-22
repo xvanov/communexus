@@ -20,12 +20,24 @@ export const useMessages = (threadId: string) => {
     setLoading(true);
     setError(null);
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('Message loading timeout - stopping loading state');
+        setLoading(false);
+        setError('Timeout loading messages');
+      }
+    }, 10000); // 10 second timeout
+
     const unsubscribe = subscribeToMessages(threadId, updatedMessages => {
+      clearTimeout(timeoutId);
       setMessages(updatedMessages);
       setLoading(false);
+      setError(null);
     });
 
     return () => {
+      clearTimeout(timeoutId);
       unsubscribe();
     };
   }, [threadId]);
@@ -39,8 +51,7 @@ export const useMessages = (threadId: string) => {
 
       if (unreadMessageIds.length > 0) {
         markMessagesAsRead(threadId, user.uid, unreadMessageIds).catch(
-          (error) => {
-            // eslint-disable-next-line no-console
+          error => {
             console.error('Failed to mark messages as read:', error);
           }
         );

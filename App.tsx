@@ -19,44 +19,42 @@ export default function App() {
   }
 
   if (!user) {
-    return (
-      <AuthScreen onAuthSuccess={() => {}} />
-    );
+    return <AuthScreen onAuthSuccess={() => {}} />;
   }
 
   return (
     <NavigationContainer>
       <StatusBar style="auto" />
-              <Stack.Navigator
-                initialRouteName="ChatList"
-                screenOptions={{
-                  headerStyle: {
-                    backgroundColor: '#1E3A8A',
-                  },
-                  headerTintColor: '#FFFFFF',
-                  headerTitleStyle: {
-                    fontWeight: 'bold',
-                    fontSize: 18,
-                  },
-                }}
+      <Stack.Navigator
+        initialRouteName="ChatList"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#1E3A8A',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
       >
-        <Stack.Screen 
-          name="ChatList" 
+        <Stack.Screen
+          name="ChatList"
           component={ChatListScreen}
           options={{ title: 'Communexus' }}
         />
-        <Stack.Screen 
-          name="Chat" 
+        <Stack.Screen
+          name="Chat"
           component={ChatScreen}
           options={{ title: 'Chat' }}
         />
-        <Stack.Screen 
-          name="GroupCreate" 
+        <Stack.Screen
+          name="GroupCreate"
           component={GroupCreateScreen}
           options={{ title: 'Create Thread' }}
         />
-        <Stack.Screen 
-          name="Contacts" 
+        <Stack.Screen
+          name="Contacts"
           component={ContactsScreen}
           options={{ title: 'Contacts' }}
         />
@@ -64,4 +62,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-

@@ -42,7 +42,6 @@ export const uploadImage = async (
       mediaId,
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Error uploading image:', error);
     throw new Error('Failed to upload image');
   }
@@ -82,7 +81,6 @@ export const uploadDocument = async (
       mediaId,
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Error uploading document:', error);
     throw new Error('Failed to upload document');
   }
@@ -104,7 +102,6 @@ export const deleteMedia = async (mediaUrl: string): Promise<void> => {
       await deleteObject(storageRef);
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Error deleting media:', error);
     throw new Error('Failed to delete media');
   }

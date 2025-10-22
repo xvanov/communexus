@@ -7,10 +7,10 @@ import { ChatScreen } from '../pages/ChatScreen.js';
 import { TestHelpers } from '../helpers/TestHelpers.js';
 
 describe('Messaging Flow Tests', () => {
-    let authScreen: AuthScreen;
-    let chatListScreen: ChatListScreen;
-    let chatScreen: ChatScreen;
-    let testUsers: any;
+    let authScreen;
+    let chatListScreen;
+    let chatScreen;
+    let testUsers;
 
     before(async () => {
         // Initialize page objects
@@ -36,8 +36,12 @@ describe('Messaging Flow Tests', () => {
 
     afterEach(async () => {
         // Take screenshot on test failure
-        if (browser.config.framework === 'mocha' && this.currentTest?.state === 'failed') {
-            await TestHelpers.takeScreenshot(`messaging-test-failed-${this.currentTest.title}`);
+        try {
+            if (this.currentTest?.state === 'failed') {
+                await TestHelpers.takeScreenshot(`messaging-test-failed-${this.currentTest.title}`);
+            }
+        } catch (error) {
+            console.log('Screenshot failed:', error.message);
         }
     });
 

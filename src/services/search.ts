@@ -72,7 +72,6 @@ export const searchMessages = async (
         });
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(`Error searching in thread ${threadId}:`, error);
     }
   }
@@ -238,7 +237,6 @@ export const getSearchSuggestions = async (
         words.forEach((word: string) => suggestions.add(word));
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(
         `Error getting suggestions from thread ${threadId}:`,
         error

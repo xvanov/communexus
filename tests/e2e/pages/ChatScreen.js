@@ -3,20 +3,20 @@
 
 export class ChatScreen {
     // Selectors
-    private headerTitle = '~chat-header-title';
-    private messageList = '~message-list';
-    private messageBubble = '~message-bubble';
-    private messageText = '~message-text';
-    private messageSender = '~message-sender';
-    private messageTimestamp = '~message-timestamp';
-    private messageInput = '~message-input';
-    private sendButton = '~send-button';
-    private backButton = '~back-button';
-    private typingIndicator = '~typing-indicator';
-    private messageStatus = '~message-status';
+    headerTitle = '~chat-header-title';
+    messageList = '~message-list';
+    messageBubble = '~message-bubble';
+    messageText = '~message-text';
+    messageSender = '~message-sender';
+    messageTimestamp = '~message-timestamp';
+    messageInput = '~message-input';
+    sendButton = '~send-button';
+    backButton = '~back-button';
+    typingIndicator = '~typing-indicator';
+    messageStatus = '~message-status';
 
     // Actions
-    async enterMessage(text: string) {
+    async enterMessage(text) {
         await $(this.messageInput).setValue(text);
     }
 
@@ -24,7 +24,7 @@ export class ChatScreen {
         await $(this.sendButton).click();
     }
 
-    async sendMessage(text: string) {
+    async sendMessage(text) {
         await this.enterMessage(text);
         await this.tapSend();
     }
@@ -43,7 +43,7 @@ export class ChatScreen {
         return messages.length;
     }
 
-    async getMessageText(index: number) {
+    async getMessageText(index) {
         const messages = await $$(this.messageBubble);
         if (messages[index]) {
             return await messages[index].$(this.messageText).getText();
@@ -60,7 +60,7 @@ export class ChatScreen {
         return null;
     }
 
-    async getMessageSender(index: number) {
+    async getMessageSender(index) {
         const messages = await $$(this.messageBubble);
         if (messages[index]) {
             return await messages[index].$(this.messageSender).getText();
@@ -85,7 +85,7 @@ export class ChatScreen {
         await $(this.messageList).waitForDisplayed({ timeout: 10000 });
     }
 
-    async waitForMessageCount(expectedCount: number) {
+    async waitForMessageCount(expectedCount) {
         await browser.waitUntil(
             async () => (await this.getMessageCount()) === expectedCount,
             { timeout: 10000 }
@@ -108,5 +108,3 @@ export class ChatScreen {
         await $(this.typingIndicator).waitForDisplayed({ timeout: 5000, reverse: true });
     }
 }
-
-

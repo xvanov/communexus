@@ -6,9 +6,9 @@ import { ChatListScreen } from '../pages/ChatListScreen.js';
 import { TestHelpers } from '../helpers/TestHelpers.js';
 
 describe('Authentication Flow Tests', () => {
-    let authScreen: AuthScreen;
-    let chatListScreen: ChatListScreen;
-    let testUsers: any;
+    let authScreen;
+    let chatListScreen;
+    let testUsers;
 
     before(async () => {
         // Initialize page objects
@@ -27,14 +27,54 @@ describe('Authentication Flow Tests', () => {
         // Reset app state before each test
         await TestHelpers.resetApp();
         
+        // Check if we're already logged in (on chat list screen)
+        try {
+            const chatListTitle = await $('~chat-list-title');
+            if (await chatListTitle.isDisplayed()) {
+                console.log('Already logged in, logging out first...');
+                // Tap logout button
+                const logoutButton = await $('~logout-button');
+                if (await logoutButton.isDisplayed()) {
+                    await logoutButton.click();
+                    await browser.pause(2000); // Wait for logout to complete
+                }
+            }
+        } catch (error) {
+            console.log('Not on chat list screen, continuing...');
+        }
+        
+        // Dismiss any error alerts that might be blocking the screen
+        try {
+            const alert = await $('XCUIElementTypeAlert');
+            if (await alert.isDisplayed()) {
+                console.log('Dismissing error alert...');
+                // Try to find and click the OK button by name
+                const okButton = await $('~OK');
+                if (await okButton.isDisplayed()) {
+                    await okButton.click();
+                    await browser.pause(2000); // Wait for alert to dismiss
+                } else {
+                    // Alternative: try clicking the alert itself to dismiss
+                    await alert.click();
+                    await browser.pause(2000);
+                }
+            }
+        } catch (error) {
+            console.log('No alert to dismiss or error dismissing:', error.message);
+        }
+        
         // Wait for auth screen to load
         await TestHelpers.waitForElement('~email-input');
     });
 
     afterEach(async () => {
         // Take screenshot on test failure
-        if (browser.config.framework === 'mocha' && this.currentTest?.state === 'failed') {
-            await TestHelpers.takeScreenshot(`auth-test-failed-${this.currentTest.title}`);
+        try {
+            if (this.currentTest?.state === 'failed') {
+                await TestHelpers.takeScreenshot(`auth-test-failed-${this.currentTest.title}`);
+            }
+        } catch (error) {
+            console.log('Screenshot failed:', error.message);
         }
     });
 
