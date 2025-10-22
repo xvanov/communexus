@@ -1,14 +1,27 @@
 // messaging.ts - Send/receive messages with Firestore real-time listeners
-// TODO: Implement real-time messaging with optimistic UI updates
 import { Message } from '../types/Message';
+import { initializeFirebase } from './firebase';
+import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore';
 
-export const sendMessage = async (_message: Message) => {
-  // TODO: Implement message sending
+export const sendMessage = async (message: Message) => {
+  const { db } = initializeFirebase();
+  const col = collection(db, `threads/${message.threadId}/messages`);
+  await addDoc(col, {
+    ...message,
+    createdAt: message.createdAt ?? (serverTimestamp() as unknown as Date),
+  });
 };
 
 export const subscribeToMessages = (
-  _threadId: string,
-  _callback: (messages: Message[]) => void
+  threadId: string,
+  callback: (messages: Message[]) => void
 ) => {
-  // TODO: Implement real-time message subscription
+  const { db } = initializeFirebase();
+  const col = collection(db, `threads/${threadId}/messages`);
+  const q = query(col, orderBy('timestamp', 'desc') as any);
+  return onSnapshot(q, snap => {
+    const items: Message[] = [] as any;
+    snap.forEach(doc => items.push({ id: doc.id, ...(doc.data() as any) }));
+    callback(items);
+  });
 };

@@ -209,3 +209,5 @@ coverage/
 *.tgz
 *.tar.gz
 *codeql*
+# Firebase Functions build output
+functions/lib/

@@ -18,5 +18,5 @@ export interface Message {
   deliveredAt?: Date;
   priority?: 'urgent' | 'high' | 'normal';
   isDecision?: boolean;
-  deleted: boolean;
+  deleted?: boolean;
 }
