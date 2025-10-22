@@ -28,7 +28,10 @@ export const createThread = async (
 
   // For one-on-one chats, check if thread already exists
   if (!isGroup && participants.length === 2) {
-    const existingThreadId = await findExistingOneOnOneThread(participants[0], participants[1]);
+    const existingThreadId = await findExistingOneOnOneThread(
+      participants[0],
+      participants[1]
+    );
     if (existingThreadId) {
       return existingThreadId;
     }
@@ -51,7 +54,10 @@ export const createThread = async (
 };
 
 // Helper function to find existing one-on-one thread
-const findExistingOneOnOneThread = async (userId1: string, userId2: string): Promise<string | null> => {
+const findExistingOneOnOneThread = async (
+  userId1: string,
+  userId2: string
+): Promise<string | null> => {
   const db = getDb();
   const col = collection(db, 'threads');
 

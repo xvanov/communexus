@@ -28,7 +28,7 @@ export default function ChatScreen({ route, navigation }: any) {
   const flatListRef = useRef<FlatList>(null);
 
   // Debug logging
-  // eslint-disable-next-line no-console
+
   console.log('ChatScreen params:', { threadId, thread, contact });
 
   // Handle case where thread is undefined (navigating from contacts)
@@ -99,7 +99,6 @@ export default function ChatScreen({ route, navigation }: any) {
       // Send the actual message
       await sendMessage(optimisticMessage);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Failed to send message:', error);
       throw error; // Let ChatInput handle the error display
     }
@@ -151,6 +150,7 @@ export default function ChatScreen({ route, navigation }: any) {
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
+        testID="message-list"
       />
 
       <ChatInput onSendMessage={handleSendMessage} disabled={!user} />
@@ -159,38 +159,38 @@ export default function ChatScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F2F2F7',
-  },
   centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F2F2F7',
+    flex: 1,
+    justifyContent: 'center',
     padding: 20,
   },
-  messagesList: {
+  container: {
+    backgroundColor: '#F2F2F7',
     flex: 1,
+  },
+  errorSubtext: {
+    color: '#8E8E93',
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  loadingText: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginTop: 12,
   },
   messagesContent: {
     paddingVertical: 16,
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
-    textAlign: 'center',
-  },
-  errorSubtext: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-    marginTop: 8,
+  messagesList: {
+    flex: 1,
   },
 });

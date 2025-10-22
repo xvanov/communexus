@@ -37,10 +37,16 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
   };
 
   return (
-    <TouchableOpacity style={styles.threadItem} onPress={() => onPress(thread)}>
+    <TouchableOpacity
+      style={styles.threadItem}
+      onPress={() => onPress(thread)}
+      testID="thread-item"
+    >
       <View style={styles.threadContent}>
         <View style={styles.threadHeader}>
-          <Text style={styles.threadName}>{displayName}</Text>
+          <Text style={styles.threadName} testID="thread-name">
+            {displayName}
+          </Text>
           <Text style={styles.threadTime}>
             {formatTime(thread.lastMessage.timestamp)}
           </Text>
@@ -48,7 +54,7 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
         <View style={styles.threadPreview}>
           <View style={styles.spacer} />
           {unreadCount > 0 && (
-            <View style={styles.unreadBadge}>
+            <View style={styles.unreadBadge} testID="unread-badge">
               <Text style={styles.unreadText}>
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Text>
@@ -61,47 +67,47 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
 };
 
 const styles = StyleSheet.create({
-  threadItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1C1C1E',
-    backgroundColor: '#000000',
+  spacer: {
+    flex: 1,
   },
   threadContent: {
     flex: 1,
   },
   threadHeader: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 4,
   },
+  threadItem: {
+    backgroundColor: '#000000',
+    borderBottomColor: '#1C1C1E',
+    borderBottomWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
   threadName: {
-    fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
     flex: 1,
-  },
-  threadTime: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: 16,
+    fontWeight: '600',
   },
   threadPreview: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'center',
   },
-  spacer: {
-    flex: 1,
+  threadTime: {
+    color: '#8E8E93',
+    fontSize: 12,
   },
   unreadBadge: {
+    alignItems: 'center',
     backgroundColor: '#1E3A8A',
     borderRadius: 12,
-    minWidth: 24,
     height: 24,
     justifyContent: 'center',
-    alignItems: 'center',
+    minWidth: 24,
   },
   unreadText: {
     color: '#FFFFFF',

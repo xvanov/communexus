@@ -9,12 +9,23 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 import { initializeFirebase } from '../services/firebase';
-import { initializeTestUserContacts, autoCreateTestUsers } from '../services/contacts';
+import {
+  initializeTestUserContacts,
+  autoCreateTestUsers,
+} from '../services/contacts';
 import { Logo } from '../components/Logo';
 
-export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => void }) {
+export default function AuthScreen({
+  onAuthSuccess,
+}: {
+  onAuthSuccess: () => void;
+}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -30,24 +41,23 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
     setLoading(true);
     try {
       const { auth } = initializeFirebase();
-      
+
       if (isSignUp) {
         await createUserWithEmailAndPassword(auth, email.trim(), password);
         Alert.alert('Success', 'Account created successfully!');
       } else {
         await signInWithEmailAndPassword(auth, email.trim(), password);
       }
-      
+
       // Initialize contacts for test users after successful auth
       try {
         if (auth.currentUser) {
           await initializeTestUserContacts(auth.currentUser.uid);
         }
       } catch (contactError) {
-        // eslint-disable-next-line no-console
         console.log('Contacts initialization skipped:', contactError);
       }
-      
+
       onAuthSuccess();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Authentication failed');
@@ -62,17 +72,13 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
       setShowDemoUsers(true);
     } else {
       // For mobile, use Alert.alert
-      Alert.alert(
-        'Choose Demo User',
-        'Select a demo user to sign in with:',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'John', onPress: () => signInAsDemoUser('john@test.com') },
-          { text: 'Jane', onPress: () => signInAsDemoUser('jane@test.com') },
-          { text: 'Alice', onPress: () => signInAsDemoUser('alice@test.com') },
-          { text: 'Bob', onPress: () => signInAsDemoUser('bob@test.com') },
-        ]
-      );
+      Alert.alert('Choose Demo User', 'Select a demo user to sign in with:', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'John', onPress: () => signInAsDemoUser('john@test.com') },
+        { text: 'Jane', onPress: () => signInAsDemoUser('jane@test.com') },
+        { text: 'Alice', onPress: () => signInAsDemoUser('alice@test.com') },
+        { text: 'Bob', onPress: () => signInAsDemoUser('bob@test.com') },
+      ]);
     }
   };
 
@@ -81,10 +87,16 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
     try {
       console.log('Manually creating demo users...');
       await autoCreateTestUsers();
-      Alert.alert('Success', 'Demo users created successfully! You can now sign in with them.');
+      Alert.alert(
+        'Success',
+        'Demo users created successfully! You can now sign in with them.'
+      );
     } catch (error: any) {
       console.error('Failed to create demo users:', error);
-      Alert.alert('Error', `Failed to create demo users: ${error.message}\n\nMake sure Firebase emulators are running:\nnpx firebase emulators:start --only firestore,auth,storage --project demo-communexus`);
+      Alert.alert(
+        'Error',
+        `Failed to create demo users: ${error.message}\n\nMake sure Firebase emulators are running:\nnpx firebase emulators:start --only firestore,auth,storage --project demo-communexus`
+      );
     } finally {
       setLoading(false);
     }
@@ -94,15 +106,15 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
     setLoading(true);
     try {
       const { auth } = initializeFirebase();
-      
+
       // Auto-create test users first
       console.log('Creating test users before sign in...');
       await autoCreateTestUsers();
-      
+
       // Sign in with selected user
       console.log(`Signing in as ${email}...`);
       await signInWithEmailAndPassword(auth, email, 'password');
-      
+
       // Initialize contacts for test user
       try {
         if (auth.currentUser) {
@@ -111,7 +123,7 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
       } catch (contactError) {
         console.log('Contacts initialization skipped:', contactError);
       }
-      
+
       console.log('Demo user sign in successful');
       onAuthSuccess();
     } catch (error: any) {
@@ -140,8 +152,11 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
             keyboardType="email-address"
             autoCapitalize="none"
             editable={!loading}
+            testID="email-input"
+            accessibilityLabel="email-input"
+            accessibilityIdentifier="email-input"
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Password"
@@ -149,15 +164,25 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
             onChangeText={setPassword}
             secureTextEntry
             editable={!loading}
+            testID="password-input"
+            accessibilityLabel="password-input"
+            accessibilityIdentifier="password-input"
           />
 
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
             onPress={handleAuth}
             disabled={loading}
+            testID="sign-in-button"
+            accessibilityLabel={isSignUp ? 'Sign Up button' : 'Sign In button'}
+            accessibilityIdentifier="sign-in-button"
           >
             {loading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator
+                size="small"
+                color="#FFFFFF"
+                testID="loading-indicator"
+              />
             ) : (
               <Text style={styles.buttonText}>
                 {isSignUp ? 'Sign Up' : 'Sign In'}
@@ -169,9 +194,15 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
             style={styles.linkButton}
             onPress={() => setIsSignUp(!isSignUp)}
             disabled={loading}
+            testID="sign-up-button"
+            accessibilityLabel={
+              isSignUp ? 'Switch to Sign In' : 'Switch to Sign Up'
+            }
           >
             <Text style={styles.linkText}>
-              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+              {isSignUp
+                ? 'Already have an account? Sign In'
+                : "Don't have an account? Sign Up"}
             </Text>
           </TouchableOpacity>
 
@@ -179,6 +210,8 @@ export default function AuthScreen({ onAuthSuccess }: { onAuthSuccess: () => voi
             style={[styles.button, styles.demoButton]}
             onPress={handleDemoLogin}
             disabled={loading}
+            testID="test-user-button"
+            accessibilityLabel="Try Demo User button"
           >
             <Text style={styles.buttonText}>Try Demo User</Text>
           </TouchableOpacity>
@@ -262,33 +295,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  cancelButton: {
+    backgroundColor: '#6C757D',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
   container: {
     backgroundColor: '#000000',
     flex: 1,
   },
   content: {
+    flex: 1,
+    justifyContent: 'center',
     padding: 32,
     paddingTop: 80,
-    justifyContent: 'center',
-    flex: 1,
+  },
+  createUsersButton: {
+    backgroundColor: '#8B5CF6',
+    marginTop: 10,
   },
   demoButton: {
     backgroundColor: '#1E3A8A',
     marginTop: 20,
   },
-  demoUserSelection: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: '#2C2C2E',
+  demoUserButton: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: 8,
+    marginBottom: 8,
+    minWidth: '45%',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
-  demoUserTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+  demoUserButtonText: {
     color: '#FFFFFF',
-    marginBottom: 16,
+    fontSize: 14,
+    fontWeight: '600',
     textAlign: 'center',
   },
   demoUserButtons: {
@@ -297,40 +339,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  demoUserButton: {
-    backgroundColor: '#1E3A8A',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    minWidth: '45%',
+  demoUserSelection: {
+    backgroundColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
+    borderRadius: 16,
+    borderWidth: 1,
+    marginTop: 16,
+    padding: 20,
   },
-  demoUserButtonText: {
+  demoUserTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
+    marginBottom: 16,
     textAlign: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#6C757D',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  createUsersButton: {
-    backgroundColor: '#8B5CF6',
-    marginTop: 10,
   },
   form: {
     marginBottom: 30,
   },
   infoContainer: {
     backgroundColor: '#1C1C1E',
+    borderColor: '#2C2C2E',
     borderRadius: 16,
+    borderWidth: 1,
     marginTop: 20,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#2C2C2E',
   },
   infoText: {
     color: '#8E8E93',
@@ -348,10 +381,10 @@ const styles = StyleSheet.create({
     borderColor: '#2C2C2E',
     borderRadius: 12,
     borderWidth: 1,
+    color: '#FFFFFF',
     fontSize: 16,
     marginBottom: 16,
     padding: 16,
-    color: '#FFFFFF',
   },
   linkButton: {
     alignItems: 'center',
@@ -370,15 +403,15 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: 'center',
   },
+  testUsersButton: {
+    backgroundColor: '#FF6B35',
+    marginTop: 10,
+  },
   title: {
     color: '#FFFFFF',
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
-  },
-  testUsersButton: {
-    backgroundColor: '#FF6B35',
-    marginTop: 10,
   },
 });

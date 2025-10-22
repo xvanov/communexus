@@ -1,4 +1,4 @@
-// WebDriverIO Configuration for Communexus Mobile App Testing
+// WebDriverIO Configuration for Android Testing
 // Phase 3.5.1: Appium Setup & Automated Testing Infrastructure
 
 export const config = {
@@ -18,15 +18,14 @@ export const config = {
     // Maximum number of concurrent workers
     maxInstances: 1,
     
-    // Capabilities for different platforms
+    // Android capabilities only
     capabilities: [
         {
-            // iOS capabilities
-            platformName: 'iOS',
-            'appium:platformVersion': '17.5',
-            'appium:deviceName': 'iPhone 15',
-            'appium:automationName': 'XCUITest',
-            'appium:bundleId': 'com.communexus.communexus',
+            platformName: 'Android',
+            'appium:platformVersion': '14.0',
+            'appium:deviceName': 'Pixel 7',
+            'appium:automationName': 'UiAutomator2',
+            'appium:appPackage': 'com.communexus.communexus',
             'appium:newCommandTimeout': 300,
             'appium:commandTimeouts': 300,
         }

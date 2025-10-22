@@ -1,100 +1,152 @@
 <!--
 Sync Impact Report:
-Version change: 1.0.0 → 1.1.0 (added CI/CD verification requirement)
-Modified principles: Quality Gates - Added Task Completion Verification requirement
-Added sections: Task Completion Verification (detailed CI/CD pipeline checks)
+Version change: 2.3.0 → 2.3.1 (fixed principle numbering)
+Modified principles: 
+  - Memory Bank Management - Restored as Principle I (was missing)
+  - All principles correctly numbered I-VII
+Added sections: N/A
 Removed sections: N/A
-Templates requiring updates:
-  ✅ plan-template.md - Constitution Check section updated
-  ⚠ pending - spec-template.md (no constitution references found)
-  ⚠ pending - tasks-template.md (no constitution references found)
+Templates requiring updates: N/A (no template files found)
 Follow-up TODOs: None
 -->
 
-# Communexus Constitution
+# Cross-Platform Mobile Development Constitution
 
 ## Core Principles
 
-### I. Assignment-First Development (NON-NEGOTIABLE)
+### I. Memory Bank Management (NON-NEGOTIABLE)
 
-Every feature MUST directly contribute to achieving 90+ points on the GauntletAI MessageAI project rubric. Features that don't score points are deferred to Phase 3. The MVP gate (24-hour requirement) takes absolute priority over all other considerations. All development decisions must be justified against rubric scoring criteria.
+Every developer MUST read the memory bank (/memory-bank at repo root) before starting any work and MUST update it upon completion. The memory bank contains critical project context, decisions, patterns, and learnings that ensure continuity and prevent knowledge loss. No work begins without understanding the current project state, and no work is complete without documenting changes and insights.
 
-### II. Three-Phase Architecture
+- **Pre-Work Reading**: MUST read all memory bank files before starting any development task
+- **Post-Work Updates**: MUST update relevant memory bank files after completing work
+- **Context Preservation**: All significant decisions, patterns, and learnings MUST be documented
+- **Knowledge Continuity**: Memory bank serves as the single source of truth for project evolution
 
-Development MUST follow the three-phase approach: Phase 1 (MVP Gate), Phase 2 (Assignment Submission), Phase 3 (Platform Evolution). Each phase has distinct goals and deliverables. Phase 1 focuses on core messaging infrastructure, Phase 2 adds AI features for scoring, Phase 3 evolves into embeddable multi-channel platform. No phase can be skipped or merged.
+### II. Test-Driven Development
 
-### III. Real-Time Messaging Excellence
+Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST be written BEFORE implementation code and MUST be quick to implement and simple to understand. Focus on critical tests that provide valuable feedback - tests that catch real user-impacting issues like authentication failures, API errors, or broken user flows. Avoid over-testing trivial operations like mathematical calculations. Tests serve as living documentation and specification.
 
-Message delivery MUST achieve sub-200ms latency on good networks. Offline support MUST queue messages locally and sync seamlessly on reconnection. Group chat MUST support 3+ users with clear attribution and read receipts. All messaging features MUST be tested on 2+ physical devices before submission.
+### III. Critical Test Focus
 
-### IV. AI Feature Integration
+- **End-to-End UI Tests**: High-level user journeys MUST be tested using simulators/emulators - these are the MOST critical tests
+- **Authentication & API Tests**: Login failures, Firebase errors, and API integration failures MUST be tested
+- **Cross-Platform Tests**: Critical features MUST be verified on iOS, Android, and Web platforms
+- **Performance Tests**: Core performance metrics MUST be continuously monitored
+- **Backend Critical Tests**: Non-visible critical code (data processing, business logic) MUST be tested
+- **KISS Testing**: Keep tests simple and focused - avoid complex test setups and over-engineering
 
-All 5 required AI features MUST be implemented: Thread Summarization, Action Item Extraction, Smart Search, Priority Message Detection, Decision Tracking. The Proactive Assistant MUST use LangChain agent framework for advanced capability scoring. AI features MUST have <5s response times and natural user interactions.
+### IV. Simple Implementation Philosophy
 
-### V. Mobile-First Performance
+- **KISS Principle**: Keep implementations as simple as possible while meeting requirements
+- **Avoid Over-Engineering**: Resist the urge to add complexity "just in case"
+- **Clear Code**: Code should be self-documenting and easy to understand
+- **Minimal Dependencies**: Only add dependencies when absolutely necessary
+- **Progressive Enhancement**: Start simple, add complexity only when needed
 
-App launch MUST complete in <2 seconds. Scrolling MUST maintain 60 FPS through 1000+ messages using FlashList. Lifecycle handling MUST gracefully manage background/foreground transitions without message loss. Push notifications MUST work when app is closed.
+### V. Atomic Development Workflow
+
+- **Small PRs**: Each PR MUST address a single, atomic change
+- **Parallel Development**: Work MUST be structured to enable parallel development streams
+- **Independent Features**: Features MUST be developed independently to avoid merge conflicts
+- **Incremental Delivery**: Deliver value in small, frequent increments
+- **Rollback Safety**: Each change MUST be easily reversible
+
+### VI. Resource Constraints Reality
+
+- **Finite Time & Compute**: All development operates under finite time and compute constraints
+- **Fast Test Feedback**: Tests MUST provide feedback in seconds, not minutes - unit tests under 10 seconds, integration tests under 30 seconds
+- **Pivot on Test Failures**: If a test fails repeatedly due to setup issues after 5+ development cycles, MUST pivot to different implementation/infrastructure
+- **Test Framework Flexibility**: If tests are consistently flaky or complex, MUST switch to simpler testing approach/framework
+- **Resource Efficiency**: Choose testing tools and approaches that maximize feedback speed per development hour invested
+
+### VII. Cross-Platform Consistency
+
+- **Unified UX**: User experience MUST be consistent across all platforms
+- **Platform-Specific Optimization**: Leverage platform strengths while maintaining consistency
+- **Responsive Design**: UI MUST adapt gracefully to different screen sizes and orientations
+- **Accessibility**: All features MUST meet accessibility standards on all platforms
 
 ## Technical Standards
 
-### Technology Stack Requirements
+### Code Quality Requirements
 
-- **Mobile**: React Native (Expo SDK 54+), TypeScript strict mode
-- **Backend**: Firebase (Firestore, Cloud Functions, Auth, Storage, FCM)
-- **AI**: OpenAI GPT-4 API via Cloud Functions, LangChain for Proactive Assistant
-- **State**: Zustand for global state, React Query for server state
-- **Testing**: Physical devices required, Expo Go for distribution
-- **CI/CD**: GitHub Actions pipeline for automated testing, building, and deployment
+- **TypeScript Strict Mode**: All code MUST use TypeScript with strict type checking
+- **ESLint Compliance**: Zero ESLint errors, warnings should be minimized
+- **Prettier Formatting**: All code MUST be consistently formatted
+- **Code Reviews**: All changes MUST be reviewed by at least one other developer
+- **Documentation**: Public APIs and complex logic MUST be documented
 
-### Code Organization
+### Testing Standards
 
-- **Structure**: Modular architecture with clear separation between core engine, business logic, and UI
-- **Folder Layout**: `/src/core` (future SDK), `/src/business` (persona logic), `/src/ui` (presentation)
-- **Documentation**: All code MUST be well-commented with TODO markers for extensions
-- **Environment**: API keys MUST be secured in Cloud Functions, never exposed in mobile app
+- **Critical Test Coverage**: Focus on testing critical paths that impact user experience
+- **Test Performance**: Unit tests MUST complete in under 10 seconds, integration tests under 30 seconds, E2E tests under 2 minutes
+- **Test Reliability**: Tests MUST be deterministic and not flaky - if flaky, pivot to simpler approach
+- **Test Simplicity**: Tests MUST be easy to write, understand, and maintain
+- **Test Value**: Each test MUST provide meaningful feedback - avoid testing implementation details
+- **Test Data**: Use consistent, minimal test data sets that represent real scenarios
+- **Constraint Compliance**: All testing approaches MUST respect finite time and compute resources
 
-### Data Schema Compliance
+### Performance Requirements
 
-- **Users**: Must include presence tracking (online, lastSeen, typing)
-- **Threads**: Must support group chat with participant details and unread counts
-- **Messages**: Must track delivery status (sending/sent/delivered/read) with timestamps
-- **AI Features**: Must store summaries, decisions, and action items with metadata
+- **App Launch**: Initial load MUST complete within 3 seconds
+- **UI Responsiveness**: All interactions MUST respond within 100ms
+- **Memory Usage**: App MUST not exceed platform memory limits
+- **Battery Efficiency**: Background processes MUST be optimized for battery life
+- **Network Efficiency**: Minimize data usage and optimize for poor connections
+
+### Cross-Platform Standards
+
+- **React Native**: Use React Native for shared mobile codebase
+- **Web Compatibility**: Ensure web version works on modern browsers
+- **Platform APIs**: Use platform-specific APIs when necessary for optimal UX
+- **Responsive Layout**: Support various screen sizes and orientations
+- **Offline Support**: Core functionality MUST work offline
 
 ## Development Workflow
 
-### Phase Gate Requirements
+### Pre-Development Requirements
 
-- **Phase 1 Gate**: All 10 core messaging features functional, tested on 2+ devices
-- **Phase 2 Gate**: 90+ rubric points achieved, demo video complete, all deliverables submitted
-- **Phase 3 Gate**: Multi-channel integration working, SDK extraction possible
+- **Memory Bank Review**: MUST read all memory bank files to understand current project state
+- **Design Review**: UI/UX designs MUST be reviewed before implementation
+- **Technical Planning**: Architecture decisions MUST be documented
+- **Test Planning**: Test strategy MUST be defined before coding begins
+- **Dependency Analysis**: Impact on existing code MUST be assessed
 
-### Testing Mandates
+### Development Process
 
-- **Real-Time Test**: Two devices messaging with <200ms delivery
-- **Offline Test**: 5 messages queued offline, all deliver on reconnect
-- **Lifecycle Test**: Background/foreground transitions without message loss
-- **Group Test**: 3+ users with clear attribution and read receipts
-- **AI Test**: All 5 features working with <5s response times
+1. **Read Memory Bank**: Review all memory bank files to understand current project state
+2. **Write Critical Tests First**: Implement simple, valuable tests before any production code
+3. **Implement Feature**: Write minimal code to pass tests
+4. **Refactor**: Improve code while keeping tests green
+5. **End-to-End Verification**: Test critical user journeys using simulators
+6. **Code Review**: Submit PR with tests that provide meaningful feedback
+7. **Update Memory Bank**: Document changes, decisions, and learnings in memory bank
 
 ### Quality Gates
 
-- **Performance**: 60 FPS scrolling, <2s launch, sub-200ms messaging
-- **Reliability**: Zero message loss, graceful error handling, offline resilience
-- **User Experience**: Optimistic UI updates, clear status indicators, natural interactions
-- **Documentation**: Clear README, setup instructions, demo video, persona brainlift
-- **CI/CD**: Automated testing, linting, type checking, and deployment on every push/PR
-- **Task Completion Verification**: Before declaring any task complete, ALL CI/CD pipeline checks MUST pass locally:
-  - ESLint (no errors, warnings acceptable)
-  - Prettier formatting check
-  - TypeScript compilation check
-  - Jest test suite (all tests passing)
-  - Firebase Functions build
-  - Expo app build
-  - Security audit (npm audit)
-  - Full pipeline simulation must complete successfully
+- **Automated Checks**: All CI/CD checks MUST pass before merge
+  - Linting and formatting
+  - Type checking
+  - Unit test suite
+  - Integration tests
+  - UI tests (where applicable)
+  - Security audit
+  - Performance benchmarks
+- **Manual Review**: Code review MUST be completed by qualified reviewer
+- **Platform Testing**: Feature MUST be tested on at least 2 platforms
+- **Documentation**: README and API docs MUST be updated if needed
+
+### Release Standards
+
+- **Version Control**: Use semantic versioning for all releases
+- **Changelog**: Document all changes in changelog
+- **Rollback Plan**: Have clear rollback procedure for each release
+- **Monitoring**: Set up monitoring and alerting for critical metrics
+- **User Feedback**: Collect and respond to user feedback systematically
 
 ## Governance
 
-Constitution supersedes all other development practices. Amendments require documentation of impact on rubric scoring and platform evolution path. All PRs must verify compliance with phase requirements and performance targets. Complexity must be justified against assignment scoring criteria.
+This constitution applies to all cross-platform mobile development projects. Amendments require team consensus and must maintain the core principles of test-driven development, simplicity, and cross-platform consistency. All development decisions must be justified against these principles.
 
-**Version**: 1.1.0 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19
+**Version**: 2.3.1 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19

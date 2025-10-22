@@ -79,6 +79,25 @@ A contractor juggles multiple projects with different timelines and commitments.
 
 ---
 
+### User Story 5 - AI Client Intake & Scheduling (Priority: P2)
+
+**AI handles initial client inquiries and schedules consultation meetings**
+
+A contractor receives inquiries from potential new clients through various channels (website, social media, referrals). They need an AI assistant that can engage with these prospects, understand their project requirements, and automatically schedule consultation meetings based on the contractor's calendar availability. This allows contractors to focus on active projects while ensuring no potential clients are lost.
+
+**Why this priority**: This directly impacts business growth by automating the client intake process. It prevents lost opportunities due to delayed responses and ensures consistent professional communication with prospects. This feature differentiates Communexus as a business growth tool, not just a communication platform.
+
+**Independent Test**: Can be fully tested by simulating client inquiries through different channels, having AI engage in natural conversation to understand project scope, and successfully scheduling meetings based on contractor calendar availability. Delivers immediate value by automating lead qualification and scheduling.
+
+**Acceptance Scenarios**:
+
+1. **Given** a potential client submits an inquiry through the website, **When** the AI assistant responds within 2 minutes, **Then** it engages in natural conversation to understand project scope, timeline, and budget range
+2. **Given** a client inquiry about kitchen renovation, **When** the AI asks clarifying questions about square footage, materials, and timeline, **Then** it captures detailed project requirements and presents them to the contractor
+3. **Given** project requirements are captured, **When** the AI checks contractor's calendar, **Then** it presents available time slots to the client and confirms a consultation meeting
+4. **Given** a consultation is scheduled, **When** the contractor reviews the client conversation, **Then** they have all necessary information to prepare an accurate estimate and project proposal
+
+---
+
 ### Edge Cases
 
 - What happens when a worker sends photos but the contractor is offline?
@@ -86,6 +105,11 @@ A contractor juggles multiple projects with different timelines and commitments.
 - What if a client sends sensitive information that needs to be redacted?
 - How does the system handle message delivery failures across channels?
 - What happens when project participants change (worker leaves, new subcontractor joins)?
+- What if a potential client provides incomplete project information during AI intake?
+- How does the AI handle clients who want to schedule meetings outside contractor's available hours?
+- What happens when multiple clients request consultations for the same time slot?
+- How does the system handle clients who change their mind about project scope after initial intake?
+- What if the contractor's calendar becomes unavailable during the scheduling process?
 
 ## Requirements _(mandatory)_
 
@@ -106,6 +130,13 @@ A contractor juggles multiple projects with different timelines and commitments.
 - **FR-013**: System MUST provide AI assistant that proactively suggests follow-ups and drafts responses
 - **FR-014**: System MUST support multi-channel integration (SMS, email, in-app) in unified threads
 - **FR-015**: System MUST enable project-based organization with searchable metadata and context
+- **FR-016**: System MUST provide AI-powered client intake that engages with potential clients through natural conversation
+- **FR-017**: System MUST capture detailed project requirements (scope, timeline, budget, materials) during AI client conversations
+- **FR-018**: System MUST integrate with contractor's calendar to identify available consultation time slots
+- **FR-019**: System MUST automatically schedule consultation meetings based on contractor availability and client preferences
+- **FR-020**: System MUST present captured client requirements to contractor in organized format for estimate preparation
+- **FR-021**: System MUST respond to client inquiries within 2 minutes across all communication channels
+- **FR-022**: System MUST handle multiple concurrent client intake conversations without conflicts
 
 ### Key Entities _(include if feature involves data)_
 
@@ -116,6 +147,9 @@ A contractor juggles multiple projects with different timelines and commitments.
 - **Media**: Photos, documents, or other files shared within project context
 - **Decision**: Important agreements or commitments extracted from communications
 - **ActionItem**: Tasks or commitments identified by AI from project communications
+- **ClientInquiry**: Initial contact from potential client with captured requirements and scheduling information
+- **Consultation**: Scheduled meeting between contractor and potential client for project discussion and estimate
+- **ProjectRequirements**: Detailed specifications captured during AI client intake (scope, timeline, budget, materials)
 
 ## Success Criteria _(mandatory)_
 
@@ -129,3 +163,7 @@ A contractor juggles multiple projects with different timelines and commitments.
 - **SC-006**: Multi-channel integration reduces communication fragmentation by 80% compared to current methods
 - **SC-007**: Proactive AI assistant identifies 95% of missed follow-ups and provides useful suggestions
 - **SC-008**: Contractors can complete project communication setup in under 5 minutes
+- **SC-009**: AI client intake captures complete project requirements in 90% of initial conversations
+- **SC-010**: System schedules consultation meetings within 5 minutes of client inquiry completion
+- **SC-011**: Contractors report 60% reduction in time spent on initial client qualification and scheduling
+- **SC-012**: AI client intake achieves 85% accuracy in understanding project scope and requirements

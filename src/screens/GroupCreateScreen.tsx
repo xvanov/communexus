@@ -61,10 +61,14 @@ export default function GroupCreateScreen({ navigation }: any) {
           ...(user.photoURL && { photoUrl: user.photoURL }),
         },
         ...emails.map(email => ({
-          id: email === 'a@test.com' ? 'a@test.com' : 
-              email === 'b@test.com' ? 'b@test.com' : 
-              email === 'demo@communexus.com' ? 'demo@communexus.com' :
-              `temp_${email}`,
+          id:
+            email === 'a@test.com'
+              ? 'a@test.com'
+              : email === 'b@test.com'
+                ? 'b@test.com'
+                : email === 'demo@communexus.com'
+                  ? 'demo@communexus.com'
+                  : `temp_${email}`,
           name: email,
         })),
       ];
@@ -72,10 +76,15 @@ export default function GroupCreateScreen({ navigation }: any) {
       // Create participant IDs (simplified for group chats)
       const participantIds = [
         user.uid,
-        ...emails.map(email => email === 'a@test.com' ? 'a@test.com' : 
-                              email === 'b@test.com' ? 'b@test.com' : 
-                              email === 'demo@communexus.com' ? 'demo@communexus.com' :
-                              `temp_${email}`)
+        ...emails.map(email =>
+          email === 'a@test.com'
+            ? 'a@test.com'
+            : email === 'b@test.com'
+              ? 'b@test.com'
+              : email === 'demo@communexus.com'
+                ? 'demo@communexus.com'
+                : `temp_${email}`
+        ),
       ];
 
       // Create the thread
@@ -113,7 +122,6 @@ export default function GroupCreateScreen({ navigation }: any) {
         },
       ]);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error creating group:', error);
       Alert.alert('Error', 'Failed to create group. Please try again.');
     } finally {
@@ -138,10 +146,14 @@ export default function GroupCreateScreen({ navigation }: any) {
     try {
       // For test users, use their actual email as the ID
       // This ensures both users can see the thread
-      const otherUserId = email === 'a@test.com' ? 'a@test.com' : 
-                         email === 'b@test.com' ? 'b@test.com' : 
-                         email === 'demo@communexus.com' ? 'demo@communexus.com' :
-                         `temp_${email}`;
+      const otherUserId =
+        email === 'a@test.com'
+          ? 'a@test.com'
+          : email === 'b@test.com'
+            ? 'b@test.com'
+            : email === 'demo@communexus.com'
+              ? 'demo@communexus.com'
+              : `temp_${email}`;
 
       // For one-on-one chats, use the proper function to prevent duplicates
       const threadId = await findOrCreateOneOnOneThread(
@@ -184,7 +196,6 @@ export default function GroupCreateScreen({ navigation }: any) {
         },
       ]);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error creating conversation:', error);
       Alert.alert('Error', 'Failed to start conversation. Please try again.');
     } finally {
@@ -195,7 +206,9 @@ export default function GroupCreateScreen({ navigation }: any) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>New Conversation</Text>
+        <Text style={styles.headerTitle} testID="group-create-title">
+          New Conversation
+        </Text>
       </View>
 
       <View style={styles.content}>
@@ -272,90 +285,90 @@ export default function GroupCreateScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E7',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  bold: {
     color: '#000000',
-  },
-  content: {
-    padding: 16,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
-    marginBottom: 8,
   },
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#E5E5E7',
+  button: {
+    alignItems: 'center',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  multilineInput: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  helpText: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 4,
+    marginBottom: 12,
+    paddingVertical: 16,
   },
   buttonContainer: {
     marginBottom: 32,
-  },
-  button: {
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  groupButton: {
-    backgroundColor: '#007AFF',
-  },
-  oneOnOneButton: {
-    backgroundColor: '#34C759',
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
+  container: {
+    backgroundColor: '#FFFFFF',
+    flex: 1,
+  },
+  content: {
+    padding: 16,
+  },
+  groupButton: {
+    backgroundColor: '#007AFF',
+  },
+  header: {
+    borderBottomColor: '#E5E5E7',
+    borderBottomWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  headerTitle: {
+    color: '#000000',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  helpText: {
+    color: '#8E8E93',
+    fontSize: 12,
+    marginTop: 4,
+  },
   infoSection: {
     backgroundColor: '#F2F2F7',
-    padding: 16,
     borderRadius: 8,
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 8,
+    padding: 16,
   },
   infoText: {
-    fontSize: 14,
     color: '#8E8E93',
-    marginBottom: 4,
+    fontSize: 14,
     lineHeight: 20,
+    marginBottom: 4,
   },
-  bold: {
-    fontWeight: '600',
+  infoTitle: {
     color: '#000000',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  multilineInput: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  oneOnOneButton: {
+    backgroundColor: '#34C759',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E5E7',
+    borderRadius: 8,
+    borderWidth: 1,
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
 });

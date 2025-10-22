@@ -35,16 +35,25 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <View
       style={[styles.messageContainer, isOwn && styles.ownMessageContainer]}
     >
-      <View style={[styles.messageBubble, isOwn && styles.ownMessageBubble]}>
-        <Text style={[styles.messageText, isOwn && styles.ownMessageText]}>
+      <View
+        style={[styles.messageBubble, isOwn && styles.ownMessageBubble]}
+        testID="message-bubble"
+      >
+        <Text
+          style={[styles.messageText, isOwn && styles.ownMessageText]}
+          testID="message-text"
+        >
           {message.text}
         </Text>
         <View style={styles.messageFooter}>
-          <Text style={[styles.messageTime, isOwn && styles.ownMessageTime]}>
+          <Text
+            style={[styles.messageTime, isOwn && styles.ownMessageTime]}
+            testID="message-timestamp"
+          >
             {formatTime(message.createdAt)}
           </Text>
           {isOwn && (
-            <Text style={styles.statusIcon}>
+            <Text style={styles.statusIcon} testID="message-status">
               {getStatusIcon(message.status)}
             </Text>
           )}
@@ -55,51 +64,51 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 };
 
 const styles = StyleSheet.create({
-  messageContainer: {
-    marginHorizontal: 16,
-    marginVertical: 4,
-    alignItems: 'flex-start',
-  },
-  ownMessageContainer: {
-    alignItems: 'flex-end',
-  },
   messageBubble: {
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    maxWidth: '80%',
     boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
     elevation: 2,
+    maxWidth: '80%',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  messageContainer: {
+    alignItems: 'flex-start',
+    marginHorizontal: 16,
+    marginVertical: 4,
+  },
+  messageFooter: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  messageText: {
+    color: '#000000',
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  messageTime: {
+    color: '#8E8E93',
+    fontSize: 12,
   },
   ownMessageBubble: {
     backgroundColor: '#007AFF',
   },
-  messageText: {
-    fontSize: 16,
-    color: '#000000',
-    lineHeight: 20,
+  ownMessageContainer: {
+    alignItems: 'flex-end',
   },
   ownMessageText: {
     color: '#FFFFFF',
-  },
-  messageFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  messageTime: {
-    fontSize: 12,
-    color: '#8E8E93',
   },
   ownMessageTime: {
     color: '#FFFFFF',
     opacity: 0.8,
   },
   statusIcon: {
-    fontSize: 12,
     color: '#FFFFFF',
+    fontSize: 12,
     marginLeft: 4,
   },
 });

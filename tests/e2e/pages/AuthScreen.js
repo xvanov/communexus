@@ -3,20 +3,20 @@
 
 export class AuthScreen {
     // Selectors
-    private emailInput = '~email-input';
-    private passwordInput = '~password-input';
-    private signInButton = '~sign-in-button';
-    private signUpButton = '~sign-up-button';
-    private testUserButton = '~test-user-button';
-    private errorMessage = '~error-message';
-    private loadingIndicator = '~loading-indicator';
+    emailInput = '~email-input';
+    passwordInput = '~password-input';
+    signInButton = '~sign-in-button';
+    signUpButton = '~sign-up-button';
+    testUserButton = '~test-user-button';
+    errorMessage = '~error-message';
+    loadingIndicator = '~loading-indicator';
 
     // Actions
-    async enterEmail(email: string) {
+    async enterEmail(email) {
         await $(this.emailInput).setValue(email);
     }
 
-    async enterPassword(password: string) {
+    async enterPassword(password) {
         await $(this.passwordInput).setValue(password);
     }
 
@@ -54,7 +54,7 @@ export class AuthScreen {
     }
 
     // Complete authentication flow
-    async signInWithCredentials(email: string, password: string) {
+    async signInWithCredentials(email, password) {
         await this.enterEmail(email);
         await this.enterPassword(password);
         await this.tapSignIn();
@@ -66,5 +66,3 @@ export class AuthScreen {
         await this.waitForLoadingToComplete();
     }
 }
-
-

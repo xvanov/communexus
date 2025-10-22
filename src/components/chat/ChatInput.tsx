@@ -52,6 +52,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         multiline
         maxLength={maxLength}
         editable={!sending && !disabled}
+        testID="message-input"
       />
       <TouchableOpacity
         style={[
@@ -61,6 +62,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         ]}
         onPress={handleSend}
         disabled={!inputText.trim() || sending || disabled}
+        testID="send-button"
       >
         {sending ? (
           <ActivityIndicator size="small" color="#FFFFFF" />
@@ -74,33 +76,22 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
 const styles = StyleSheet.create({
   inputContainer: {
-    flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
     borderTopColor: '#E5E5E7',
-  },
-  textInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#E5E5E7',
-    borderRadius: 20,
+    borderTopWidth: 1,
+    flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
-    maxHeight: 100,
-    marginRight: 12,
   },
   sendButton: {
+    alignItems: 'center',
     backgroundColor: '#007AFF',
     borderRadius: 20,
+    justifyContent: 'center',
+    minWidth: 60,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 60,
   },
   sendButtonDisabled: {
     backgroundColor: '#C7C7CC',
@@ -109,5 +100,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  textInput: {
+    borderColor: '#E5E5E7',
+    borderRadius: 20,
+    borderWidth: 1,
+    flex: 1,
+    fontSize: 16,
+    marginRight: 12,
+    maxHeight: 100,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });

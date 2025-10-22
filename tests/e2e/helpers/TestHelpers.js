@@ -6,26 +6,26 @@ export class TestHelpers {
     static getTestUsers() {
         return {
             user1: {
-                email: process.env.TEST_USER_EMAIL || 'a@test.com',
-                password: process.env.TEST_USER_PASSWORD || 'testpassword123'
+                email: 'john@test.com',
+                password: 'password'
             },
             user2: {
-                email: process.env.TEST_USER_EMAIL_2 || 'b@test.com',
-                password: process.env.TEST_USER_PASSWORD_2 || 'testpassword123'
+                email: 'jane@test.com',
+                password: 'password'
             }
         };
     }
 
     // Wait utilities
-    static async waitForElement(selector: string, timeout: number = 10000) {
+    static async waitForElement(selector, timeout = 10000) {
         await $(selector).waitForDisplayed({ timeout });
     }
 
-    static async waitForElementToDisappear(selector: string, timeout: number = 10000) {
+    static async waitForElementToDisappear(selector, timeout = 10000) {
         await $(selector).waitForDisplayed({ timeout, reverse: true });
     }
 
-    static async waitForText(selector: string, text: string, timeout: number = 10000) {
+    static async waitForText(selector, text, timeout = 10000) {
         await browser.waitUntil(
             async () => (await $(selector).getText()) === text,
             { timeout }
@@ -33,7 +33,7 @@ export class TestHelpers {
     }
 
     // Screenshot utilities
-    static async takeScreenshot(name: string) {
+    static async takeScreenshot(name) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `screenshot-${name}-${timestamp}.png`;
         await browser.saveScreenshot(`./test-results/screenshots/${filename}`);
@@ -53,34 +53,38 @@ export class TestHelpers {
 
     // App state utilities
     static async resetApp() {
-        await browser.resetApp();
+        // For Expo Go, we can't reset the app, so we'll just wait a moment
+        // In a real app, you might use browser.resetApp()
+        await browser.pause(1000);
     }
 
     static async terminateApp() {
-        await browser.terminateApp();
+        // For Expo Go, we can't terminate the app
+        await browser.pause(1000);
     }
 
     static async activateApp() {
-        await browser.activateApp();
+        // For Expo Go, we can't activate the app
+        await browser.pause(1000);
     }
 
     // Network utilities
-    static async setNetworkConnection(type: 'wifi' | 'cellular' | 'none') {
+    static async setNetworkConnection(type) {
         await browser.setNetworkConnection(type);
     }
 
     // Orientation utilities
-    static async setOrientation(orientation: 'portrait' | 'landscape') {
+    static async setOrientation(orientation) {
         await browser.setOrientation(orientation);
     }
 
     // Timeout utilities
-    static async waitWithTimeout(ms: number) {
+    static async waitWithTimeout(ms) {
         await browser.pause(ms);
     }
 
     // Error handling utilities
-    static async handleTestError(error: Error, testName: string) {
+    static async handleTestError(error, testName) {
         console.error(`Test ${testName} failed:`, error.message);
         await this.takeScreenshot(`error-${testName}`);
         throw error;
@@ -117,14 +121,7 @@ export class TestHelpers {
         const deviceInfo = await this.getDeviceInfo();
         console.log('Test Environment:', deviceInfo);
         
-        // Validate required environment variables
-        const requiredEnvVars = ['TEST_USER_EMAIL', 'TEST_USER_PASSWORD'];
-        for (const envVar of requiredEnvVars) {
-            if (!process.env[envVar]) {
-                throw new Error(`Required environment variable ${envVar} is not set`);
-            }
-        }
-        
+        // For now, just return true since we're using hardcoded values
         return true;
     }
 }

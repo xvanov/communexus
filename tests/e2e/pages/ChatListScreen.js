@@ -3,24 +3,24 @@
 
 export class ChatListScreen {
     // Selectors
-    private headerTitle = '~chat-list-title';
-    private newChatButton = '~new-chat-button';
-    private threadList = '~thread-list';
-    private threadItem = '~thread-item';
-    private threadName = '~thread-name';
-    private lastMessage = '~last-message';
-    private unreadBadge = '~unread-badge';
-    private userMenu = '~user-menu';
-    private logoutButton = '~logout-button';
-    private contactsButton = '~contacts-button';
-    private settingsButton = '~settings-button';
+    headerTitle = '~chat-list-title';
+    newChatButton = '~new-chat-button';
+    threadList = '~thread-list';
+    threadItem = '~thread-item';
+    threadName = '~thread-name';
+    lastMessage = '~last-message';
+    unreadBadge = '~unread-badge';
+    userMenu = '~user-menu';
+    logoutButton = '~logout-button';
+    contactsButton = '~contacts-button';
+    settingsButton = '~settings-button';
 
     // Actions
     async tapNewChat() {
         await $(this.newChatButton).click();
     }
 
-    async tapThread(index: number) {
+    async tapThread(index) {
         const threads = await $$(this.threadItem);
         if (threads[index]) {
             await threads[index].click();
@@ -55,7 +55,7 @@ export class ChatListScreen {
         return threads.length;
     }
 
-    async getThreadName(index: number) {
+    async getThreadName(index) {
         const threads = await $$(this.threadItem);
         if (threads[index]) {
             return await threads[index].$(this.threadName).getText();
@@ -63,7 +63,7 @@ export class ChatListScreen {
         return null;
     }
 
-    async getLastMessage(index: number) {
+    async getLastMessage(index) {
         const threads = await $$(this.threadItem);
         if (threads[index]) {
             return await threads[index].$(this.lastMessage).getText();
@@ -71,7 +71,7 @@ export class ChatListScreen {
         return null;
     }
 
-    async hasUnreadMessages(index: number) {
+    async hasUnreadMessages(index) {
         const threads = await $$(this.threadItem);
         if (threads[index]) {
             return await threads[index].$(this.unreadBadge).isDisplayed();
@@ -88,12 +88,10 @@ export class ChatListScreen {
         await $(this.threadList).waitForDisplayed({ timeout: 10000 });
     }
 
-    async waitForThreadCount(expectedCount: number) {
+    async waitForThreadCount(expectedCount) {
         await browser.waitUntil(
             async () => (await this.getThreadCount()) === expectedCount,
             { timeout: 10000 }
         );
     }
 }
-
-

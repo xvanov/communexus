@@ -9,7 +9,12 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Contact, subscribeToContacts, updateUserOnlineStatus, initializeTestUserContacts } from '../services/contacts';
+import {
+  Contact,
+  subscribeToContacts,
+  updateUserOnlineStatus,
+  initializeTestUserContacts,
+} from '../services/contacts';
 import { useAuth } from '../hooks/useAuth';
 import { findOrCreateOneOnOneThread } from '../services/threads';
 
@@ -30,13 +35,13 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
     }
 
     setLoading(true);
-    
+
     // Set user as online when they open contacts
     updateUserOnlineStatus(user.uid, true).catch(error => {
       console.log('Failed to update online status on mount:', error);
     });
 
-    const unsubscribe = subscribeToContacts(user.uid, (updatedContacts) => {
+    const unsubscribe = subscribeToContacts(user.uid, updatedContacts => {
       setContacts(updatedContacts);
       setLoading(false);
     });
@@ -52,7 +57,7 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
 
   const handleContactPress = async (contact: Contact) => {
     if (!user?.uid) return;
-    
+
     try {
       // Use the findOrCreateOneOnOneThread function to prevent duplicates
       const threadId = await findOrCreateOneOnOneThread(
@@ -76,7 +81,6 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
         contact,
       });
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Failed to create thread:', error);
       Alert.alert('Error', 'Failed to start conversation. Please try again.');
     }
@@ -84,7 +88,7 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
 
   const handleInitializeContacts = async () => {
     if (!user?.uid) return;
-    
+
     try {
       await initializeTestUserContacts(user.uid);
       Alert.alert('Success', 'Test user contacts initialized!');
@@ -94,15 +98,25 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
   };
 
   const renderContact = ({ item }: { item: Contact }) => (
-    <TouchableOpacity style={styles.contactItem} onPress={() => handleContactPress(item)}>
+    <TouchableOpacity
+      style={styles.contactItem}
+      onPress={() => handleContactPress(item)}
+    >
       <View style={styles.contactInfo}>
         <View style={styles.contactHeader}>
           <Text style={styles.contactName}>{item.name}</Text>
-          <View style={[styles.onlineIndicator, item.online && styles.onlineIndicatorActive]} />
+          <View
+            style={[
+              styles.onlineIndicator,
+              item.online && styles.onlineIndicatorActive,
+            ]}
+          />
         </View>
         <Text style={styles.contactEmail}>{item.email}</Text>
         <Text style={styles.lastSeen}>
-          {item.online ? 'Online' : `Last seen ${formatLastSeen(item.lastSeen)}`}
+          {item.online
+            ? 'Online'
+            : `Last seen ${formatLastSeen(item.lastSeen)}`}
         </Text>
       </View>
     </TouchableOpacity>
@@ -154,7 +168,7 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
       ) : (
         <FlatList
           data={contacts}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           renderItem={renderContact}
           style={styles.contactsList}
         />
@@ -164,109 +178,109 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
   centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000000',
+    flex: 1,
+    justifyContent: 'center',
     padding: 20,
   },
-  header: {
-    backgroundColor: '#1E3A8A',
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E40AF',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 16,
+  contactEmail: {
     color: '#8E8E93',
+    fontSize: 14,
+    marginTop: 2,
   },
-  contactsList: {
-    flex: 1,
-  },
-  contactItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1C1C1E',
-    backgroundColor: '#000000',
+  contactHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   contactInfo: {
     flex: 1,
   },
-  contactHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  contactItem: {
+    backgroundColor: '#000000',
+    borderBottomColor: '#1C1C1E',
+    borderBottomWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   contactName: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
   },
-  onlineIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#C7C7CC',
+  contactsList: {
+    flex: 1,
   },
-  onlineIndicatorActive: {
-    backgroundColor: '#34C759',
-  },
-  contactEmail: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  lastSeen: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 2,
+  container: {
+    backgroundColor: '#000000',
+    flex: 1,
   },
   emptyContainer: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
+  emptySubtitle: {
+    color: '#8E8E93',
+    fontSize: 14,
+    textAlign: 'center',
+  },
   emptyTitle: {
+    color: '#8E8E93',
     fontSize: 18,
     fontWeight: '600',
-    color: '#8E8E93',
     marginBottom: 8,
   },
-  emptySubtitle: {
-    fontSize: 14,
+  header: {
+    backgroundColor: '#1E3A8A',
+    borderBottomColor: '#1E40AF',
+    borderBottomWidth: 1,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+  },
+  headerSubtitle: {
     color: '#8E8E93',
-    textAlign: 'center',
+    fontSize: 16,
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   initButton: {
     backgroundColor: '#1E3A8A',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
     borderRadius: 8,
     marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   initButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
+  lastSeen: {
     color: '#8E8E93',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  loadingText: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginTop: 12,
+  },
+  onlineIndicator: {
+    backgroundColor: '#C7C7CC',
+    borderRadius: 4,
+    height: 8,
+    width: 8,
+  },
+  onlineIndicatorActive: {
+    backgroundColor: '#34C759',
   },
 });
