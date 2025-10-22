@@ -53,7 +53,12 @@ export function dequeueBatch(limit = 20): Promise<QueueItem[]> {
           const items: QueueItem[] = [];
           for (let i = 0; i < res.rows.length; i++) {
             const row = res.rows.item(i) as any;
-            items.push({ id: row.id, threadId: row.threadId, payload: row.payload, createdAt: row.createdAt });
+            items.push({
+              id: row.id,
+              threadId: row.threadId,
+              payload: row.payload,
+              createdAt: row.createdAt,
+            });
           }
           resolve(items);
         },
@@ -84,5 +89,3 @@ export function removeByIds(ids: number[]): Promise<void> {
     });
   });
 }
-
-

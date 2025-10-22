@@ -1,8 +1,15 @@
 // auth.ts - Firebase Authentication methods
 import { initializeFirebase } from './firebase';
-import { signInWithEmailAndPassword, signOut, UserCredential } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  UserCredential,
+} from 'firebase/auth';
 
-export const signInWithEmail = async (email: string, password: string): Promise<UserCredential['user']> => {
+export const signInWithEmail = async (
+  email: string,
+  password: string
+): Promise<UserCredential['user']> => {
   const { auth } = initializeFirebase();
   const cred = await signInWithEmailAndPassword(auth, email, password);
   return cred.user;

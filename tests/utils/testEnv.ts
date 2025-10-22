@@ -1,7 +1,11 @@
 // tests/utils/testEnv.ts
 // Firebase Emulator test harness utilities
 
-import { initializeTestEnvironment, RulesTestEnvironment, RulesTestContext } from '@firebase/rules-unit-testing';
+import {
+  initializeTestEnvironment,
+  RulesTestEnvironment,
+  RulesTestContext,
+} from '@firebase/rules-unit-testing';
 import { readFileSync } from 'fs';
 import path from 'path';
 
@@ -26,7 +30,10 @@ export async function setupEmulator(): Promise<RulesTestEnvironment> {
   return testEnv;
 }
 
-export async function withAuthedUser(uid: string, claims: Record<string, unknown> = {}): Promise<RulesTestContext> {
+export async function withAuthedUser(
+  uid: string,
+  claims: Record<string, unknown> = {}
+): Promise<RulesTestContext> {
   if (!testEnv) await setupEmulator();
   return (testEnv as RulesTestEnvironment).authenticatedContext(uid, claims);
 }

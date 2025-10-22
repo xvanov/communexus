@@ -27,7 +27,10 @@ describe('Types shape (T013)', () => {
     const thread: Thread = {
       id: 't1',
       participants: ['u1', 'u2'],
-      participantDetails: [{ id: 'u1', name: 'Alice' }, { id: 'u2', name: 'Bob' }],
+      participantDetails: [
+        { id: 'u1', name: 'Alice' },
+        { id: 'u2', name: 'Bob' },
+      ],
       isGroup: false,
       lastMessage: {
         text: 'hello',

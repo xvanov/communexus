@@ -3,7 +3,9 @@
 
 jest.mock('firebase-admin', () => {
   const send = jest.fn().mockResolvedValue('msgid-1');
-  const sendMulticast = jest.fn().mockResolvedValue({ successCount: 1, failureCount: 0 });
+  const sendMulticast = jest
+    .fn()
+    .mockResolvedValue({ successCount: 1, failureCount: 0 });
   return {
     __esModule: true,
     default: {
@@ -26,7 +28,10 @@ describe('Notifications (T015)', () => {
   });
 
   test('sends multicast notification', async () => {
-    const res = await (admin.messaging() as any).sendMulticast({ tokens: ['t1', 't2'], notification: { title: 'Hi' } });
+    const res = await (admin.messaging() as any).sendMulticast({
+      tokens: ['t1', 't2'],
+      notification: { title: 'Hi' },
+    });
     expect(res.successCount).toBeGreaterThanOrEqual(0);
   });
 });

@@ -17,7 +17,11 @@ describe('Env config (T019)', () => {
     const firebaseToken = process.env.FIREBASE_TOKEN;
     const expoToken = process.env.EXPO_TOKEN;
     // Not required locally, but must be defined in CI; we only assert variables exist or are undefined without failing locally
-    expect(typeof firebaseToken === 'string' || typeof firebaseToken === 'undefined').toBe(true);
-    expect(typeof expoToken === 'string' || typeof expoToken === 'undefined').toBe(true);
+    expect(
+      typeof firebaseToken === 'string' || typeof firebaseToken === 'undefined'
+    ).toBe(true);
+    expect(
+      typeof expoToken === 'string' || typeof expoToken === 'undefined'
+    ).toBe(true);
   });
 });

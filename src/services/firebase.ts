@@ -1,9 +1,21 @@
 // firebase.ts - Firebase initialization and configuration
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, Firestore } from 'firebase/firestore';
-import { getStorage, connectStorageEmulator, FirebaseStorage } from 'firebase/storage';
-import { getFunctions, connectFunctionsEmulator, Functions } from 'firebase/functions';
+import {
+  getFirestore,
+  connectFirestoreEmulator,
+  Firestore,
+} from 'firebase/firestore';
+import {
+  getStorage,
+  connectStorageEmulator,
+  FirebaseStorage,
+} from 'firebase/storage';
+import {
+  getFunctions,
+  connectFunctionsEmulator,
+  Functions,
+} from 'firebase/functions';
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
@@ -18,61 +30,84 @@ function getEnvFlag(name: string, defaultValue = false): boolean {
 }
 
 function getEmulatorHost(): string {
-  return process.env.EXPO_PUBLIC_EMULATOR_HOST || process.env.EMULATOR_HOST || '127.0.0.1';
+  return (
+    process.env.EXPO_PUBLIC_EMULATOR_HOST ||
+    process.env.EMULATOR_HOST ||
+    '127.0.0.1'
+  );
 }
 
-export const initializeFirebase = (config?: Partial<{ useEmulator: boolean }>) => {
+export const initializeFirebase = (
+  config?: Partial<{ useEmulator: boolean }>
+) => {
   if (!app) {
-    app = getApps()[0] || initializeApp({
-      apiKey: process.env.FIREBASE_API_KEY || 'fake',
-      authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'localhost',
-      projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
-      appId: process.env.FIREBASE_APP_ID || 'demo',
-    });
+    app =
+      getApps()[0] ||
+      initializeApp({
+        apiKey: process.env.FIREBASE_API_KEY || 'fake',
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN || 'localhost',
+        projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
+        storageBucket:
+          process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
+        appId: process.env.FIREBASE_APP_ID || 'demo',
+      });
     auth = getAuth(app);
 
-    const useEmulator = config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', false);
+    const useEmulator =
+      config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true); // Default to true for development
     if (useEmulator) {
       const host = getEmulatorHost();
       try {
-        connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true });
+        connectAuthEmulator(auth, `http://${host}:9099`, {
+          disableWarnings: true,
+        });
       } catch {}
     }
   }
   return { app: app as FirebaseApp, auth: auth as Auth };
 };
 
-export const getDb = (useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', false)): Firestore => {
+export const getDb = (
+  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+): Firestore => {
   if (!app) initializeFirebase({ useEmulator });
   if (!db) {
     db = getFirestore(app as FirebaseApp);
     if (useEmulator) {
-      try { connectFirestoreEmulator(db, getEmulatorHost(), 8080); } catch {}
+      try {
+        connectFirestoreEmulator(db, getEmulatorHost(), 8080);
+      } catch {}
     }
   }
   return db as Firestore;
 };
 
-export const getBucket = (useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', false)): FirebaseStorage => {
+export const getBucket = (
+  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+): FirebaseStorage => {
   if (!app) initializeFirebase({ useEmulator });
   if (!storage) {
     storage = getStorage(app as FirebaseApp);
     if (useEmulator) {
-      try { connectStorageEmulator(storage, getEmulatorHost(), 9199); } catch {}
+      try {
+        connectStorageEmulator(storage, getEmulatorHost(), 9199);
+      } catch {}
     }
   }
   return storage as FirebaseStorage;
 };
 
-export const getFunctionsClient = (useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', false)): Functions => {
+export const getFunctionsClient = (
+  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+): Functions => {
   if (!app) initializeFirebase({ useEmulator });
   if (!functionsClient) {
     functionsClient = getFunctions(app as FirebaseApp);
     if (useEmulator) {
-      try { connectFunctionsEmulator(functionsClient, getEmulatorHost(), 5001); } catch {}
+      try {
+        connectFunctionsEmulator(functionsClient, getEmulatorHost(), 5001);
+      } catch {}
     }
   }
   return functionsClient as Functions;
 };
-

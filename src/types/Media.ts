@@ -15,5 +15,3 @@ export interface Media {
   createdAt: Date;
   uploadedBy: string; // userId
 }
-
-

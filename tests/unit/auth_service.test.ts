@@ -11,14 +11,21 @@ describe('Auth Service (T010) - unit', () => {
   });
 
   test('signInWithEmail returns user on success', async () => {
-    mocked.signInWithEmail.mockResolvedValueOnce({ uid: 'u1', email: 'a@example.com' } as any);
+    mocked.signInWithEmail.mockResolvedValueOnce({
+      uid: 'u1',
+      email: 'a@example.com',
+    } as any);
     const res = await authService.signInWithEmail('a@example.com', 'secret');
     expect(res).toEqual(expect.objectContaining({ uid: 'u1' }));
   });
 
   test('signInWithEmail rejects on invalid credentials', async () => {
-    mocked.signInWithEmail.mockRejectedValueOnce(new Error('auth/invalid-credential'));
-    await expect(authService.signInWithEmail('a@example.com', 'bad')).rejects.toThrow('auth/invalid-credential');
+    mocked.signInWithEmail.mockRejectedValueOnce(
+      new Error('auth/invalid-credential')
+    );
+    await expect(
+      authService.signInWithEmail('a@example.com', 'bad')
+    ).rejects.toThrow('auth/invalid-credential');
   });
 
   test('signInWithGoogle exists and returns a user or throws', async () => {

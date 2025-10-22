@@ -1,9 +1,19 @@
 // tests/integration/auth_emulator.test.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  getAuth,
+  connectAuthEmulator,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 
 // Minimal config for emulator-only usage
-const app = initializeApp({ apiKey: 'fake', authDomain: 'localhost', projectId: 'demo-communexus' });
+const app = initializeApp({
+  apiKey: 'fake',
+  authDomain: 'localhost',
+  projectId: 'demo-communexus',
+});
 const auth = getAuth(app);
 connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
 
@@ -30,6 +40,8 @@ describe('Auth Emulator (T010) - integration', () => {
     const password = 'password123';
 
     await createUserWithEmailAndPassword(auth, email, password);
-    await expect(signInWithEmailAndPassword(auth, email, 'wrong')).rejects.toBeTruthy();
+    await expect(
+      signInWithEmailAndPassword(auth, email, 'wrong')
+    ).rejects.toBeTruthy();
   });
 });

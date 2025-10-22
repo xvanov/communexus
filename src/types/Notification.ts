@@ -12,5 +12,3 @@ export interface Notification {
   read: boolean;
   timestamp: Date;
 }
-
-
