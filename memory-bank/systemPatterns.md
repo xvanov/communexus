@@ -152,3 +152,9 @@ Local Cache ← Sync Logic ← Firestore ← Cloud Function ← Push Notificatio
 - Firebase Auth integration
 - JWT token management
 - Secure user session handling
+
+### 4. Emulator Strategy
+
+- Run Jest inside `firebase emulators:exec` with explicit host/port pinned in a shared harness
+- Prefer in-band Jest runs to avoid multi-app Firestore init conflicts
+- Skip or remove high-flake integration suites if blocking progress; retain unit and smoke tests

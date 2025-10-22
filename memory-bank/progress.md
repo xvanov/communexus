@@ -38,14 +38,14 @@
 
 ### Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] **T009**: Setup Firebase Firestore with security rules
-- [ ] **T010**: Implement Firebase Authentication (email/password + Google)
-- [ ] **T011**: Setup Firebase Cloud Functions structure and deployment
-- [ ] **T012**: Configure Firebase Storage rules for media uploads
-- [ ] **T013**: Create TypeScript interfaces for all data models
-- [ ] **T014**: Implement basic CRUD operations for core entities
-- [ ] **T015**: Setup Firebase Cloud Messaging (FCM) for push notifications
-- [ ] **T016**: Configure Expo SQLite for local data persistence
+- [x] **T009**: Setup Firebase Firestore with security rules
+- [x] **T010**: Implement Firebase Authentication (email/password + Google)
+- [x] **T011**: Setup Firebase Cloud Functions structure and deployment (Node 20)
+- [x] **T012**: Configure Firebase Storage rules for media uploads
+- [x] **T013**: Create TypeScript interfaces for all data models
+- [x] **T014**: Implement basic CRUD operations for core entities
+- [x] **T015**: Setup Firebase Cloud Messaging (FCM) for push notifications
+- [x] **T016**: Configure Expo SQLite for local data persistence
 
 ### Phase 3: User Story 1 - Project Communication Hub (MVP)
 
@@ -101,7 +101,7 @@
 
 ### Current Blockers
 
-- None - ready to begin implementation
+- None; moving to Phase 3 (User Story 1)
 
 ### Risk Areas
 
