@@ -2,14 +2,21 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only access their own user document
+    // Users collection - authenticated users can read all users (for contacts)
+    // but can only write to their own document
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null; // Anyone authenticated can read user profiles
+      allow write: if request.auth != null && request.auth.uid == userId;
       
       // Contacts subcollection - users can manage their own contacts
       match /contacts/{contactId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+    }
+    
+    // Notification preferences - users can only access their own
+    match /notificationPreferences/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Threads - users can only access threads they're participants in
@@ -22,19 +29,19 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null && 
         (request.auth.uid in resource.data.participants || 
          request.auth.token.email in resource.data.participants);
-    }
-    
-    // Messages - users can only access messages in threads they're participants in
-    match /threads/{threadId}/messages/{messageId} {
-      // Allow authenticated users to create messages in threads they participate in
-      allow create: if request.auth != null &&
-        (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
-         request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
       
-      // Allow read/update/delete only for thread participants
-      allow read, update, delete: if request.auth != null &&
-        (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
-         request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
+      // Messages subcollection
+      match /messages/{messageId} {
+        // Allow authenticated users to create messages in threads they participate in
+        allow create: if request.auth != null &&
+          (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
+           request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
+        
+        // Allow read/update/delete only for thread participants
+        allow read, update, delete: if request.auth != null &&
+          (request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
+           request.auth.token.email in get(/databases/$(database)/documents/threads/$(threadId)).data.participants);
+      }
     }
     
     // AI Features - users can only access their own AI data
