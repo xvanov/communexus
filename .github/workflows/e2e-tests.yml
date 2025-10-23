@@ -13,10 +13,11 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-  # iOS Tests
+  # iOS Tests - DISABLED (run locally only)
   test-ios:
     runs-on: macos-latest
     timeout-minutes: 30
+    if: false  # E2E tests run locally - too slow and expensive for CI/CD
 
     steps:
       - name: Checkout code
