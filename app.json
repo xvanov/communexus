@@ -8,14 +8,38 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": ["**/*"],
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1E3A8A",
+          "sounds": ["./assets/notification.wav"],
+          "mode": "production"
+        }
+      ]
+    ],
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#1E3A8A",
+      "iosDisplayInForeground": true,
+      "androidMode": "default",
+      "androidCollapsedTitle": "New message"
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.communexus.communexus"
+      "bundleIdentifier": "com.communexus.communexus",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.communexus.communexus",
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "WAKE_LOCK"],
+      "useNextNotificationsApi": true
     },
     "web": {}
   }

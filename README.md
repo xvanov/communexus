@@ -194,7 +194,6 @@ communexus/main/
 - Cross-platform consistency (iOS, Android, Web)
 - Responsive design for all screen sizes
 
-
 ## 🚀 Deployment
 
 ### CI/CD Pipeline
@@ -263,7 +262,6 @@ pkill -f firebase
 # Restart
 firebase emulators:start --only auth,firestore,storage --project demo-communexus
 ```
-
 
 ## 🛡️ Security
 
