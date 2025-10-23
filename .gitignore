@@ -222,3 +222,4 @@ coverage/
 # Firebase Functions build output
 functions/lib/
 test-results*
+ios/
