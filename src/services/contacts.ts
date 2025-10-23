@@ -180,6 +180,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
 
     for (const user of testUsers) {
       let userId: string | null = null;
+      let isNewUser = false;
 
       try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -188,6 +189,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
           user.password
         );
         userId = userCredential.user.uid;
+        isNewUser = true;
 
         // Set display name
         const { updateProfile } = await import('firebase/auth');
@@ -195,16 +197,15 @@ export const autoCreateTestUsers = async (): Promise<void> => {
           displayName: user.name,
         });
 
-        console.log(`✅ Created Auth user: ${user.email} (${user.name})`);
+        console.log(`✅ Created NEW Auth user: ${user.email} (${user.name})`);
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           console.log(`ℹ️ Auth user already exists: ${user.email}`);
 
-          // Sign in to get the user ID
+          // Sign in to get the user ID and create Firestore doc
           try {
-            const { signInWithEmailAndPassword, signOut } = await import(
-              'firebase/auth'
-            );
+            const { signInWithEmailAndPassword, signOut, updateProfile } =
+              await import('firebase/auth');
             const signInResult = await signInWithEmailAndPassword(
               auth,
               user.email,
@@ -212,16 +213,39 @@ export const autoCreateTestUsers = async (): Promise<void> => {
             );
             userId = signInResult.user.uid;
 
-            // Update display name if needed
-            const { updateProfile } = await import('firebase/auth');
+            // Update display name
             await updateProfile(signInResult.user, {
               displayName: user.name,
             });
 
+            // Create/update Firestore doc WHILE AUTHENTICATED
+            const db = getDb(true);
+            const { setDoc, doc } = await import('firebase/firestore');
+            await setDoc(
+              doc(db, 'users', userId),
+              {
+                id: userId,
+                email: user.email,
+                name: user.name,
+                online: true,
+                lastSeen: new Date(),
+                role: 'contractor',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+              { merge: true }
+            );
+            console.log(
+              `✅ Updated Firestore doc for existing user: ${user.email}`
+            );
+
+            // Sign out after creating doc
             await signOut(auth);
-            console.log(`Got UID for existing user: ${userId}`);
           } catch (signInError) {
-            console.error(`Failed to sign in as ${user.email}:`, signInError);
+            console.error(
+              `Failed to process existing user ${user.email}:`,
+              signInError
+            );
           }
         } else {
           console.error(
@@ -231,8 +255,8 @@ export const autoCreateTestUsers = async (): Promise<void> => {
         }
       }
 
-      // Create/update Firestore document regardless of Auth creation success
-      if (userId) {
+      // Create Firestore document for NEW users
+      if (userId && isNewUser) {
         try {
           const db = getDb(true);
           const { setDoc, doc } = await import('firebase/firestore');
@@ -250,7 +274,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
             },
             { merge: true }
           );
-          console.log(`✅ Created/updated Firestore doc for: ${user.email}`);
+          console.log(`✅ Created Firestore doc for NEW user: ${user.email}`);
         } catch (firestoreError) {
           console.error(
             `Failed to create Firestore doc for ${user.email}:`,
