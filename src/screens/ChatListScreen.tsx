@@ -14,6 +14,7 @@ import { signOut } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 import { usePresence } from '../hooks/usePresence';
+import { useInAppNotifications } from '../hooks/useInAppNotifications';
 import { Thread } from '../types/Thread';
 import { useAuth } from '../hooks/useAuth';
 import { ThreadItem } from '../components/thread/ThreadItem';
@@ -28,6 +29,9 @@ export default function ChatListScreen({ navigation }: any) {
 
   // Track user presence (online/offline)
   usePresence();
+
+  // Show in-app notifications for new messages
+  useInAppNotifications();
 
   const handleThreadPress = (thread: Thread) => {
     navigation.navigate('Chat', { threadId: thread.id, thread });
@@ -225,18 +229,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  settingsButton: {
-    alignItems: 'center',
-    backgroundColor: '#64748B',
-    borderRadius: 18,
-    height: 36,
-    justifyContent: 'center',
-    marginLeft: 8,
-    width: 36,
-  },
-  settingsButtonText: {
-    fontSize: 18,
-  },
   container: {
     backgroundColor: '#000000',
     flex: 1,
@@ -335,6 +327,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  settingsButton: {
+    alignItems: 'center',
+    backgroundColor: '#64748B',
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    marginLeft: 8,
+    width: 36,
+  },
+  settingsButtonText: {
+    fontSize: 18,
   },
   threadList: {
     backgroundColor: '#000000',

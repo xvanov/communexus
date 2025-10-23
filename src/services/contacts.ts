@@ -30,10 +30,21 @@ export const addContact = async (
   const db = getDb();
   const contactRef = doc(db, 'users', userId, 'contacts', contact.id);
 
-  await setDoc(contactRef, {
-    ...contact,
+  // Build contact data without undefined values
+  const contactData: any = {
+    name: contact.name,
+    email: contact.email,
+    online: contact.online,
+    lastSeen: contact.lastSeen,
     addedAt: new Date(),
-  });
+  };
+
+  // Only add photoUrl if it exists
+  if (contact.photoUrl) {
+    contactData.photoUrl = contact.photoUrl;
+  }
+
+  await setDoc(contactRef, contactData);
 };
 
 // Get all contacts for a user
@@ -66,83 +77,43 @@ export const subscribeToContacts = (
   const db = getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
-  // Map to track user presence subscriptions
-  const presenceUnsubscribers: Record<string, () => void> = {};
-
-  const contactsUnsubscribe = onSnapshot(contactsRef, async snapshot => {
+  return onSnapshot(contactsRef, async snapshot => {
     const contacts: Contact[] = [];
-    const contactIds: string[] = [];
 
-    // First, get all contact IDs
-    snapshot.forEach(doc => {
-      contactIds.push(doc.id);
-    });
-
-    // Clean up old presence subscriptions
-    Object.keys(presenceUnsubscribers).forEach(id => {
-      if (!contactIds.includes(id)) {
-        const unsub = presenceUnsubscribers[id];
-        if (unsub) unsub();
-        delete presenceUnsubscribers[id];
-      }
-    });
-
-    // Subscribe to each contact's presence in users collection
-    for (const contactId of contactIds) {
-      const contactDoc = snapshot.docs.find(d => d.id === contactId);
-      if (!contactDoc) continue;
-
+    // For each contact, fetch their current online status from users collection
+    const contactPromises = snapshot.docs.map(async contactDoc => {
       const contactData = contactDoc.data();
 
-      // If not already subscribed, subscribe to this user's presence
-      if (!presenceUnsubscribers[contactId]) {
-        const userRef = doc(db, 'users', contactId);
+      // Fetch the actual user document to get real-time online status
+      try {
+        const userDoc = await getDoc(doc(db, 'users', contactDoc.id));
+        const userData = userDoc.exists() ? userDoc.data() : {};
 
-        presenceUnsubscribers[contactId] = onSnapshot(userRef, userSnap => {
-          const userData = userSnap.data();
-
-          // Update the contact in the contacts array
-          const existingIndex = contacts.findIndex(c => c.id === contactId);
-          const updatedContact: Contact = {
-            id: contactId,
-            name: contactData.name || userData?.name || contactData.email,
-            email: contactData.email,
-            photoUrl: contactData.photoUrl || userData?.photoUrl,
-            online: userData?.online || false,
-            lastSeen: userData?.lastSeen?.toDate() || new Date(),
-          };
-
-          if (existingIndex >= 0) {
-            contacts[existingIndex] = updatedContact;
-          } else {
-            contacts.push(updatedContact);
-          }
-
-          // Trigger callback with updated contacts
-          callback([...contacts]);
-        });
+        return {
+          id: contactDoc.id,
+          name: contactData.name,
+          email: contactData.email,
+          photoUrl: contactData.photoUrl,
+          online: Boolean(userData?.online), // Explicitly convert to boolean
+          lastSeen: userData?.lastSeen?.toDate() || new Date(),
+        };
+      } catch (error) {
+        console.error(`Error fetching user data for ${contactDoc.id}:`, error);
+        // Return contact with offline status if user doc fetch fails
+        return {
+          id: contactDoc.id,
+          name: contactData.name,
+          email: contactData.email,
+          photoUrl: contactData.photoUrl,
+          online: false,
+          lastSeen: contactData.lastSeen?.toDate() || new Date(),
+        };
       }
+    });
 
-      // Add initial contact data
-      contacts.push({
-        id: contactId,
-        name: contactData.name,
-        email: contactData.email,
-        photoUrl: contactData.photoUrl,
-        online: false, // Will be updated by presence subscription
-        lastSeen: contactData.lastSeen?.toDate() || new Date(),
-      });
-    }
-
-    // Initial callback
-    callback(contacts);
+    const resolvedContacts = await Promise.all(contactPromises);
+    callback(resolvedContacts);
   });
-
-  // Return cleanup function that unsubscribes from everything
-  return () => {
-    contactsUnsubscribe();
-    Object.values(presenceUnsubscribers).forEach(unsub => unsub());
-  };
 };
 
 // Update user's online status with proper error handling
@@ -154,7 +125,7 @@ export const updateUserOnlineStatus = async (
   const userRef = doc(db, 'users', userId);
 
   try {
-    // Update user's own status only
+    // Update user's own status in users collection
     await setDoc(
       userRef,
       {
@@ -222,12 +193,17 @@ export const autoCreateTestUsers = async (): Promise<void> => {
     console.log('Auto-creating test users...');
 
     for (const user of testUsers) {
+      let userId: string | null = null;
+      let isNewUser = false;
+
       try {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           user.email,
           user.password
         );
+        userId = userCredential.user.uid;
+        isNewUser = true;
 
         // Set display name
         const { updateProfile } = await import('firebase/auth');
@@ -235,34 +211,89 @@ export const autoCreateTestUsers = async (): Promise<void> => {
           displayName: user.name,
         });
 
-        // Create user document in Firestore
-        const db = getDb(true);
-        const { setDoc, doc } = await import('firebase/firestore');
-        await setDoc(
-          doc(db, 'users', userCredential.user.uid),
-          {
-            id: userCredential.user.uid,
-            email: user.email,
-            name: user.name,
-            online: false,
-            lastSeen: new Date(),
-            role: 'contractor',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          { merge: true }
-        );
-
-        console.log(`✅ Created test user: ${user.email} (${user.name})`);
+        console.log(`✅ Created NEW Auth user: ${user.email} (${user.name})`);
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
-          console.log(`ℹ️ Test user already exists: ${user.email}`);
+          console.log(`ℹ️ Auth user already exists: ${user.email}`);
+
+          // Sign in to get the user ID and create Firestore doc
+          try {
+            const { signInWithEmailAndPassword, signOut, updateProfile } =
+              await import('firebase/auth');
+            const signInResult = await signInWithEmailAndPassword(
+              auth,
+              user.email,
+              user.password
+            );
+            userId = signInResult.user.uid;
+
+            // Update display name
+            await updateProfile(signInResult.user, {
+              displayName: user.name,
+            });
+
+            // Create/update Firestore doc WHILE AUTHENTICATED
+            const db = getDb(true);
+            const { setDoc, doc } = await import('firebase/firestore');
+            await setDoc(
+              doc(db, 'users', userId),
+              {
+                id: userId,
+                email: user.email,
+                name: user.name,
+                online: true,
+                lastSeen: new Date(),
+                role: 'contractor',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+              { merge: true }
+            );
+            console.log(
+              `✅ Updated Firestore doc for existing user: ${user.email}`
+            );
+
+            // Sign out after creating doc
+            await signOut(auth);
+          } catch (signInError) {
+            console.error(
+              `Failed to process existing user ${user.email}:`,
+              signInError
+            );
+          }
         } else {
           console.error(
             `❌ Failed to create test user ${user.email}:`,
             error.message
           );
-          console.error('Full error:', error);
+        }
+      }
+
+      // Create Firestore document for NEW users
+      if (userId && isNewUser) {
+        try {
+          const db = getDb(true);
+          const { setDoc, doc } = await import('firebase/firestore');
+          await setDoc(
+            doc(db, 'users', userId),
+            {
+              id: userId,
+              email: user.email,
+              name: user.name,
+              online: false,
+              lastSeen: new Date(),
+              role: 'contractor',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+            { merge: true }
+          );
+          console.log(`✅ Created Firestore doc for NEW user: ${user.email}`);
+        } catch (firestoreError) {
+          console.error(
+            `Failed to create Firestore doc for ${user.email}:`,
+            firestoreError
+          );
         }
       }
     }
@@ -279,44 +310,58 @@ export const autoCreateTestUsers = async (): Promise<void> => {
 export const initializeTestUserContacts = async (
   currentUserId: string
 ): Promise<void> => {
-  const testUsers = [
-    {
-      id: 'alice@demo.com',
-      name: 'Alice Johnson',
-      email: 'alice@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-    {
-      id: 'bob@demo.com',
-      name: 'Bob Smith',
-      email: 'bob@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-    {
-      id: 'charlie@demo.com',
-      name: 'Charlie Davis',
-      email: 'charlie@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-  ];
+  const db = getDb();
 
-  try {
-    // Only add contacts for the current authenticated user
-    for (const contact of testUsers) {
-      if (contact.id !== currentUserId) {
-        try {
-          await addContact(currentUserId, contact);
-        } catch (error) {
-          console.log(`Failed to add contact ${contact.id}:`, error);
-          // Continue with other contacts even if one fails
-        }
-      }
+  console.log(`Initializing contacts for user: ${currentUserId}`);
+
+  // Fetch all users from Firestore to get their actual UIDs
+  const usersRef = collection(db, 'users');
+  const usersSnapshot = await getDocs(usersRef);
+
+  console.log(`Found ${usersSnapshot.docs.length} users in Firestore`);
+
+  const demoEmails = ['alice@demo.com', 'bob@demo.com', 'charlie@demo.com'];
+  const demoUsers: Contact[] = [];
+
+  // Find demo users by email and use their Firebase UIDs
+  usersSnapshot.forEach(doc => {
+    const userData = doc.data();
+    console.log(`Checking user: ${userData.email} (${doc.id})`);
+
+    if (demoEmails.includes(userData.email)) {
+      const contact: Contact = {
+        id: doc.id, // Use Firebase UID, not email!
+        name: userData.name || userData.email,
+        email: userData.email,
+        photoUrl: userData.photoUrl,
+        online: userData.online || false,
+        lastSeen: userData.lastSeen?.toDate() || new Date(),
+      };
+      demoUsers.push(contact);
+      console.log(`Added to demo users list: ${contact.name} (${contact.id})`);
     }
-  } catch (error) {
-    console.error('Failed to initialize test user contacts:', error);
-    throw error;
+  });
+
+  console.log(`Found ${demoUsers.length} demo users to add as contacts`);
+
+  // Add all demo users except current user as contacts
+  let addedCount = 0;
+  for (const contact of demoUsers) {
+    if (contact.id !== currentUserId) {
+      try {
+        console.log(`Adding contact: ${contact.name} (${contact.id})`);
+        await addContact(currentUserId, contact);
+        addedCount++;
+        console.log(`✅ Successfully added contact: ${contact.name}`);
+      } catch (error) {
+        console.error(`❌ Failed to add contact ${contact.name}:`, error);
+      }
+    } else {
+      console.log(`Skipping self: ${contact.name}`);
+    }
   }
+
+  console.log(
+    `✅ Contact initialization complete: ${addedCount} contacts added`
+  );
 };
