@@ -28,8 +28,8 @@ export const config = {
             'appium:bundleId': 'com.communexus.communexus',
             'appium:newCommandTimeout': 300,
             'appium:commandTimeouts': 300,
-            // Reset app state between test runs
-            'appium:noReset': false,
+            // Keep app running for speed - reset only between test FILES
+            'appium:noReset': true,
             'appium:fullReset': false,
             // Auto-dismiss system alerts
             'appium:autoAcceptAlerts': true,
@@ -44,8 +44,8 @@ export const config = {
     // Mocha options
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000,
-        retries: 1
+        timeout: 30000, // Reduced from 60s for faster feedback
+        retries: 0      // No retries for speed
     },
     
     // Reporter configuration
@@ -56,14 +56,14 @@ export const config = {
     // Global test timeout
     timeout: 60000,
     
-    // Retry configuration
-    retries: 1,
+    // Retry configuration (0 for faster feedback)
+    retries: 0,
     
     // Log level
     logLevel: 'info',
     
-    // Wait timeout
-    waitforTimeout: 10000,
+    // Wait timeout (reduced for speed)
+    waitforTimeout: 5000,
     
     // Connection retry timeout
     connectionRetryTimeout: 120000,

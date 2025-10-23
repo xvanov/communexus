@@ -8,9 +8,16 @@ const path = require('path');
 
 class ClaudeVisualAssertions {
     constructor(config = {}) {
+        // Check if visual assertions are enabled via flag
+        const visualChecksEnabled = process.env.ENABLE_VISUAL_CHECKS === 'true';
+        
         this.apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
-        if (!this.apiKey) {
-            console.warn('⚠️  ANTHROPIC_API_KEY not set - visual assertions will be skipped');
+        if (!this.apiKey || !visualChecksEnabled) {
+            if (!visualChecksEnabled) {
+                console.log('ℹ️  Visual assertions disabled (set ENABLE_VISUAL_CHECKS=true to enable)');
+            } else {
+                console.warn('⚠️  ANTHROPIC_API_KEY not set - visual assertions will be skipped');
+            }
             this.enabled = false;
             return;
         }
@@ -22,6 +29,11 @@ class ClaudeVisualAssertions {
         this.screenshotDir = config.screenshotDir || path.join(__dirname, '../../../test-results/visual-assertions');
         this.conversationHistory = [];
         this.assertionResults = [];
+
+        // Initialize assertionResults even when disabled
+        if (!this.assertionResults) {
+            this.assertionResults = [];
+        }
     }
 
     /**
