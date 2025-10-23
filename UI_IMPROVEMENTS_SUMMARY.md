@@ -15,17 +15,20 @@
 - **Charlie Davis**: `charlie@demo.com` / `password123`
 
 **Removed old users:**
+
 - ❌ john@test.com
-- ❌ jane@test.com  
+- ❌ jane@test.com
 - ❌ a@test.com
 - ❌ b@test.com
 
 **Files Modified:**
+
 - `src/services/contacts.ts` - Updated demo user creation with names
 - `src/screens/AuthScreen.tsx` - Updated demo login buttons
 - `README.md` - Updated demo user documentation
 
 **Implementation:**
+
 - Demo users now created with `displayName` set in Firebase Auth
 - User documents in Firestore include full names
 - Password changed to `password123` for consistency
@@ -41,12 +44,15 @@
 - Includes deep linking data (threadId, senderId, messageId)
 
 **Files Created:**
+
 - `functions/src/sendMessageNotification.ts` - Cloud Function trigger
 
 **Files Modified:**
+
 - `functions/src/index.ts` - Export new function
 
 **How It Works:**
+
 1. User sends message → Creates document in Firestore
 2. Cloud Function trigger fires automatically
 3. Function fetches recipient push tokens from users collection
@@ -55,6 +61,7 @@
 6. Recipient sees notification with message preview
 
 **Notification Features:**
+
 - ✅ Foreground notifications (app open)
 - ✅ Background notifications (app minimized/closed)
 - ✅ Deep linking to conversation
@@ -72,17 +79,20 @@
 - "Online" or "Last seen X minutes ago" text
 
 **Files Modified:**
+
 - `src/hooks/usePresence.ts` - Full implementation of presence tracking
 - `src/screens/ChatListScreen.tsx` - Added usePresence() hook
 - `src/services/contacts.ts` - Subscribe to real-time presence from users collection
 
 **How It Works:**
+
 1. User logs in → usePresence() sets them online in Firestore
 2. ContactsScreen subscribes to each contact's user document
 3. When user's online status changes → Green circle updates in real-time
 4. User logs out/closes app → usePresence() cleanup sets them offline
 
 **Presence Features:**
+
 - ✅ Automatic online status on login
 - ✅ Automatic offline status on logout/app close
 - ✅ Real-time updates across all devices
@@ -99,9 +109,11 @@
 - ✅ Clean, minimal design
 
 **Files Modified:**
+
 - `src/screens/AuthScreen.tsx` - Removed title and subtitle
 
 **Before:**
+
 ```
 [Logo 80px]
 Communexus
@@ -110,6 +122,7 @@ Project Communication Hub
 ```
 
 **After:**
+
 ```
 [Logo 120px]
 [Login form]
@@ -124,15 +137,18 @@ Project Communication Hub
 - Cleaner, more space-efficient design
 
 **Files Modified:**
+
 - `src/screens/ChatListScreen.tsx` - Removed headerTitle, kept only username
 
 **Before:**
+
 ```
 Communexus          [Buttons]
 username@email.com
 ```
 
 **After:**
+
 ```
 Username            [Buttons]
 ```
@@ -148,9 +164,11 @@ Username            [Buttons]
 - Placeholder text in gray (#64748B)
 
 **Files Modified:**
+
 - `src/screens/AuthScreen.tsx` - Added name state and input field
 
 **Sign Up Flow:**
+
 1. User taps "Don't have an account? Sign Up"
 2. Form shows Name field (new!)
 3. User enters Name, Email, Password
@@ -162,17 +180,21 @@ Username            [Buttons]
 **Display priority: Name > Email everywhere:**
 
 **Contacts Screen:**
+
 - Name in bold white
 - Email in gray below name
 - Already implemented correctly!
 
 **Thread List:**
+
 - Shows participant names (already correct)
 
 **Chat Screen:**
+
 - Messages show sender names (already correct)
 
 **Header:**
+
 - Shows user's display name instead of email
 - Falls back to email if no name set
 
@@ -194,6 +216,7 @@ All components already showing names as primary identifier!
 ## 🎯 Key Improvements
 
 ### Better UX
+
 - ✅ Clean, minimal login screen (logo only)
 - ✅ Simplified header (no redundant text)
 - ✅ Professional demo users (Alice, Bob, Charlie)
@@ -201,6 +224,7 @@ All components already showing names as primary identifier!
 - ✅ Names displayed throughout app
 
 ### Working Features
+
 - ✅ Push notifications for new messages (auto-triggered)
 - ✅ Real-time online presence (green circles)
 - ✅ Notification preferences respected
@@ -208,6 +232,7 @@ All components already showing names as primary identifier!
 - ✅ Display names everywhere
 
 ### Technical Excellence
+
 - ✅ TypeScript: 0 errors
 - ✅ ESLint: 0 errors (185 warnings pre-existing)
 - ✅ Tests: 10/10 passing
@@ -219,6 +244,7 @@ All components already showing names as primary identifier!
 ### Test Notifications
 
 **Scenario 1: User A online, User B sends message**
+
 1. iPhone/Simulator 1: Login as Alice
 2. iPhone/Simulator 2: Login as Bob
 3. Bob creates thread with Alice
@@ -226,6 +252,7 @@ All components already showing names as primary identifier!
 5. ✅ Alice sees notification appear (foreground)
 
 **Scenario 2: User A offline/background, User B sends message**
+
 1. iPhone 1: Login as Alice, then close/minimize app
 2. iPhone 2: Login as Bob
 3. Bob sends message to Alice
@@ -250,6 +277,7 @@ All components already showing names as primary identifier!
 ## 🔧 Configuration
 
 **Demo Users:**
+
 ```
 Alice Johnson   - alice@demo.com   / password123
 Bob Smith       - bob@demo.com     / password123
@@ -257,6 +285,7 @@ Charlie Davis   - charlie@demo.com / password123
 ```
 
 **Notification Trigger:**
+
 - Function: `sendMessageNotification`
 - Trigger: `threads/{threadId}/messages/{messageId}` onCreate
 - Deployed with: `npm run deploy` or Firebase emulator
@@ -271,6 +300,7 @@ Charlie Davis   - charlie@demo.com / password123
 ## 🚀 Next Steps
 
 To fully test on physical devices:
+
 1. Restart Firebase emulators to load new Cloud Function
 2. Build and install on 2 physical iPhones (or iPhone + simulator)
 3. Test message notifications
@@ -280,4 +310,3 @@ To fully test on physical devices:
 ---
 
 **Status**: All 8 UI improvements complete and tested! 🎉
-
