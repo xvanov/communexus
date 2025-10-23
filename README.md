@@ -99,16 +99,17 @@ npx expo run:ios --device "iPhone SE (3rd generation)"
 
 **Now you can test messaging:**
 
-1. **Simulator 1 (iPhone 15)**: Log in as `a@test.com` / `password123`
-2. **Simulator 2 (iPhone SE)**: Log in as `b@test.com` / `password123`
+1. **Simulator 1 (iPhone 15)**: Log in as Alice (`alice@demo.com` / `password123`)
+2. **Simulator 2 (iPhone SE)**: Log in as Bob (`bob@demo.com` / `password123`)
 3. **Create thread**: Tap "+" → Select the other user → Start chatting
 4. **Watch real-time sync**: Messages appear instantly on both devices!
 
-**Available test users:**
+**Available demo users:**
 
-- `a@test.com` / `password123`
-- `b@test.com` / `password123`
-- Or use "Demo User" button for quick login
+- **Alice Johnson**: `alice@demo.com` / `password123`
+- **Bob Smith**: `bob@demo.com` / `password123`
+- **Charlie Davis**: `charlie@demo.com` / `password123`
+- Or use "Try Demo User" button for quick login
 
 ### Step 4: Hot Reload Development
 

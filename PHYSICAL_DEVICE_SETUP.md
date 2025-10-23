@@ -5,6 +5,7 @@ This guide will help you install and test Communexus on your physical iPhone.
 ## ✅ Configuration Complete
 
 Your environment is already configured:
+
 - ✅ `.env` file created with your Mac's IP: **10.110.1.169**
 - ✅ `app.json` updated with owner: **xvanov**
 - ✅ `eas.json` configured for development builds
@@ -19,6 +20,7 @@ npx eas init
 ```
 
 **When prompted:**
+
 - "Would you like to create a project for @xvanov/communexus?" → **Yes**
 - It will create an EAS project and link it to your Expo account
 
@@ -30,6 +32,7 @@ npx eas build --profile development --platform ios
 ```
 
 **What happens:**
+
 1. EAS uploads your code to their servers
 2. Builds the iOS app with development capabilities
 3. Generates an installable IPA file
@@ -102,6 +105,7 @@ npm start
 ### Login
 
 Use test accounts:
+
 - `a@test.com` / `password123`
 - `b@test.com` / `password123`
 - Or tap "Demo User" button
@@ -115,7 +119,7 @@ Use test accounts:
 ✅ **Settings Screen** - Configure notification preferences  
 ✅ **Badge Counts** - Watch unread badges update  
 ✅ **Media Sharing** - Use real camera to share photos  
-✅ **Offline Mode** - Turn off WiFi, send messages, turn on WiFi  
+✅ **Offline Mode** - Turn off WiFi, send messages, turn on WiFi
 
 ## Multi-Device Testing (iPhone + Simulator)
 
@@ -133,6 +137,7 @@ npx expo run:ios --device "iPhone 15"
 ```
 
 **Now test messaging:**
+
 1. **iPhone (Physical)**: Login as `a@test.com`
 2. **Simulator**: Login as `b@test.com`
 3. **Create conversation**: Tap + → Select other user
@@ -154,6 +159,7 @@ Once connected, **hot reload works automatically**:
 ### App Won't Connect to Metro
 
 **Check WiFi:**
+
 ```bash
 # Verify your Mac's IP hasn't changed
 ipconfig getifaddr en0
@@ -163,6 +169,7 @@ ipconfig getifaddr en0
 ```
 
 **Manual Connection:**
+
 1. Shake iPhone
 2. "Enter URL manually"
 3. Enter: `http://10.110.1.169:8081`
@@ -172,6 +179,7 @@ ipconfig getifaddr en0
 The `.env` file already has your Mac's IP configured for emulators.
 
 If you still get errors:
+
 1. Make sure Firebase emulators are running: `npx firebase emulators:start`
 2. Check emulator UI: http://127.0.0.1:4000
 3. Verify iPhone is on same WiFi as Mac
@@ -213,6 +221,7 @@ npm start
 ### Rebuild When Needed
 
 Only rebuild when you:
+
 - Add native dependencies
 - Change `app.json` or `eas.json`
 - Update Expo SDK version
@@ -252,4 +261,3 @@ After successful installation:
 **Happy Testing! 📱🚀**
 
 Your iPhone is now a powerful development device with hot reload!
-

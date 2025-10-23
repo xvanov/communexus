@@ -7,3 +7,4 @@ export { aiPriorityDetection } from './aiPriorityDetection';
 export { aiSmartSearch } from './aiSmartSearch';
 export { aiProactiveAgent } from './aiProactiveAgent';
 export { sendNotification } from './sendNotification';
+export { sendMessageNotification } from './sendMessageNotification';

@@ -13,6 +13,7 @@ import {
 import { signOut } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
 import { useUnreadCount } from '../hooks/useUnreadCount';
+import { usePresence } from '../hooks/usePresence';
 import { Thread } from '../types/Thread';
 import { useAuth } from '../hooks/useAuth';
 import { ThreadItem } from '../components/thread/ThreadItem';
@@ -24,6 +25,9 @@ export default function ChatListScreen({ navigation }: any) {
 
   // Automatically update badge count when threads change
   useUnreadCount(threads);
+
+  // Track user presence (online/offline)
+  usePresence();
 
   const handleThreadPress = (thread: Thread) => {
     navigation.navigate('Chat', { threadId: thread.id, thread });
@@ -134,10 +138,7 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle} testID="chat-list-title">
-            Communexus
-          </Text>
-          <Text style={styles.usernameText}>
+          <Text style={styles.usernameText} testID="chat-list-title">
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>

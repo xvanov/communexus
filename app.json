@@ -31,7 +31,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.communexus.communexus",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification", "remote-notification"],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -42,6 +43,11 @@
       "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE", "WAKE_LOCK"],
       "useNextNotificationsApi": true
     },
-    "web": {}
+    "web": {},
+    "extra": {
+      "eas": {
+        "projectId": "7fe31a8c-79fe-4f75-8856-abc070acc2d1"
+      }
+    }
   }
 }
