@@ -27,7 +27,12 @@ export const createThread = async (
   const col = collection(db, 'threads');
 
   // For one-on-one chats, check if thread already exists
-  if (!isGroup && participants.length === 2 && participants[0] && participants[1]) {
+  if (
+    !isGroup &&
+    participants.length === 2 &&
+    participants[0] &&
+    participants[1]
+  ) {
     const existingThreadId = await findExistingOneOnOneThread(
       participants[0],
       participants[1]
