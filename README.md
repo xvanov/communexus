@@ -170,6 +170,159 @@ npx expo run:ios --device "iPhone SE (3rd generation)"
 - **Notifications**: Test push notification settings in the new Settings screen (⚙️ icon)
 - **Badge counts**: Watch unread message badges update in real-time!
 
+## 📱 Testing on Physical iPhone
+
+### Method 1: Direct USB Installation (FREE - Recommended)
+
+Test on your real iPhone using a **free Apple ID** (no $99/year developer account needed):
+
+#### Prerequisites
+
+- Physical iPhone with USB cable
+- Free Apple ID (iCloud account)
+- Xcode installed
+
+#### Step 1: Connect iPhone via USB
+
+```bash
+# 1. Connect iPhone to Mac with USB cable
+# 2. Unlock iPhone and tap "Trust This Computer"
+
+# 3. Verify Xcode can see your device
+xcrun xctrace list devices
+
+# You should see your iPhone in the list
+```
+
+#### Step 2: Configure Signing in Xcode (First Time Only)
+
+```bash
+# Open the iOS workspace in Xcode
+open -a Xcode ios/Communexus.xcworkspace
+
+# In Xcode:
+# 1. Select "Communexus" project in left sidebar
+# 2. Select "Communexus" target
+# 3. Go to "Signing & Capabilities" tab
+# 4. Check "Automatically manage signing"
+# 5. Select Team → Add your Apple ID if not listed
+# 6. Xcode creates a free provisioning profile automatically
+```
+
+#### Step 3: Build and Install to iPhone
+
+```bash
+# Expo will detect your connected iPhone and install
+npx expo run:ios --device
+
+# If you see multiple devices, select your iPhone from the list
+# Build takes ~2-3 minutes first time
+```
+
+#### Step 4: Trust Developer Certificate on iPhone
+
+After installation:
+
+1. iPhone shows "Untrusted Developer"
+2. Go to **Settings** → **General** → **VPN & Device Management**
+3. Tap your Apple ID under "Developer App"
+4. Tap **Trust "[Your Name]"**
+5. Tap **Trust** again to confirm
+
+#### Step 5: Start Development
+
+```bash
+# Terminal 1: Firebase Emulators
+npx firebase emulators:start
+
+# Terminal 2: Metro Bundler
+npm start
+
+# iPhone automatically connects to Metro (same WiFi required)
+# Hot reload works perfectly!
+```
+
+#### Important Notes
+
+**Free Apple ID Limitations:**
+
+- ⏰ App expires after **7 days** - just rebuild to refresh (takes 30 seconds)
+- 📱 Must reinstall via USB every 7 days
+- 🔔 Limited push notification testing (local notifications work)
+- ✅ Hot reload works perfectly
+- ✅ Firebase emulators work perfectly
+- ✅ All features testable except some production push notification scenarios
+
+**Daily Development (After Initial Setup):**
+
+Once installed, you don't need USB cable for development:
+
+```bash
+# 1. Start emulators and Metro (as usual)
+npx firebase emulators:start  # Terminal 1
+npm start                      # Terminal 2
+
+# 2. Open app on iPhone (same WiFi as Mac)
+# Connects automatically with hot reload!
+
+# 3. Make code changes
+# iPhone reloads automatically!
+```
+
+**Re-signing After 7 Days:**
+
+```bash
+# When app expires, just reconnect USB and rebuild:
+npx expo run:ios --device
+
+# Takes ~30 seconds
+# All your data stays intact
+```
+
+### Method 2: EAS Build with Paid Developer Account
+
+If you have a paid Apple Developer account ($99/year):
+
+#### Setup
+
+See **`PHYSICAL_DEVICE_SETUP.md`** for complete guide with:
+
+- EAS project initialization
+- Development build creation
+- Installation via QR code
+- No 7-day expiration
+- Full push notification support
+
+#### Quick Commands
+
+```bash
+# One-time setup
+npx eas init
+
+# Build development version (~10-15 minutes)
+npx eas build --profile development --platform ios
+
+# Install via QR code or email link
+# No expiration, no USB needed
+```
+
+### Comparison: Free vs Paid
+
+| Feature                    | Free (USB)            | Paid (EAS)       |
+| -------------------------- | --------------------- | ---------------- |
+| **Cost**                   | 💰 FREE               | 💰 $99/year      |
+| **Setup Time**             | 5 minutes             | 15 minutes       |
+| **App Expiration**         | 7 days (easy refresh) | Never            |
+| **Installation**           | USB cable             | QR code/Wireless |
+| **Hot Reload**             | ✅ Yes                | ✅ Yes           |
+| **Push Notifications**     | ⚠️ Limited            | ✅ Full          |
+| **Team Distribution**      | ❌ No                 | ✅ Yes           |
+| **TestFlight**             | ❌ No                 | ✅ Yes           |
+| **Good for Development?**  | ✅ Excellent          | ✅ Excellent     |
+| **Good for Distribution?** | ❌ No                 | ✅ Yes           |
+
+**Recommendation:** Start with **Free (USB)** for development and testing. Upgrade to paid account when you need to distribute to testers or App Store.
+
 ## 🧪 Testing
 
 ### Running Tests Locally
