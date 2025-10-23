@@ -72,6 +72,7 @@
     "appium": "^3.1.0",
     "appium-uiautomator2-driver": "^5.0.6",
     "appium-xcuitest-driver": "^10.2.2",
+    "eas-cli": "^16.24.1",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
