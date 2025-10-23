@@ -31,7 +31,7 @@ describe('T008: GitHub Actions CI/CD Pipeline', () => {
       expect(workflowContent).toContain('npm run lint');
       expect(workflowContent).toContain('npm run format:check');
       expect(workflowContent).toContain('npm run type-check');
-      expect(workflowContent).toContain('npm test');
+      expect(workflowContent).toContain('npm run test:emul'); // Updated: tests run with emulators
     });
 
     it('should have build job configuration', () => {

@@ -1,20 +1,8 @@
-<!--
-Sync Impact Report:
-Version change: 2.3.0 → 2.3.1 (fixed principle numbering)
-Modified principles:
-  - Memory Bank Management - Restored as Principle I (was missing)
-  - All principles correctly numbered I-VII
-Added sections: N/A
-Removed sections: N/A
-Templates requiring updates: N/A (no template files found)
-Follow-up TODOs: None
--->
-
 # Cross-Platform Mobile Development Constitution
 
 ## Core Principles
 
-### I. Memory Bank Management (NON-NEGOTIABLE)
+### I. Memory Bank Management
 
 Every developer MUST read the memory bank (/memory-bank at repo root) before starting any work and MUST update it upon completion. The memory bank contains critical project context, decisions, patterns, and learnings that ensure continuity and prevent knowledge loss. No work begins without understanding the current project state, and no work is complete without documenting changes and insights.
 
@@ -148,5 +136,3 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 ## Governance
 
 This constitution applies to all cross-platform mobile development projects. Amendments require team consensus and must maintain the core principles of test-driven development, simplicity, and cross-platform consistency. All development decisions must be justified against these principles.
-
-**Version**: 2.3.1 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19
