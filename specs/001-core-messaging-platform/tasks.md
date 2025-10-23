@@ -164,7 +164,7 @@ description: 'Task list template for feature implementation'
 - [x] T067 [P] [US1.5] Add notification badges and unread counts ✅
 - [x] T068 [P] [US1.5] Create notification testing and validation ✅
 
-**Phase 3.5.3 Summary**: ⚠️ Notification infrastructure complete with Settings UI, preferences, badge management, and testing. Manual notifications work (test button), but automatic notifications NOT triggering when messages sent. Cloud Function `sendMessageNotification` exists but doesn't fire. In-app local notifications hook created (`useInAppNotifications`) but shows empty messages.
+**Phase 3.5.3 Summary**: ⚠️ Notification infrastructure complete with Settings UI, preferences, badge management, and testing. Manual notifications work (test button), but automatic notifications NOT triggering when messages sent. Cloud Function `sendMessageNotification` exists but doesn't fire. In-app local notifications hook created (`useInAppNotifications`) but shows empty messages. **CI/CD Fix**: Temporarily disabled sendMessageNotification export to allow deployment (Eventarc permissions issue).
 
 **Blockers**:
 
