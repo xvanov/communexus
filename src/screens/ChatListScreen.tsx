@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
+import { useUnreadCount } from '../hooks/useUnreadCount';
+import { usePresence } from '../hooks/usePresence';
 import { Thread } from '../types/Thread';
 import { useAuth } from '../hooks/useAuth';
 import { ThreadItem } from '../components/thread/ThreadItem';
@@ -20,6 +22,12 @@ import { initializeFirebase } from '../services/firebase';
 export default function ChatListScreen({ navigation }: any) {
   const { threads, loading, error } = useThreads();
   const { user } = useAuth();
+
+  // Automatically update badge count when threads change
+  useUnreadCount(threads);
+
+  // Track user presence (online/offline)
+  usePresence();
 
   const handleThreadPress = (thread: Thread) => {
     navigation.navigate('Chat', { threadId: thread.id, thread });
@@ -31,6 +39,10 @@ export default function ChatListScreen({ navigation }: any) {
 
   const handleContacts = () => {
     navigation.navigate('Contacts');
+  };
+
+  const handleSettings = () => {
+    navigation.navigate('Settings');
   };
 
   const performLogout = async () => {
@@ -126,10 +138,7 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle} testID="chat-list-title">
-            Communexus
-          </Text>
-          <Text style={styles.usernameText}>
+          <Text style={styles.usernameText} testID="chat-list-title">
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>
@@ -140,6 +149,13 @@ export default function ChatListScreen({ navigation }: any) {
             testID="contacts-button"
           >
             <Text style={styles.contactsButtonText}>Contacts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={handleSettings}
+            testID="settings-button"
+          >
+            <Text style={styles.settingsButtonText}>⚙️</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.logoutButton}
@@ -208,6 +224,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  settingsButton: {
+    alignItems: 'center',
+    backgroundColor: '#64748B',
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    marginLeft: 8,
+    width: 36,
+  },
+  settingsButtonText: {
+    fontSize: 18,
   },
   container: {
     backgroundColor: '#000000',

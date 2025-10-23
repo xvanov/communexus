@@ -66,21 +66,83 @@ export const subscribeToContacts = (
   const db = getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
-  return onSnapshot(contactsRef, snapshot => {
+  // Map to track user presence subscriptions
+  const presenceUnsubscribers: Record<string, () => void> = {};
+
+  const contactsUnsubscribe = onSnapshot(contactsRef, async snapshot => {
     const contacts: Contact[] = [];
+    const contactIds: string[] = [];
+
+    // First, get all contact IDs
     snapshot.forEach(doc => {
-      const data = doc.data();
-      contacts.push({
-        id: doc.id,
-        name: data.name,
-        email: data.email,
-        photoUrl: data.photoUrl,
-        online: data.online || false,
-        lastSeen: data.lastSeen?.toDate() || new Date(),
-      });
+      contactIds.push(doc.id);
     });
+
+    // Clean up old presence subscriptions
+    Object.keys(presenceUnsubscribers).forEach(id => {
+      if (!contactIds.includes(id)) {
+        const unsub = presenceUnsubscribers[id];
+        if (unsub) unsub();
+        delete presenceUnsubscribers[id];
+      }
+    });
+
+    // Subscribe to each contact's presence in users collection
+    for (const contactId of contactIds) {
+      const contactDoc = snapshot.docs.find(d => d.id === contactId);
+      if (!contactDoc) continue;
+
+      const contactData = contactDoc.data();
+
+      // If not already subscribed, subscribe to this user's presence
+      if (!presenceUnsubscribers[contactId]) {
+        const userRef = doc(db, 'users', contactId);
+
+        presenceUnsubscribers[contactId] = onSnapshot(userRef, userSnap => {
+          const userData = userSnap.data();
+
+          // Update the contact in the contacts array
+          const existingIndex = contacts.findIndex(c => c.id === contactId);
+          const updatedContact: Contact = {
+            id: contactId,
+            name: contactData.name || userData?.name || contactData.email,
+            email: contactData.email,
+            photoUrl: contactData.photoUrl || userData?.photoUrl,
+            online: userData?.online || false,
+            lastSeen: userData?.lastSeen?.toDate() || new Date(),
+          };
+
+          if (existingIndex >= 0) {
+            contacts[existingIndex] = updatedContact;
+          } else {
+            contacts.push(updatedContact);
+          }
+
+          // Trigger callback with updated contacts
+          callback([...contacts]);
+        });
+      }
+
+      // Add initial contact data
+      contacts.push({
+        id: contactId,
+        name: contactData.name,
+        email: contactData.email,
+        photoUrl: contactData.photoUrl,
+        online: false, // Will be updated by presence subscription
+        lastSeen: contactData.lastSeen?.toDate() || new Date(),
+      });
+    }
+
+    // Initial callback
     callback(contacts);
   });
+
+  // Return cleanup function that unsubscribes from everything
+  return () => {
+    contactsUnsubscribe();
+    Object.values(presenceUnsubscribers).forEach(unsub => unsub());
+  };
 };
 
 // Update user's online status with proper error handling
@@ -144,18 +206,54 @@ export const autoCreateTestUsers = async (): Promise<void> => {
     console.log('Firebase Auth initialized successfully');
 
     const testUsers = [
-      { email: 'john@test.com', password: 'password' },
-      { email: 'jane@test.com', password: 'password' },
-      { email: 'alice@test.com', password: 'password' },
-      { email: 'bob@test.com', password: 'password' },
+      {
+        email: 'alice@demo.com',
+        password: 'password123',
+        name: 'Alice Johnson',
+      },
+      { email: 'bob@demo.com', password: 'password123', name: 'Bob Smith' },
+      {
+        email: 'charlie@demo.com',
+        password: 'password123',
+        name: 'Charlie Davis',
+      },
     ];
 
     console.log('Auto-creating test users...');
 
     for (const user of testUsers) {
       try {
-        await createUserWithEmailAndPassword(auth, user.email, user.password);
-        console.log(`✅ Created test user: ${user.email}`);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          user.email,
+          user.password
+        );
+
+        // Set display name
+        const { updateProfile } = await import('firebase/auth');
+        await updateProfile(userCredential.user, {
+          displayName: user.name,
+        });
+
+        // Create user document in Firestore
+        const db = getDb(true);
+        const { setDoc, doc } = await import('firebase/firestore');
+        await setDoc(
+          doc(db, 'users', userCredential.user.uid),
+          {
+            id: userCredential.user.uid,
+            email: user.email,
+            name: user.name,
+            online: false,
+            lastSeen: new Date(),
+            role: 'contractor',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          { merge: true }
+        );
+
+        console.log(`✅ Created test user: ${user.email} (${user.name})`);
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           console.log(`ℹ️ Test user already exists: ${user.email}`);
@@ -183,30 +281,23 @@ export const initializeTestUserContacts = async (
 ): Promise<void> => {
   const testUsers = [
     {
-      id: 'john@test.com',
-      name: 'John',
-      email: 'john@test.com',
+      id: 'alice@demo.com',
+      name: 'Alice Johnson',
+      email: 'alice@demo.com',
       online: false,
       lastSeen: new Date(),
     },
     {
-      id: 'jane@test.com',
-      name: 'Jane',
-      email: 'jane@test.com',
+      id: 'bob@demo.com',
+      name: 'Bob Smith',
+      email: 'bob@demo.com',
       online: false,
       lastSeen: new Date(),
     },
     {
-      id: 'alice@test.com',
-      name: 'Alice',
-      email: 'alice@test.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-    {
-      id: 'bob@test.com',
-      name: 'Bob',
-      email: 'bob@test.com',
+      id: 'charlie@demo.com',
+      name: 'Charlie Davis',
+      email: 'charlie@demo.com',
       online: false,
       lastSeen: new Date(),
     },

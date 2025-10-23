@@ -1,29 +1,18 @@
 # Communexus - AI-Powered Project Communication Platform
 
-**Communexus** is a production-quality messaging platform designed specifically for contractors and service business operators. It combines real-time messaging, AI-powered project intelligence, and multi-channel communication to streamline project coordination and decision-making.
+**Communexus** is a cross-platform messaging application designed for contractors and service business operators. It combines real-time messaging, AI-powered project intelligence, and multi-channel communication to streamline project coordination and decision-making.
 
-## ✅ Current Status
+## Overview
 
-### Phase 3: Core Messaging Platform (MVP) - **COMPLETE** ✅
+Communexus is a React Native mobile application built with Firebase backend services, featuring:
 
-- Real-time messaging with Firestore
-- Project threads with multiple participants
-- Media sharing (images, documents)
-- Message search functionality
-- User authentication (Firebase Auth)
-- Optimistic UI updates
-- Modern dark theme UI
-
-### Phase 3.5: Stability & Testing - **95% COMPLETE** ✅
-
-- ✅ E2E Test Suite: **8/8 tests passing in 35 seconds!**
-- ✅ Unit Tests: **183/184 tests passing**
-- ✅ EAS Development Build configured
-- ✅ CI/CD Pipeline: **All checks passing**
-- ✅ Hybrid Testing: Appium + Claude AI visual assertions
-- ✅ Cross-platform consistency
-- ⏳ Notification system (pending)
-- ⏳ Thread management features (pending)
+- **Real-time messaging** with Firestore for instant communication
+- **Project threads** supporting multiple participants and group conversations
+- **Media sharing** for images, documents, and files
+- **AI-powered features** including thread summarization, action extraction, and smart search
+- **Cross-platform support** for iOS, Android, and Web
+- **Modern UI/UX** with dark theme and accessibility support
+- **Offline capabilities** for working without internet connection
 
 ## 🚀 Quick Start
 
@@ -60,52 +49,330 @@ npx expo run:ios
 npm start  # Just like Expo Go!
 ```
 
-## 🧪 Testing
+## 🔧 Local Development Setup
 
-### E2E Tests (Fast & Reliable!)
+### Step 1: Start Firebase Emulators
+
+Firebase emulators provide a local development environment for Firestore, Auth, Storage, and Functions:
 
 ```bash
-# Prerequisites
-npm run appium:server &  # Terminal 1
-npm start                # Terminal 2 (press 'i')
+# Start all Firebase emulators
+npx firebase emulators:start
 
-# Run E2E tests (35 seconds!)
+# The emulators will run on:
+# - Authentication: http://127.0.0.1:9099
+# - Firestore: http://127.0.0.1:8080
+# - Storage: http://127.0.0.1:9199
+# - Functions: http://127.0.0.1:5001
+# - Emulator UI: http://127.0.0.1:4000
+```
+
+**Important**: Keep this terminal running while developing!
+
+### Step 2: Run on Single iOS Simulator
+
+```bash
+# Build and run on default simulator (iPhone 15)
+npx expo run:ios --device "iPhone 15"
+
+# Or run on a different device
+npx expo run:ios --device "iPhone 14"
+```
+
+### Step 3: Testing Messaging Between Two Users
+
+To test real-time messaging, you can run **multiple simulators simultaneously**:
+
+```bash
+# Terminal 1: Start Firebase emulators (if not already running)
+npx firebase emulators:start
+
+# Terminal 2: Run first simulator (iPhone 15)
+npx expo run:ios --device "iPhone 15"
+
+# Terminal 3: Boot second simulator
+xcrun simctl boot "iPhone SE (3rd generation)"
+
+# Terminal 4: Run app on second simulator
+npx expo run:ios --device "iPhone SE (3rd generation)"
+```
+
+**Now you can test messaging:**
+
+1. **Simulator 1 (iPhone 15)**: Log in as Alice (`alice@demo.com` / `password123`)
+2. **Simulator 2 (iPhone SE)**: Log in as Bob (`bob@demo.com` / `password123`)
+3. **Create thread**: Tap "+" → Select the other user → Start chatting
+4. **Watch real-time sync**: Messages appear instantly on both devices!
+
+**Available demo users:**
+
+- **Alice Johnson**: `alice@demo.com` / `password123`
+- **Bob Smith**: `bob@demo.com` / `password123`
+- **Charlie Davis**: `charlie@demo.com` / `password123`
+- Or use "Try Demo User" button for quick login
+
+### Step 4: Hot Reload Development
+
+Once simulators are running, you can use **hot reload** for instant updates:
+
+```bash
+# In your code editor, make changes to any file
+# The app will automatically reload on ALL running simulators!
+
+# If hot reload doesn't work:
+# - Press 'r' in the Expo terminal to reload manually
+# - Or shake the device and tap "Reload"
+```
+
+### Available Simulators
+
+List all available iOS simulators:
+
+```bash
+xcrun simctl list devices
+```
+
+Common devices for testing:
+
+- iPhone 15 Pro Max (large screen)
+- iPhone 15 (default)
+- iPhone SE (3rd generation) (small screen)
+- iPhone 14
+- iPad Air (tablet testing)
+
+### Development Workflow
+
+```bash
+# 1. Start Firebase emulators (Terminal 1)
+npx firebase emulators:start
+
+# 2. Run first simulator (Terminal 2)
+npx expo run:ios --device "iPhone 15"
+
+# 3. (Optional) Run second simulator for multi-user testing (Terminal 3)
+xcrun simctl boot "iPhone SE (3rd generation)"
+npx expo run:ios --device "iPhone SE (3rd generation)"
+
+# 4. Make code changes - hot reload updates all simulators automatically!
+
+# 5. Test features:
+#    - Real-time messaging
+#    - Notification system (new!)
+#    - Settings screen (⚙️ button in header)
+#    - Badge count updates
+#    - Multi-user conversations
+```
+
+### Tips
+
+- **Arrange side-by-side**: Resize simulator windows to see both at once
+- **Performance**: 2 simulators work great, 3+ may slow down your Mac
+- **View Emulator UI**: Open http://127.0.0.1:4000 to see Firebase data in browser
+- **Notifications**: Test push notification settings in the new Settings screen (⚙️ icon)
+- **Badge counts**: Watch unread message badges update in real-time!
+
+## 📱 Testing on Physical iPhone
+
+### Method 1: Direct USB Installation (FREE - Recommended)
+
+Test on your real iPhone using a **free Apple ID** (no $99/year developer account needed):
+
+#### Prerequisites
+
+- Physical iPhone with USB cable
+- Free Apple ID (iCloud account)
+- Xcode installed
+
+#### Step 1: Connect iPhone via USB
+
+```bash
+# 1. Connect iPhone to Mac with USB cable
+# 2. Unlock iPhone and tap "Trust This Computer"
+
+# 3. Verify Xcode can see your device
+xcrun xctrace list devices
+
+# You should see your iPhone in the list
+```
+
+#### Step 2: Configure Signing in Xcode (First Time Only)
+
+```bash
+# Open the iOS workspace in Xcode
+open -a Xcode ios/Communexus.xcworkspace
+
+# In Xcode:
+# 1. Select "Communexus" project in left sidebar
+# 2. Select "Communexus" target
+# 3. Go to "Signing & Capabilities" tab
+# 4. Check "Automatically manage signing"
+# 5. Select Team → Add your Apple ID if not listed
+# 6. Xcode creates a free provisioning profile automatically
+```
+
+#### Step 3: Build and Install to iPhone
+
+```bash
+# Expo will detect your connected iPhone and install
+npx expo run:ios --device
+
+# If you see multiple devices, select your iPhone from the list
+# Build takes ~2-3 minutes first time
+```
+
+#### Step 4: Trust Developer Certificate on iPhone
+
+After installation:
+
+1. iPhone shows "Untrusted Developer"
+2. Go to **Settings** → **General** → **VPN & Device Management**
+3. Tap your Apple ID under "Developer App"
+4. Tap **Trust "[Your Name]"**
+5. Tap **Trust** again to confirm
+
+#### Step 5: Start Development
+
+```bash
+# Terminal 1: Firebase Emulators
+npx firebase emulators:start
+
+# Terminal 2: Metro Bundler
+npm start
+
+# iPhone automatically connects to Metro (same WiFi required)
+# Hot reload works perfectly!
+```
+
+#### Important Notes
+
+**Free Apple ID Limitations:**
+
+- ⏰ App expires after **7 days** - just rebuild to refresh (takes 30 seconds)
+- 📱 Must reinstall via USB every 7 days
+- 🔔 Limited push notification testing (local notifications work)
+- ✅ Hot reload works perfectly
+- ✅ Firebase emulators work perfectly
+- ✅ All features testable except some production push notification scenarios
+
+**Daily Development (After Initial Setup):**
+
+Once installed, you don't need USB cable for development:
+
+```bash
+# 1. Start emulators and Metro (as usual)
+npx firebase emulators:start  # Terminal 1
+npm start                      # Terminal 2
+
+# 2. Open app on iPhone (same WiFi as Mac)
+# Connects automatically with hot reload!
+
+# 3. Make code changes
+# iPhone reloads automatically!
+```
+
+**Re-signing After 7 Days:**
+
+```bash
+# When app expires, just reconnect USB and rebuild:
+npx expo run:ios --device
+
+# Takes ~30 seconds
+# All your data stays intact
+```
+
+### Method 2: EAS Build with Paid Developer Account
+
+If you have a paid Apple Developer account ($99/year):
+
+#### Setup
+
+See **`PHYSICAL_DEVICE_SETUP.md`** for complete guide with:
+
+- EAS project initialization
+- Development build creation
+- Installation via QR code
+- No 7-day expiration
+- Full push notification support
+
+#### Quick Commands
+
+```bash
+# One-time setup
+npx eas init
+
+# Build development version (~10-15 minutes)
+npx eas build --profile development --platform ios
+
+# Install via QR code or email link
+# No expiration, no USB needed
+```
+
+### Comparison: Free vs Paid
+
+| Feature                    | Free (USB)            | Paid (EAS)       |
+| -------------------------- | --------------------- | ---------------- |
+| **Cost**                   | 💰 FREE               | 💰 $99/year      |
+| **Setup Time**             | 5 minutes             | 15 minutes       |
+| **App Expiration**         | 7 days (easy refresh) | Never            |
+| **Installation**           | USB cable             | QR code/Wireless |
+| **Hot Reload**             | ✅ Yes                | ✅ Yes           |
+| **Push Notifications**     | ⚠️ Limited            | ✅ Full          |
+| **Team Distribution**      | ❌ No                 | ✅ Yes           |
+| **TestFlight**             | ❌ No                 | ✅ Yes           |
+| **Good for Development?**  | ✅ Excellent          | ✅ Excellent     |
+| **Good for Distribution?** | ❌ No                 | ✅ Yes           |
+
+**Recommendation:** Start with **Free (USB)** for development and testing. Upgrade to paid account when you need to distribute to testers or App Store.
+
+## 🧪 Testing
+
+### Running Tests Locally
+
+Before committing any code, you should run all CI/CD checks locally to ensure everything passes:
+
+```bash
+# Run all CI/CD pipeline checks
+npm run lint           # ESLint code quality
+npm run format:check   # Prettier formatting
+npm run type-check     # TypeScript type checking
+npm test               # Unit and integration tests
+npm run build          # Verify build works
+```
+
+### E2E Tests
+
+End-to-end tests use Appium and WebDriverIO to test the app in a real simulator:
+
+```bash
+# Terminal 1: Start Appium server
+npm run appium:server
+
+# Terminal 2: Start the app
+npm start
+# Press 'i' for iOS simulator
+
+# Terminal 3: Run E2E tests
 npm run test:e2e:ios
 
-# Quick smoke test (9 seconds!)
+# Run quick smoke tests
 npm run test:e2e:ios:simple
 
-# With Claude AI visual verification
+# Run with Claude AI visual verification (optional)
 ENABLE_VISUAL_CHECKS=true npm run test:e2e:ios:visual
 ```
 
-**Results:**
-
-- ✅ 8/8 tests passing
-- ⚡ 35 seconds total (was 6+ minutes!)
-- 🎯 100% pass rate
-
-### Unit & Integration Tests
+### Unit Tests
 
 ```bash
-# Run all tests (183 passing!)
+# Run all unit and integration tests
 npm test
 
-# With Firebase emulators
+# Run tests with Firebase emulators
 npm run test:emul
+
+# Run tests in watch mode
+npm test -- --watch
 ```
-
-### CI/CD Checks
-
-```bash
-# Run all pipeline checks locally
-npm run lint           # ESLint
-npm run format:check   # Prettier
-npm run type-check     # TypeScript
-npm test               # Jest
-```
-
-**All checks passing!** ✅
 
 ## 📁 Project Structure
 
@@ -173,79 +440,47 @@ communexus/main/
 
 ### Messaging
 
-- ✅ Real-time chat with Firestore listeners
-- ✅ Group conversations (unlimited participants)
-- ✅ Media sharing (images, files)
-- ✅ Message status tracking
-- ✅ Optimistic UI updates
-- ✅ Offline support (coming soon)
+- Real-time chat with Firestore listeners
+- Group conversations with multiple participants
+- Media sharing (images, documents, files)
+- Message status tracking and read receipts
+- Optimistic UI updates for instant feedback
+- Offline support and message queuing
 
 ### Authentication
 
-- ✅ Email/password sign-in
-- ✅ Test user creation
-- ✅ Demo user quick login
-- ✅ Secure Firebase Auth
+- Email/password authentication
+- Secure Firebase Auth integration
+- Test user creation for development
+- Demo user quick login
 
-### Testing Infrastructure
+### AI-Powered Intelligence
 
-- ✅ **8 E2E tests** (100% passing, 35 seconds)
-- ✅ **183 unit tests** (99% passing)
-- ✅ **Hybrid testing** (Appium + Claude AI)
-- ✅ **CI/CD pipeline** (all checks green)
+- Thread summarization with OpenAI GPT-4
+- Automatic action item extraction
+- Priority message detection
+- Smart search with semantic understanding
+- Proactive assistant suggestions
 
 ### UI/UX
 
-- ✅ Modern dark theme
-- ✅ Accessibility labels
-- ✅ Cross-platform consistency
-- ✅ Responsive design
-
-## 🧪 Testing Strategy
-
-### Test Pyramid
-
-```
-        /\
-       /  \    Manual E2E (critical flows)
-      /____\
-     /      \   8 Automated E2E tests (35s)
-    /________\
-   /          \  183 Unit/Integration tests
-  /__________\
-```
-
-### E2E Test Coverage
-
-- ✅ Auth screen display and interaction
-- ✅ Element detection and visibility
-- ✅ Text input functionality
-- ✅ Button interactions
-- ✅ Cross-platform UI consistency
-- ✅ Screenshot capture
-- ✅ Appium server connection
-
-### Hybrid Testing (Optional)
-
-- Appium for interactions (fast, reliable)
-- Claude AI for visual verification (smart, adaptive)
-- Cost: ~$5-10/month for occasional visual checks
+- Modern dark theme design
+- Accessibility labels and support
+- Cross-platform consistency (iOS, Android, Web)
+- Responsive design for all screen sizes
 
 ## 🚀 Deployment
 
 ### CI/CD Pipeline
 
-**Automated on every push to `main`:**
+The project uses GitHub Actions for automated CI/CD. On every push to `main`:
 
-1. ✅ Lint check (ESLint)
-2. ✅ Format check (Prettier)
-3. ✅ Type check (TypeScript)
-4. ✅ Unit tests (Jest)
-5. ✅ Build Firebase Functions
-6. ✅ Export Expo app
-7. ✅ Deploy to Firebase (on main branch)
+1. Code quality checks (ESLint, Prettier, TypeScript)
+2. Test suite execution (Jest unit/integration tests)
+3. Build verification (Firebase Functions, Expo app)
+4. Deployment to Firebase services
 
-**View workflows:** `.github/workflows/`
+See `.github/workflows/ci-cd.yml` for complete pipeline configuration.
 
 ### Manual Deployment
 
@@ -253,11 +488,9 @@ communexus/main/
 # Deploy Firebase services
 firebase deploy
 
-# Build mobile apps
-npx expo build:ios
-npx expo build:android
-
-# Or use EAS
+# Build mobile apps with EAS
+eas build --platform ios
+eas build --platform android
 eas build --platform all
 ```
 
@@ -304,40 +537,6 @@ pkill -f firebase
 # Restart
 firebase emulators:start --only auth,firestore,storage --project demo-communexus
 ```
-
-## 📊 Test Results
-
-**Latest test run:**
-
-```
-E2E Tests:      8/8 passing (35 seconds)
-Unit Tests:     183/184 passing
-Type Check:     ✅ No errors
-Lint Check:     ✅ 0 errors (152 warnings)
-Format Check:   ✅ All files formatted
-Build Check:    ✅ Successful
-```
-
-## 🔜 Next Steps
-
-### Phase 3.5 Completion
-
-- [ ] Implement push notifications
-- [ ] Add thread management features
-- [ ] Complete visual regression testing
-
-### Phase 4: AI Features
-
-- [ ] Thread summarization (OpenAI GPT-4)
-- [ ] Action item extraction
-- [ ] Priority message detection
-- [ ] Smart search with semantic understanding
-
-### Phase 5: Multi-Channel
-
-- [ ] SMS integration (Twilio)
-- [ ] Email integration (SendGrid)
-- [ ] Unified message routing
 
 ## 🛡️ Security
 

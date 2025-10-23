@@ -28,6 +28,7 @@ export default function AuthScreen({
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDemoUsers, setShowDemoUsers] = useState(false);
@@ -38,12 +39,35 @@ export default function AuthScreen({
       return;
     }
 
+    if (isSignUp && !name.trim()) {
+      Alert.alert('Error', 'Please enter your name');
+      return;
+    }
+
     setLoading(true);
     try {
       const { auth } = initializeFirebase();
 
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email.trim(), password);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
+        // Set display name in Firebase Auth
+        const { updateProfile } = await import('firebase/auth');
+        await updateProfile(userCredential.user, {
+          displayName: name.trim(),
+        });
+
+        // Create user document in Firestore with name
+        const { upsertCurrentUser } = await import('../services/users');
+        await upsertCurrentUser({
+          name: name.trim(),
+          email: email.trim(),
+        });
+
         Alert.alert('Success', 'Account created successfully!');
       } else {
         await signInWithEmailAndPassword(auth, email.trim(), password);
@@ -74,10 +98,12 @@ export default function AuthScreen({
       // For mobile, use Alert.alert
       Alert.alert('Choose Demo User', 'Select a demo user to sign in with:', [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'John', onPress: () => signInAsDemoUser('john@test.com') },
-        { text: 'Jane', onPress: () => signInAsDemoUser('jane@test.com') },
-        { text: 'Alice', onPress: () => signInAsDemoUser('alice@test.com') },
-        { text: 'Bob', onPress: () => signInAsDemoUser('bob@test.com') },
+        { text: 'Alice', onPress: () => signInAsDemoUser('alice@demo.com') },
+        { text: 'Bob', onPress: () => signInAsDemoUser('bob@demo.com') },
+        {
+          text: 'Charlie',
+          onPress: () => signInAsDemoUser('charlie@demo.com'),
+        },
       ]);
     }
   };
@@ -113,7 +139,7 @@ export default function AuthScreen({
 
       // Sign in with selected user
       console.log(`Signing in as ${email}...`);
-      await signInWithEmailAndPassword(auth, email, 'password');
+      await signInWithEmailAndPassword(auth, email, 'password123');
 
       // Initialize contacts for test user
       try {
@@ -138,15 +164,28 @@ export default function AuthScreen({
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Logo size={80} color="#1E3A8A" />
+          <Logo size={120} color="#1E3A8A" />
         </View>
-        <Text style={styles.title}>Communexus</Text>
-        <Text style={styles.subtitle}>Project Communication Hub</Text>
 
         <View style={styles.form}>
+          {isSignUp && (
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              placeholderTextColor="#64748B"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              editable={!loading}
+              testID="name-input"
+              accessibilityLabel="name-input"
+            />
+          )}
+
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#64748B"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -159,6 +198,7 @@ export default function AuthScreen({
           <TextInput
             style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#64748B"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -227,31 +267,24 @@ export default function AuthScreen({
               <View style={styles.demoUserButtons}>
                 <TouchableOpacity
                   style={styles.demoUserButton}
-                  onPress={() => signInAsDemoUser('john@test.com')}
-                  disabled={loading}
-                >
-                  <Text style={styles.demoUserButtonText}>John</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.demoUserButton}
-                  onPress={() => signInAsDemoUser('jane@test.com')}
-                  disabled={loading}
-                >
-                  <Text style={styles.demoUserButtonText}>Jane</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.demoUserButton}
-                  onPress={() => signInAsDemoUser('alice@test.com')}
+                  onPress={() => signInAsDemoUser('alice@demo.com')}
                   disabled={loading}
                 >
                   <Text style={styles.demoUserButtonText}>Alice</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.demoUserButton}
-                  onPress={() => signInAsDemoUser('bob@test.com')}
+                  onPress={() => signInAsDemoUser('bob@demo.com')}
                   disabled={loading}
                 >
                   <Text style={styles.demoUserButtonText}>Bob</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.demoUserButton}
+                  onPress={() => signInAsDemoUser('charlie@demo.com')}
+                  disabled={loading}
+                >
+                  <Text style={styles.demoUserButtonText}>Charlie</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
@@ -267,10 +300,9 @@ export default function AuthScreen({
         <View style={styles.infoContainer}>
           <Text style={styles.infoTitle}>Demo Users:</Text>
           <Text style={styles.infoText}>
-            john@test.com / password{'\n'}
-            jane@test.com / password{'\n'}
-            alice@test.com / password{'\n'}
-            bob@test.com / password{'\n'}
+            alice@demo.com / password123{'\n'}
+            bob@demo.com / password123{'\n'}
+            charlie@demo.com / password123{'\n'}
             {'\n'}Click "Try Demo User" to select one,{'\n'}
             or create your own account above!
           </Text>

@@ -1,19 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { LogBox } from 'react-native';
+import type { NavigationContainerRef } from '@react-navigation/native';
 import { useAuth } from './src/hooks/useAuth';
+import {
+  initializeNotifications,
+  setupNotificationListeners,
+} from './src/services/notifications';
 import AuthScreen from './src/screens/AuthScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import GroupCreateScreen from './src/screens/GroupCreateScreen';
 import ContactsScreen from './src/screens/ContactsScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const { user, loading } = useAuth();
+  const navigationRef = useRef<NavigationContainerRef<any>>(null);
 
   useEffect(() => {
     // Suppress Firebase warnings and errors in console during development/testing
@@ -44,6 +51,37 @@ export default function App() {
     };
   }, []);
 
+  // Initialize notifications when user logs in
+  useEffect(() => {
+    if (user) {
+      initializeNotifications().catch(error => {
+        console.error('Failed to initialize notifications:', error);
+      });
+    }
+  }, [user]);
+
+  // Set up notification listeners
+  useEffect(() => {
+    const cleanup = setupNotificationListeners(
+      // On foreground notification received
+      notification => {
+        console.log('Foreground notification:', notification);
+        // Notification is automatically displayed by the handler
+      },
+      // On notification tapped
+      response => {
+        console.log('Notification tapped:', response);
+        // Handle deep linking
+        const data = response.notification.request.content.data;
+        if (data?.threadId && navigationRef.current) {
+          navigationRef.current.navigate('Chat', { threadId: data.threadId });
+        }
+      }
+    );
+
+    return cleanup;
+  }, []);
+
   if (loading) {
     return null; // You could add a loading screen here
   }
@@ -53,7 +91,7 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <StatusBar style="auto" />
       <Stack.Navigator
         initialRouteName="ChatList"
@@ -87,6 +125,11 @@ export default function App() {
           name="Contacts"
           component={ContactsScreen}
           options={{ title: 'Contacts' }}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{ title: 'Settings' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
