@@ -49,6 +49,127 @@ npx expo run:ios
 npm start  # Just like Expo Go!
 ```
 
+## 🔧 Local Development Setup
+
+### Step 1: Start Firebase Emulators
+
+Firebase emulators provide a local development environment for Firestore, Auth, Storage, and Functions:
+
+```bash
+# Start all Firebase emulators
+npx firebase emulators:start
+
+# The emulators will run on:
+# - Authentication: http://127.0.0.1:9099
+# - Firestore: http://127.0.0.1:8080
+# - Storage: http://127.0.0.1:9199
+# - Functions: http://127.0.0.1:5001
+# - Emulator UI: http://127.0.0.1:4000
+```
+
+**Important**: Keep this terminal running while developing!
+
+### Step 2: Run on Single iOS Simulator
+
+```bash
+# Build and run on default simulator (iPhone 15)
+npx expo run:ios --device "iPhone 15"
+
+# Or run on a different device
+npx expo run:ios --device "iPhone 14"
+```
+
+### Step 3: Testing Messaging Between Two Users
+
+To test real-time messaging, you can run **multiple simulators simultaneously**:
+
+```bash
+# Terminal 1: Start Firebase emulators (if not already running)
+npx firebase emulators:start
+
+# Terminal 2: Run first simulator (iPhone 15)
+npx expo run:ios --device "iPhone 15"
+
+# Terminal 3: Boot second simulator
+xcrun simctl boot "iPhone SE (3rd generation)"
+
+# Terminal 4: Run app on second simulator
+npx expo run:ios --device "iPhone SE (3rd generation)"
+```
+
+**Now you can test messaging:**
+
+1. **Simulator 1 (iPhone 15)**: Log in as `a@test.com` / `password123`
+2. **Simulator 2 (iPhone SE)**: Log in as `b@test.com` / `password123`
+3. **Create thread**: Tap "+" → Select the other user → Start chatting
+4. **Watch real-time sync**: Messages appear instantly on both devices!
+
+**Available test users:**
+
+- `a@test.com` / `password123`
+- `b@test.com` / `password123`
+- Or use "Demo User" button for quick login
+
+### Step 4: Hot Reload Development
+
+Once simulators are running, you can use **hot reload** for instant updates:
+
+```bash
+# In your code editor, make changes to any file
+# The app will automatically reload on ALL running simulators!
+
+# If hot reload doesn't work:
+# - Press 'r' in the Expo terminal to reload manually
+# - Or shake the device and tap "Reload"
+```
+
+### Available Simulators
+
+List all available iOS simulators:
+
+```bash
+xcrun simctl list devices
+```
+
+Common devices for testing:
+
+- iPhone 15 Pro Max (large screen)
+- iPhone 15 (default)
+- iPhone SE (3rd generation) (small screen)
+- iPhone 14
+- iPad Air (tablet testing)
+
+### Development Workflow
+
+```bash
+# 1. Start Firebase emulators (Terminal 1)
+npx firebase emulators:start
+
+# 2. Run first simulator (Terminal 2)
+npx expo run:ios --device "iPhone 15"
+
+# 3. (Optional) Run second simulator for multi-user testing (Terminal 3)
+xcrun simctl boot "iPhone SE (3rd generation)"
+npx expo run:ios --device "iPhone SE (3rd generation)"
+
+# 4. Make code changes - hot reload updates all simulators automatically!
+
+# 5. Test features:
+#    - Real-time messaging
+#    - Notification system (new!)
+#    - Settings screen (⚙️ button in header)
+#    - Badge count updates
+#    - Multi-user conversations
+```
+
+### Tips
+
+- **Arrange side-by-side**: Resize simulator windows to see both at once
+- **Performance**: 2 simulators work great, 3+ may slow down your Mac
+- **View Emulator UI**: Open http://127.0.0.1:4000 to see Firebase data in browser
+- **Notifications**: Test push notification settings in the new Settings screen (⚙️ icon)
+- **Badge counts**: Watch unread message badges update in real-time!
+
 ## 🧪 Testing
 
 ### Running Tests Locally
