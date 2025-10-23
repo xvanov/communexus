@@ -84,7 +84,9 @@ describe('Enhanced CI/CD Pipeline for Phase 2', () => {
       expect(workflowContent).toContain('Deploy Firebase Storage Rules');
       expect(workflowContent).toContain('Deploy Firebase Hosting');
       // Note: EAS builds removed - done manually or in separate workflow
-      expect(workflowContent).toContain('Mobile app builds (EAS) are done manually');
+      expect(workflowContent).toContain(
+        'Mobile app builds (EAS) are done manually'
+      );
     });
 
     it('should have staging deployment job', () => {
