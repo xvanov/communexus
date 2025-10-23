@@ -83,7 +83,8 @@ describe('Enhanced CI/CD Pipeline for Phase 2', () => {
       expect(workflowContent).toContain('Deploy Firebase Firestore Rules');
       expect(workflowContent).toContain('Deploy Firebase Storage Rules');
       expect(workflowContent).toContain('Deploy Firebase Hosting');
-      expect(workflowContent).toContain('Build and Deploy Mobile App (EAS)');
+      // Note: EAS builds removed - done manually or in separate workflow
+      expect(workflowContent).toContain('Mobile app builds (EAS) are done manually');
     });
 
     it('should have staging deployment job', () => {
@@ -98,14 +99,15 @@ describe('Enhanced CI/CD Pipeline for Phase 2', () => {
       );
     });
 
-    it('should have EAS Build integration', () => {
+    it('should have Expo CLI setup (for web export)', () => {
       const workflowFile = join(projectRoot, '.github/workflows/ci-cd.yml');
       const fs = require('fs');
       const workflowContent = fs.readFileSync(workflowFile, 'utf8');
 
       expect(workflowContent).toContain('Setup Expo CLI');
-      expect(workflowContent).toContain('eas build --platform all');
-      expect(workflowContent).toContain('EXPO_TOKEN');
+      // Note: EAS builds removed from CI/CD - done manually
+      // expect(workflowContent).toContain('eas build --platform all');
+      // expect(workflowContent).toContain('EXPO_TOKEN');
     });
 
     it('should have enhanced notifications', () => {
