@@ -1,29 +1,18 @@
 # Communexus - AI-Powered Project Communication Platform
 
-**Communexus** is a production-quality messaging platform designed specifically for contractors and service business operators. It combines real-time messaging, AI-powered project intelligence, and multi-channel communication to streamline project coordination and decision-making.
+**Communexus** is a cross-platform messaging application designed for contractors and service business operators. It combines real-time messaging, AI-powered project intelligence, and multi-channel communication to streamline project coordination and decision-making.
 
-## ✅ Current Status
+## Overview
 
-### Phase 3: Core Messaging Platform (MVP) - **COMPLETE** ✅
+Communexus is a React Native mobile application built with Firebase backend services, featuring:
 
-- Real-time messaging with Firestore
-- Project threads with multiple participants
-- Media sharing (images, documents)
-- Message search functionality
-- User authentication (Firebase Auth)
-- Optimistic UI updates
-- Modern dark theme UI
-
-### Phase 3.5: Stability & Testing - **95% COMPLETE** ✅
-
-- ✅ E2E Test Suite: **8/8 tests passing in 35 seconds!**
-- ✅ Unit Tests: **183/184 tests passing**
-- ✅ EAS Development Build configured
-- ✅ CI/CD Pipeline: **All checks passing**
-- ✅ Hybrid Testing: Appium + Claude AI visual assertions
-- ✅ Cross-platform consistency
-- ⏳ Notification system (pending)
-- ⏳ Thread management features (pending)
+- **Real-time messaging** with Firestore for instant communication
+- **Project threads** supporting multiple participants and group conversations
+- **Media sharing** for images, documents, and files
+- **AI-powered features** including thread summarization, action extraction, and smart search
+- **Cross-platform support** for iOS, Android, and Web
+- **Modern UI/UX** with dark theme and accessibility support
+- **Offline capabilities** for working without internet connection
 
 ## 🚀 Quick Start
 
@@ -62,50 +51,53 @@ npm start  # Just like Expo Go!
 
 ## 🧪 Testing
 
-### E2E Tests (Fast & Reliable!)
+### Running Tests Locally
+
+Before committing any code, you should run all CI/CD checks locally to ensure everything passes:
 
 ```bash
-# Prerequisites
-npm run appium:server &  # Terminal 1
-npm start                # Terminal 2 (press 'i')
+# Run all CI/CD pipeline checks
+npm run lint           # ESLint code quality
+npm run format:check   # Prettier formatting
+npm run type-check     # TypeScript type checking
+npm test               # Unit and integration tests
+npm run build          # Verify build works
+```
 
-# Run E2E tests (35 seconds!)
+### E2E Tests
+
+End-to-end tests use Appium and WebDriverIO to test the app in a real simulator:
+
+```bash
+# Terminal 1: Start Appium server
+npm run appium:server
+
+# Terminal 2: Start the app
+npm start
+# Press 'i' for iOS simulator
+
+# Terminal 3: Run E2E tests
 npm run test:e2e:ios
 
-# Quick smoke test (9 seconds!)
+# Run quick smoke tests
 npm run test:e2e:ios:simple
 
-# With Claude AI visual verification
+# Run with Claude AI visual verification (optional)
 ENABLE_VISUAL_CHECKS=true npm run test:e2e:ios:visual
 ```
 
-**Results:**
-
-- ✅ 8/8 tests passing
-- ⚡ 35 seconds total (was 6+ minutes!)
-- 🎯 100% pass rate
-
-### Unit & Integration Tests
+### Unit Tests
 
 ```bash
-# Run all tests (183 passing!)
+# Run all unit and integration tests
 npm test
 
-# With Firebase emulators
+# Run tests with Firebase emulators
 npm run test:emul
+
+# Run tests in watch mode
+npm test -- --watch
 ```
-
-### CI/CD Checks
-
-```bash
-# Run all pipeline checks locally
-npm run lint           # ESLint
-npm run format:check   # Prettier
-npm run type-check     # TypeScript
-npm test               # Jest
-```
-
-**All checks passing!** ✅
 
 ## 📁 Project Structure
 
@@ -173,79 +165,48 @@ communexus/main/
 
 ### Messaging
 
-- ✅ Real-time chat with Firestore listeners
-- ✅ Group conversations (unlimited participants)
-- ✅ Media sharing (images, files)
-- ✅ Message status tracking
-- ✅ Optimistic UI updates
-- ✅ Offline support (coming soon)
+- Real-time chat with Firestore listeners
+- Group conversations with multiple participants
+- Media sharing (images, documents, files)
+- Message status tracking and read receipts
+- Optimistic UI updates for instant feedback
+- Offline support and message queuing
 
 ### Authentication
 
-- ✅ Email/password sign-in
-- ✅ Test user creation
-- ✅ Demo user quick login
-- ✅ Secure Firebase Auth
+- Email/password authentication
+- Secure Firebase Auth integration
+- Test user creation for development
+- Demo user quick login
 
-### Testing Infrastructure
+### AI-Powered Intelligence
 
-- ✅ **8 E2E tests** (100% passing, 35 seconds)
-- ✅ **183 unit tests** (99% passing)
-- ✅ **Hybrid testing** (Appium + Claude AI)
-- ✅ **CI/CD pipeline** (all checks green)
+- Thread summarization with OpenAI GPT-4
+- Automatic action item extraction
+- Priority message detection
+- Smart search with semantic understanding
+- Proactive assistant suggestions
 
 ### UI/UX
 
-- ✅ Modern dark theme
-- ✅ Accessibility labels
-- ✅ Cross-platform consistency
-- ✅ Responsive design
+- Modern dark theme design
+- Accessibility labels and support
+- Cross-platform consistency (iOS, Android, Web)
+- Responsive design for all screen sizes
 
-## 🧪 Testing Strategy
-
-### Test Pyramid
-
-```
-        /\
-       /  \    Manual E2E (critical flows)
-      /____\
-     /      \   8 Automated E2E tests (35s)
-    /________\
-   /          \  183 Unit/Integration tests
-  /__________\
-```
-
-### E2E Test Coverage
-
-- ✅ Auth screen display and interaction
-- ✅ Element detection and visibility
-- ✅ Text input functionality
-- ✅ Button interactions
-- ✅ Cross-platform UI consistency
-- ✅ Screenshot capture
-- ✅ Appium server connection
-
-### Hybrid Testing (Optional)
-
-- Appium for interactions (fast, reliable)
-- Claude AI for visual verification (smart, adaptive)
-- Cost: ~$5-10/month for occasional visual checks
 
 ## 🚀 Deployment
 
 ### CI/CD Pipeline
 
-**Automated on every push to `main`:**
+The project uses GitHub Actions for automated CI/CD. On every push to `main`:
 
-1. ✅ Lint check (ESLint)
-2. ✅ Format check (Prettier)
-3. ✅ Type check (TypeScript)
-4. ✅ Unit tests (Jest)
-5. ✅ Build Firebase Functions
-6. ✅ Export Expo app
-7. ✅ Deploy to Firebase (on main branch)
+1. Code quality checks (ESLint, Prettier, TypeScript)
+2. Test suite execution (Jest unit/integration tests)
+3. Build verification (Firebase Functions, Expo app)
+4. Deployment to Firebase services
 
-**View workflows:** `.github/workflows/`
+See `.github/workflows/ci-cd.yml` for complete pipeline configuration.
 
 ### Manual Deployment
 
@@ -253,11 +214,9 @@ communexus/main/
 # Deploy Firebase services
 firebase deploy
 
-# Build mobile apps
-npx expo build:ios
-npx expo build:android
-
-# Or use EAS
+# Build mobile apps with EAS
+eas build --platform ios
+eas build --platform android
 eas build --platform all
 ```
 
@@ -305,39 +264,6 @@ pkill -f firebase
 firebase emulators:start --only auth,firestore,storage --project demo-communexus
 ```
 
-## 📊 Test Results
-
-**Latest test run:**
-
-```
-E2E Tests:      8/8 passing (35 seconds)
-Unit Tests:     183/184 passing
-Type Check:     ✅ No errors
-Lint Check:     ✅ 0 errors (152 warnings)
-Format Check:   ✅ All files formatted
-Build Check:    ✅ Successful
-```
-
-## 🔜 Next Steps
-
-### Phase 3.5 Completion
-
-- [ ] Implement push notifications
-- [ ] Add thread management features
-- [ ] Complete visual regression testing
-
-### Phase 4: AI Features
-
-- [ ] Thread summarization (OpenAI GPT-4)
-- [ ] Action item extraction
-- [ ] Priority message detection
-- [ ] Smart search with semantic understanding
-
-### Phase 5: Multi-Channel
-
-- [ ] SMS integration (Twilio)
-- [ ] Email integration (SendGrid)
-- [ ] Unified message routing
 
 ## 🛡️ Security
 

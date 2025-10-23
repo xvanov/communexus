@@ -1,5 +1,39 @@
 # Cross-Platform Mobile Development Constitution
 
+<!--
+SYNC IMPACT REPORT - Constitution Amendment
+
+Version Change: 1.0.0 → 1.1.0
+Amendment Date: 2025-10-23
+Ratification Date: 2025-10-23
+
+MODIFIED PRINCIPLES:
+- None
+
+ADDED PRINCIPLES:
+- VIII. CI/CD Discipline - New principle requiring local pipeline validation before commits
+
+REMOVED PRINCIPLES:
+- None
+
+TEMPLATE UPDATES REQUIRED:
+- ✅ plan-template.md - Constitution Check section aligns with CI/CD requirements
+- ✅ spec-template.md - No changes needed (scope-level, CI/CD is implementation detail)
+- ✅ tasks-template.md - Already includes validation tasks in Polish phase
+- ✅ CI-CD-Pipeline.md - Already documents pre-commit checks (lines 82-97)
+
+FOLLOW-UP ITEMS:
+- None - all placeholders resolved
+
+BUMP RATIONALE:
+MINOR version bump (1.0.0 → 1.1.0) because this adds a new principle section
+with new governance requirements without breaking existing principles.
+-->
+
+**Version**: 1.1.0  
+**Ratified**: 2025-10-23  
+**Last Amended**: 2025-10-23
+
 ## Core Principles
 
 ### I. Memory Bank Management
@@ -55,6 +89,19 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 - **Responsive Design**: UI MUST adapt gracefully to different screen sizes and orientations
 - **Accessibility**: All features MUST meet accessibility standards on all platforms
 
+### VIII. CI/CD Discipline
+
+Every project MUST have CI/CD pipelines configured from the start. Before ANY code is committed to version control, developers MUST run all CI/CD pipeline steps locally and ensure they pass. Only after local validation succeeds should code be committed and pushed to trigger remote CI/CD pipelines. This principle prevents broken commits, reduces CI/CD failures, and maintains a clean main branch.
+
+- **Pipeline Setup Required**: CI/CD pipelines (linting, formatting, type checking, tests, builds) MUST be configured at project initialization
+- **Local Validation First**: ALL CI/CD checks MUST pass locally before committing code
+- **Pre-Commit Workflow**: The required workflow is: run local checks → verify all pass → commit → push → remote CI/CD validation
+- **No Broken Commits**: Code that fails any CI/CD check MUST NOT be committed to version control
+- **Fast Local Feedback**: Local CI/CD validation MUST complete in reasonable time (< 1 minutes for quick checks, < 2 minutes for full suite)
+- **CI/CD Documentation**: Project MUST document all CI/CD steps and how to run them locally (see docs/CI-CD-Pipeline.md)
+
+**Rationale**: Running CI/CD checks locally before committing prevents wasted time on remote pipeline failures, keeps the commit history clean, enables faster feedback loops, and ensures the team can work efficiently without breaking the build for others. This is especially critical in team environments where broken commits block other developers.
+
 ## Technical Standards
 
 ### Code Quality Requirements
@@ -108,8 +155,15 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 3. **Implement Feature**: Write minimal code to pass tests
 4. **Refactor**: Improve code while keeping tests green
 5. **End-to-End Verification**: Test critical user journeys using simulators
-6. **Code Review**: Submit PR with tests that provide meaningful feedback
-7. **Update Memory Bank**: Document changes, decisions, and learnings in memory bank
+6. **Local CI/CD Validation**: Run ALL CI/CD pipeline steps locally and ensure they pass
+   - Run linting: `npm run lint`
+   - Run formatting check: `npm run format:check`
+   - Run type checking: `npm run type-check`
+   - Run test suite: `npm test`
+   - Run build: `npm run build`
+7. **Commit & Push**: Only after local validation succeeds, commit code and push to remote
+8. **Code Review**: Submit PR - remote CI/CD pipelines will validate again
+9. **Update Memory Bank**: Document changes, decisions, and learnings in memory bank
 
 ### Quality Gates
 
@@ -135,4 +189,31 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 
 ## Governance
 
-This constitution applies to all cross-platform mobile development projects. Amendments require team consensus and must maintain the core principles of test-driven development, simplicity, and cross-platform consistency. All development decisions must be justified against these principles.
+### Scope & Authority
+
+This constitution applies to all cross-platform mobile development projects within the Communexus ecosystem. All development decisions MUST be justified against these principles. Violations require explicit documentation and team consensus.
+
+### Amendment Procedure
+
+1. **Proposal**: Any team member may propose amendments via pull request to `.specify/memory/constitution.md`
+2. **Impact Analysis**: Proposer MUST include Sync Impact Report documenting affected templates and dependent artifacts
+3. **Review**: Team reviews proposal against core principles and project needs
+4. **Consensus**: Amendments require team consensus before adoption
+5. **Version Update**: Constitution version MUST be incremented per semantic versioning:
+   - **MAJOR** (X.0.0): Backward-incompatible changes, principle removals, or fundamental redefinitions
+   - **MINOR** (0.X.0): New principles added, material expansions to guidance, new sections
+   - **PATCH** (0.0.X): Clarifications, wording improvements, typo fixes, non-semantic refinements
+6. **Propagation**: Update ALL dependent templates, documentation, and command files to maintain consistency
+7. **Documentation**: Update `LAST_AMENDED_DATE` and prepend Sync Impact Report to constitution file
+
+### Compliance Review
+
+- **Pre-Development**: Every feature MUST pass Constitution Check before Phase 0 research begins
+- **Post-Design**: Re-check constitution compliance after Phase 1 design completes
+- **Continuous**: Development decisions MUST reference constitution principles when making architectural choices
+- **Retrospective**: Team reviews constitution effectiveness quarterly and proposes amendments as needed
+
+### Version History
+
+- **1.1.0** (2025-10-23): Added Principle VIII (CI/CD Discipline) - local validation before commits
+- **1.0.0** (2025-10-23): Initial ratification - Core principles I-VII established
