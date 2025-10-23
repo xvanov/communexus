@@ -215,52 +215,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
           console.log(`ℹ️ Auth user already exists: ${user.email}`);
-
-          // Sign in to get the user ID and create Firestore doc
-          try {
-            const { signInWithEmailAndPassword, signOut, updateProfile } =
-              await import('firebase/auth');
-            const signInResult = await signInWithEmailAndPassword(
-              auth,
-              user.email,
-              user.password
-            );
-            userId = signInResult.user.uid;
-
-            // Update display name
-            await updateProfile(signInResult.user, {
-              displayName: user.name,
-            });
-
-            // Create/update Firestore doc WHILE AUTHENTICATED
-            const db = getDb(true);
-            const { setDoc, doc } = await import('firebase/firestore');
-            await setDoc(
-              doc(db, 'users', userId),
-              {
-                id: userId,
-                email: user.email,
-                name: user.name,
-                online: true,
-                lastSeen: new Date(),
-                role: 'contractor',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
-              { merge: true }
-            );
-            console.log(
-              `✅ Updated Firestore doc for existing user: ${user.email}`
-            );
-
-            // Sign out after creating doc
-            await signOut(auth);
-          } catch (signInError) {
-            console.error(
-              `Failed to process existing user ${user.email}:`,
-              signInError
-            );
-          }
+          // Skip - Firestore doc will be created when they actually log in
         } else {
           console.error(
             `❌ Failed to create test user ${user.email}:`,

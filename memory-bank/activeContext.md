@@ -1,116 +1,227 @@
 # Active Context: Communexus Development
 
-**Last Updated**: October 23, 2025  
-**Current Phase**: Phase 3.5 - Stability & Testing (95% Complete)  
-**Next Phase**: Phase 4 - AI-Powered Project Intelligence
+**Last Updated**: October 23, 2025 (Evening Session)  
+**Current Phase**: Phase 3.5.3 - Notification System & UI Polish (In Progress)  
+**Branch**: `001-notifications-system`  
+**Next Phase**: Phase 3.5.4 - Thread Management & Phase 4 - AI Features
 
 ## 🎯 Current Focus
 
 ### Just Completed (This Session)
 
-✅ **E2E Testing Infrastructure - FULLY OPERATIONAL**
+✅ **Notification System Implementation (Phase 3.5.3)**
 
-- Resolved Expo Go + Appium incompatibility
-- Implemented EAS Development Build
-- All 8 E2E tests passing in 35 seconds
-- 100% pass rate achieved
-- CI/CD pipeline all checks green
+- FCM integration and Cloud Function trigger
+- Settings screen with notification preferences
+- Badge management and unread count tracking
+- Deep linking from notifications to chats
+- Local in-app notifications (useInAppNotifications hook)
+- Test notification button working
 
-### Active Work
+✅ **UI/UX Improvements**
 
-**Testing Optimization Complete**:
+- Demo users changed to Alice, Bob, Charlie with full names
+- Clean login screen (logo only, no text)
+- Simplified header (user name only)
+- Name field added to sign up form
+- Names displayed as primary identifier throughout app
+- Settings screen accessible via gear icon (⚙️)
 
-- E2E test suite: 8/8 passing (35 seconds)
-- Unit test suite: 183/184 passing (15 seconds)
-- CI/CD checks: All passing
-- Development build: Working with hot reload
+✅ **Bug Fixes & Infrastructure**
 
-**Repository Organization Complete**:
+- Fixed duplicate chat creation (using Firebase UIDs)
+- Updated Firestore security rules for proper access
+- Fixed contact initialization with proper UIDs
+- Multi-simulator testing documentation
+- Physical iPhone testing setup (USB method)
+- CI/CD fixes for Cloud Functions ESLint
 
-- Project docs moved to `/docs/project/`
-- WebDriverIO configs moved to `/tests/e2e/config/`
-- Root directory cleaned up
-- Documentation updated
+### Active Issues (Known)
 
-## 📋 Recent Changes
+⚠️ **Notifications Not Triggering**
 
-### Major Improvements
+- Test notification button works ✅
+- Manual notification via Settings works ✅
+- Automatic notifications when messages sent NOT working ❌
+- Cloud Function `sendMessageNotification` exists but not triggering
+- In-app local notifications hook created but messages appear empty
+- Needs investigation: Why notification trigger doesn't fire
 
-1. **EAS Development Build**
-   - Upgraded macOS to 14.5+, Xcode to 16.1+
-   - Built iOS development version
-   - Resolved Appium element visibility issues
-   - Hot reload still works (no speed loss!)
+⚠️ **Online Presence Doesn't Auto-Update**
 
-2. **Test Suite Optimization**
-   - Removed `ensureLoggedOut()` loops (saved 15-20s per test)
-   - Changed `noReset: false` → `true` (keep app running)
-   - Reduced timeouts (10s → 3-5s)
-   - Added 4-second app initialization wait
-   - Removed test retries for faster feedback
+- Green/gray circles show correctly on initial load ✅
+- Status changes require leaving and re-entering Contacts screen ❌
+- subscribeToContacts uses onSnapshot but doesn't re-fetch user status
+- Needs real-time listener on users collection for each contact
 
-3. **Hybrid Testing Framework**
-   - Created `ClaudeVisualAssertions` helper
-   - Appium handles interactions (fast)
-   - Claude AI handles verification (smart)
-   - Optional with `ENABLE_VISUAL_CHECKS=true`
+⚠️ **Minor Issues**
 
-4. **CI/CD Pipeline**
-   - Updated Node.js 18 → 20 in workflows
-   - Fixed all ESLint errors
-   - Resolved all TypeScript errors
-   - All builds passing
+- Login has slight screen flicker (demo user creation process)
+- AsyncStorage persistence warning (users re-login after app restart)
+- Some undefined email fields in Firestore (older user documents)
 
-5. **Repository Cleanup**
-   - Organized project documentation
-   - Moved test configurations
-   - Updated .gitignore
-   - Clean root directory
+## 📋 Recent Changes (Current Session - Oct 23, 2025)
 
-### Code Changes
+### Files Created
 
-**Test Files**:
+**New Services/Hooks**:
 
-- `tests/e2e/specs/simple-auth.test.js` - New fast smoke test (9 seconds!)
-- `tests/e2e/helpers/TestHelpers.js` - Added `createFirebaseTestUsers()`
-- `tests/e2e/helpers/ClaudeVisualAssertions.js` - Hybrid testing support
-- Removed unreliable tests, kept 8 solid passing tests
+- `src/hooks/useInAppNotifications.ts` - Local notification trigger on new messages
+- `src/hooks/useUnreadCount.ts` - Automatic badge count management
+- `functions/src/sendMessageNotification.ts` - Cloud Function for push notifications
+- `tests/integration/notifications.test.ts` - Notification test suite (10/10 passing)
+- `tests/__mocks__/expo-notifications.js` - Expo notifications mock for testing
 
-**Configuration**:
+**Documentation**:
 
-- `tests/e2e/config/wdio.ios.conf.js` - Optimized for development build
-- `.eslintignore` - Exclude test files
-- `eslint.config.js` - Added globals, changed rules to warnings
-- `.github/workflows/*.yml` - Node 20 for all jobs
+- `UI_IMPROVEMENTS_SUMMARY.md` - Complete summary of UI changes
+- Updated `README.md` - Multi-simulator and physical iPhone testing guides
+- Updated `.env.example` - Firebase emulator host configuration
 
-**Bug Fixes**:
+### Files Modified (18 total)
 
-- `App.tsx` - Global error handler for test stability
-- `src/screens/ChatListScreen.tsx` - Improved logout flow
-- `src/services/firebase.ts` - Better error handling
-- `src/screens/GroupCreateScreen.tsx` - Fixed undefined variables
-- `src/services/threads.ts` - Null check for participants array
+**Notification System**:
+
+- `src/services/notifications.ts` - Enhanced with preferences, badge management
+- `src/screens/SettingsScreen.tsx` - Complete implementation with notification toggles
+- `App.tsx` - Notification initialization and deep linking
+- `app.json` - iOS/Android notification configuration
+- `jest.config.cjs` - expo-notifications module mapping
+
+**UI/UX Improvements**:
+
+- `src/screens/AuthScreen.tsx` - Name field, clean UI, Alice/Bob/Charlie
+- `src/screens/ChatListScreen.tsx` - Simplified header, Settings button, presence tracking
+- `src/hooks/usePresence.ts` - Full online/offline presence implementation
+
+**Contact System**:
+
+- `src/services/contacts.ts` - Firebase UID-based contacts, demo user creation
+- `src/screens/ContactsScreen.tsx` - Green circle indicators for online status
+
+**Security & Config**:
+
+- `firestore.rules` - Allow reading users collection for contacts
+- `functions/eslint.config.js` - Added Node.js globals (console, process, etc.)
+- `functions/package.json` - Removed problematic "type": "module"
+- `tests/unit/test_enhanced_cicd.test.ts` - Updated for new rules structure
+
+### Key Architectural Changes
+
+**Demo Users**:
+
+- Changed from john/jane/a/b to Alice Johnson, Bob Smith, Charlie Davis
+- Emails: alice@demo.com, bob@demo.com, charlie@demo.com
+- Password: password123 (consistent across all)
+- Display names set in Firebase Auth
+- Firestore documents created on first login
+
+**Contact System**:
+
+- Contact IDs now use Firebase Auth UIDs (not emails)
+- Prevents duplicate thread creation
+- Enables proper thread deduplication
+- Real-time online status from users collection
+
+**Notification Architecture**:
+
+- Client: Local notifications via useInAppNotifications
+- Server: Cloud Function trigger on message creation
+- Settings: User preferences in notificationPreferences collection
+- Badge: Auto-synced with unread counts via useUnreadCount
 
 ## 🔍 Current State
 
 ### What's Working Perfectly
 
-✅ Core messaging (send/receive messages)
-✅ Real-time updates (Firestore listeners)
-✅ User authentication (sign in/out)
-✅ Thread creation (one-on-one & group)
-✅ UI components (modern dark theme)
-✅ Cross-platform (iOS, Android, Web)
-✅ Test suite (fast, reliable, 100% pass rate)
-✅ CI/CD pipeline (all checks passing)
-✅ Development workflow (hot reload)
+✅ **Core Messaging**
 
-### What Needs Work
+- Send/receive messages in real-time
+- One-on-one and group conversations
+- Message bubbles with proper styling
+- No duplicate chats (thread deduplication working)
+- Chat input and message display functional
 
-⏳ Push notifications (Phase 3.5.3)
-⏳ Advanced thread management (Phase 3.5.4)
-⏳ AI features (Phase 4)
-⏳ Multi-channel integration (Phase 5)
+✅ **User Management**
+
+- Login with demo users (Alice, Bob, Charlie)
+- Sign up with name, email, password
+- User profiles with display names
+- Firebase Auth working correctly
+
+✅ **Contacts System**
+
+- Contact list displays properly
+- Names shown first, email secondary
+- Initialize Test Contacts button works
+- Contacts use Firebase UIDs (not emails)
+- Green/gray circles show online status (on initial load)
+
+✅ **Settings & Preferences**
+
+- Settings screen accessible via ⚙️ icon
+- Notification preference toggles functional
+- Test notification button works
+- Clear notifications button works
+- Preferences saved to Firestore
+
+✅ **Development Experience**
+
+- Hot reload works perfectly
+- Multi-simulator testing (iPhone 15 + 15 Plus)
+- Firebase emulators functional
+- Fast development iteration
+- Clean, minimal UI
+
+✅ **Code Quality**
+
+- TypeScript: 0 errors
+- ESLint: 0 errors (168 warnings pre-existing)
+- Prettier: All formatted
+- Tests: 193/195 passing
+- CI/CD: All checks green
+
+### What's Not Working
+
+❌ **Automatic Message Notifications**
+
+- **Issue**: When User A sends message to User B, User B doesn't get notified
+- **Status**: Cloud Function `sendMessageNotification` deployed but not triggering
+- **Workaround**: Test notification button works for manual testing
+- **Impact**: Users must manually check for new messages
+- **Priority**: HIGH - Core feature for messaging app
+
+❌ **Real-Time Presence Updates**
+
+- **Issue**: Green/gray circles don't update when users log in/out
+- **Behavior**: Shows correct status on Contacts screen load
+- **Workaround**: Exit and re-enter Contacts to refresh status
+- **Impact**: Can't tell if users are online without screen refresh
+- **Priority**: MEDIUM - Nice-to-have for UX
+
+⚠️ **Login Experience**
+
+- **Issue**: Screen flickers during demo user login
+- **Cause**: autoCreateTestUsers process creates Auth accounts
+- **Impact**: Slightly confusing UX, but functional
+- **Priority**: LOW - Cosmetic issue
+
+### What Needs Investigation
+
+🔍 **Why Notifications Don't Trigger**
+
+- Cloud Function exists and compiles
+- Firestore trigger path: `threads/{threadId}/messages/{messageId}`
+- Function appears in emulator logs on startup
+- But doesn't execute when messages created
+- Need to verify: Function permissions, trigger configuration, emulator logs
+
+🔍 **Why Presence Doesn't Update**
+
+- `subscribeToContacts` uses onSnapshot on contacts subcollection
+- Fetches user online status via getDoc (not real-time)
+- Need nested listener on each user document
+- Performance concern: Multiple listeners for multiple contacts
 
 ## 📝 Active Decisions
 
@@ -166,67 +277,104 @@
 
 ## 🎯 Next Actions
 
-### Immediate
+### Immediate (Next Session - HIGH PRIORITY)
 
-1. ✅ Test suite is passing
-2. ✅ CI/CD pipeline is green
-3. ✅ Documentation is updated
-4. ✅ Repository is organized
-5. → **Ready to build features (Phase 4)!**
+1. **Fix Automatic Notifications**
+   - Debug Cloud Function trigger (why doesn't it fire?)
+   - Check emulator logs when messages are sent
+   - Verify trigger sees message creation events
+   - Alternative: Implement simpler notification approach
 
-### This Week
+2. **Fix Real-Time Presence Updates**
+   - Add nested onSnapshot listeners for each contact's user document
+   - Green circles should update without leaving Contacts screen
+   - Balance between real-time updates and performance
 
-1. Implement push notifications (Phase 3.5.3)
-2. Add thread management features (Phase 3.5.4)
-3. Test on real devices
-4. Start Phase 4 planning
+3. **Optimize Demo User Login**
+   - Reduce/eliminate screen flicker
+   - Faster login experience
+
+### This Week (After Fixes)
+
+1. **Merge Notification System**: Create PR for `001-notifications-system`
+2. **Phase 3.5.4**: Thread Management & Duplication Prevention (T069-T075)
+3. **Physical Device Testing**: Test on real iPhone via USB
+4. **Performance Testing**: Measure notification latency
 
 ### This Month
 
-1. Begin AI features implementation
-2. Get user feedback
-3. Polish UI based on feedback
-4. Prepare for beta testing
+1. **Phase 4**: AI-Powered Project Intelligence
+   - Thread summarization
+   - Action item extraction
+   - Smart search
+2. **Production Testing**: Push notifications on real devices
+3. **User Feedback**: Test with actual contractors
 
-## 💡 Key Insights
+## 💡 Key Insights (This Session)
 
 ### What We Learned
 
-1. **Expo Go Limitations**: Not suitable for serious E2E testing
-2. **EAS Build is Worth It**: Small setup time, permanent benefit
-3. **Test Speed Matters**: 35s vs 6min makes huge difference
-4. **Keep Tests Simple**: Don't test what works manually
-5. **Hot Reload Survives**: Development build doesn't slow you down
-6. **AI Testing is Viable**: Claude costs ~$5-10/month for visual checks
-7. **CI/CD Needs Node 20**: Modern dependencies require modern Node
+1. **Contact IDs Matter**: Must use Firebase UIDs, not emails, for thread deduplication
+2. **Firestore Rejects Undefined**: Can't save `photoUrl: undefined` - must conditionally include fields
+3. **Security Rules Require Restart**: Emulator changes need full restart, not just reload
+4. **Complexity Creep**: Overcomplicated solutions (sign-in/sign-out loops) cause more problems
+5. **Real-Time Challenges**: onSnapshot on subcollections + getDoc for related data isn't truly real-time
+6. **Simulator Limitations**: Push notifications require real devices or local notification workarounds
+7. **Hot Reload vs Rebuild**: Most changes just need 'r' key, only native/config changes need rebuild
 
-### Best Practices Established
+### Mistakes & Lessons
 
-- ✅ 4-second app initialization wait in E2E tests
-- ✅ `noReset: true` keeps app running between tests
-- ✅ Programmatic user creation via Firebase Admin
-- ✅ Hybrid testing for complex verification
-- ✅ Fast smoke tests for quick validation
-- ✅ Clean directory structure
-- ✅ Comprehensive documentation
+❌ **Over-engineering**: Tried complex nested subscriptions for presence → broke contacts  
+✅ **Lesson**: Keep it simple, optimize later
 
-## 🚀 Ready For
+❌ **Sign-in/Sign-out Loop**: Created Firestore docs by signing in each demo user  
+✅ **Lesson**: Create docs on first actual login, not during setup
 
-- ✅ Feature development (Phase 4)
-- ✅ Real device testing
-- ✅ User acceptance testing
-- ✅ Production deployment prep
-- ✅ App Store submission (when ready)
+❌ **Not Restarting Emulators**: Changed security rules but didn't restart  
+✅ **Lesson**: Rule changes ALWAYS need emulator restart
 
-## 📚 Documentation
+### Best Practices Confirmed
 
-- **README.md**: Updated with current state
-- **docs/EAS-SETUP.md**: Development build guide
-- **docs/project/**: Project specifications
-- **tests/e2e/README.md**: E2E testing guide
-- **tests/computer-use/README.md**: AI testing guide
-- **specs/001-core-messaging-platform/tasks.md**: Implementation progress
+- ✅ Use Firebase UIDs as primary identifiers (not emails)
+- ✅ Conditional field inclusion (avoid undefined in Firestore)
+- ✅ Test locally before pushing (all CI/CD checks)
+- ✅ Hot reload for 99% of changes
+- ✅ Clear Firestore data between major changes
+- ✅ Comprehensive logging for debugging
+
+## 📊 Branch Status
+
+**Branch**: `001-notifications-system`  
+**Commits**: 18 total (all pushed to GitHub)  
+**Status**: Stable but incomplete
+
+**What's Ready**:
+
+- ✅ Notification infrastructure (Settings UI, preferences)
+- ✅ Contact system (UIDs, names, initialization)
+- ✅ UI improvements (clean login, names first)
+- ✅ All CI/CD checks passing
+
+**What Needs Work**:
+
+- ❌ Automatic notifications (Cloud Function not triggering)
+- ❌ Real-time presence (requires screen refresh)
+- ⚠️ Login flicker (cosmetic)
+
+## 📚 Documentation Updates
+
+**Updated This Session**:
+
+- **README.md**: Multi-simulator testing, physical iPhone setup
+- **UI_IMPROVEMENTS_SUMMARY.md**: Complete UI change documentation
+- **firestore.rules**: Security rules for contacts and notifications
+- **functions/eslint.config.js**: Node.js globals for linting
+
+**Needs Update**:
+
+- memory-bank/progress.md (this update in progress)
+- specs/001-core-messaging-platform/tasks.md (mark Phase 3.5.3 status)
 
 ---
 
-**Status**: Phase 3.5 essentially complete. Ready to proceed to Phase 4 (AI Features). Testing infrastructure is solid, CI/CD is green, and development workflow is smooth. 🚀
+**Status**: Phase 3.5.3 is 80% complete. Core functionality working, notifications and real-time presence need fixes. Branch is stable and ready for targeted bug fixes in next session. 🔧
