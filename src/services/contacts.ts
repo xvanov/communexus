@@ -30,10 +30,21 @@ export const addContact = async (
   const db = getDb();
   const contactRef = doc(db, 'users', userId, 'contacts', contact.id);
 
-  await setDoc(contactRef, {
-    ...contact,
+  // Build contact data without undefined values
+  const contactData: any = {
+    name: contact.name,
+    email: contact.email,
+    online: contact.online,
+    lastSeen: contact.lastSeen,
     addedAt: new Date(),
-  });
+  };
+
+  // Only add photoUrl if it exists
+  if (contact.photoUrl) {
+    contactData.photoUrl = contact.photoUrl;
+  }
+
+  await setDoc(contactRef, contactData);
 };
 
 // Get all contacts for a user
