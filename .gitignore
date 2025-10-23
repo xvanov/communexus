@@ -202,6 +202,10 @@ ios/Pods/
 android/app/build/
 ios/build/
 
+# Expo Prebuild - Regenerate with npx expo prebuild
+ios/
+android/
+
 # Testing
 coverage/
 
@@ -211,3 +215,4 @@ coverage/
 *codeql*
 # Firebase Functions build output
 functions/lib/
+test-results*

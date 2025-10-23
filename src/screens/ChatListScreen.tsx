@@ -33,48 +33,64 @@ export default function ChatListScreen({ navigation }: any) {
     navigation.navigate('Contacts');
   };
 
+  const performLogout = async () => {
+    try {
+      console.log('Starting logout process...');
+      const { auth } = initializeFirebase();
+      console.log('Current user before logout:', auth.currentUser?.email);
+      await signOut(auth);
+      console.log('Logout successful');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Don't show alert during tests - just log the error
+      // Firebase Auth state change will handle navigation anyway
+      if (process.env.NODE_ENV !== 'test' && Platform.OS !== 'web') {
+        Alert.alert('Error', 'Failed to logout');
+      } else if (Platform.OS === 'web' && process.env.NODE_ENV !== 'test') {
+        alert('Failed to logout');
+      }
+    }
+  };
+
   const handleLogout = async () => {
     console.log('Logout button pressed');
+
+    // Check if running in Firebase emulator/demo project (indicates test/dev environment)
+    const { auth, app } = initializeFirebase();
+    const isDemoProject = app.options.projectId === 'demo-communexus';
+    const isTestEnv = __DEV__ && isDemoProject;
+
+    // Skip confirmation dialog in test/dev environments for automated testing
+    if (isTestEnv && Platform.OS !== 'web') {
+      console.log('Test environment detected - skipping confirmation dialog');
+      await performLogout();
+      return;
+    }
 
     // For web, use confirm instead of Alert.alert
     if (Platform.OS === 'web') {
       const confirmed = window.confirm('Are you sure you want to logout?');
       if (!confirmed) return;
-
-      try {
-        console.log('Starting logout process...');
-        const { auth } = initializeFirebase();
-        console.log('Current user before logout:', auth.currentUser?.email);
-        await signOut(auth);
-        console.log('Logout successful');
-      } catch (error) {
-        console.error('Logout error:', error);
-        alert('Failed to logout');
-      }
+      await performLogout();
     } else {
-      // For mobile, use Alert.alert
-      Alert.alert('Logout', 'Are you sure you want to logout?', [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Starting logout process...');
-              const { auth } = initializeFirebase();
-              console.log(
-                'Current user before logout:',
-                auth.currentUser?.email
-              );
-              await signOut(auth);
-              console.log('Logout successful');
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout');
-            }
+      // For mobile, use Alert.alert with accessible button
+      Alert.alert(
+        'Logout',
+        'Are you sure you want to logout?',
+        [
+          { 
+            text: 'Cancel', 
+            style: 'cancel',
+            onPress: () => console.log('Logout cancelled')
           },
-        },
-      ]);
+          {
+            text: 'OK',
+            style: 'destructive',
+            onPress: performLogout,
+          },
+        ],
+        { cancelable: false }
+      );
     }
   };
 

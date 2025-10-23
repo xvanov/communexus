@@ -27,10 +27,17 @@ describe('Messaging Flow Tests', () => {
     });
 
     beforeEach(async () => {
-        // Reset app state and sign in
+        // Reset app state and ensure logged out
         await TestHelpers.resetApp();
+        
+        // Ensure we're on the auth screen
+        await TestHelpers.ensureLoggedOut();
         await TestHelpers.waitForElement('~email-input');
+        
+        // Sign in as test user
         await authScreen.signInAsTestUser();
+        
+        // Wait for chat list screen to load
         await TestHelpers.waitForElement('~chat-list-title');
     });
 

@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.communexus.communexus"
     },
     "android": {
       "adaptiveIcon": {

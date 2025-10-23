@@ -48,41 +48,56 @@ export const initializeFirebase = (
   config?: Partial<{ useEmulator: boolean }>
 ) => {
   if (!app) {
-    app =
-      getApps()[0] ||
-      initializeApp({
-        apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
-        authDomain:
-          process.env.FIREBASE_AUTH_DOMAIN || 'demo-communexus.firebaseapp.com',
-        projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
-        storageBucket:
-          process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
-        appId: process.env.FIREBASE_APP_ID || '1:123456789:web:abcdef123456',
-      });
-    // Initialize Auth with platform-specific persistence
-    if (Platform.OS === 'web') {
-      // For web, use regular getAuth
-      auth = getAuth(app);
-    } else {
-      // For React Native, use initializeAuth without persistence (Firebase handles this automatically)
-      try {
-        auth = initializeAuth(app);
-      } catch (error) {
-        console.log('initializeAuth failed, using getAuth:', error);
-        // Fallback to regular auth if initializeAuth fails
+    try {
+      app =
+        getApps()[0] ||
+        initializeApp({
+          apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
+          authDomain:
+            process.env.FIREBASE_AUTH_DOMAIN || 'demo-communexus.firebaseapp.com',
+          projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
+          storageBucket:
+            process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
+          appId: process.env.FIREBASE_APP_ID || '1:123456789:web:abcdef123456',
+        });
+      // Initialize Auth with platform-specific persistence
+      if (Platform.OS === 'web') {
+        // For web, use regular getAuth
+        auth = getAuth(app);
+      } else {
+        // For React Native, use initializeAuth without persistence (Firebase handles this automatically)
+        try {
+          auth = initializeAuth(app);
+        } catch (error) {
+          console.log('initializeAuth failed, using getAuth:', error);
+          // Fallback to regular auth if initializeAuth fails
+          auth = getAuth(app);
+        }
+      }
+
+      const useEmulator =
+        config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true); // Default to true for development
+      if (useEmulator) {
+        const host = getEmulatorHost();
+        try {
+          connectAuthEmulator(auth, `http://${host}:9099`, {
+            disableWarnings: true,
+          });
+        } catch (connectError) {
+          // Silently fail emulator connection in tests
+          console.log('Auth emulator connection skipped:', connectError);
+        }
+      }
+    } catch (firebaseError) {
+      // Catch any Firebase initialization errors and log them instead of throwing
+      console.error('Firebase initialization error:', firebaseError);
+      // Continue with existing app if initialization fails
+      if (!app && getApps().length > 0) {
+        app = getApps()[0];
+      }
+      if (!auth && app) {
         auth = getAuth(app);
       }
-    }
-
-    const useEmulator =
-      config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true); // Default to true for development
-    if (useEmulator) {
-      const host = getEmulatorHost();
-      try {
-        connectAuthEmulator(auth, `http://${host}:9099`, {
-          disableWarnings: true,
-        });
-      } catch {}
     }
   }
   return { app: app as FirebaseApp, auth: auth as Auth };

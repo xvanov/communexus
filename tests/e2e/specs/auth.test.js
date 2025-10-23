@@ -27,43 +27,10 @@ describe('Authentication Flow Tests', () => {
         // Reset app state before each test
         await TestHelpers.resetApp();
         
-        // Check if we're already logged in (on chat list screen)
-        try {
-            const chatListTitle = await $('~chat-list-title');
-            if (await chatListTitle.isDisplayed()) {
-                console.log('Already logged in, logging out first...');
-                // Tap logout button
-                const logoutButton = await $('~logout-button');
-                if (await logoutButton.isDisplayed()) {
-                    await logoutButton.click();
-                    await browser.pause(2000); // Wait for logout to complete
-                }
-            }
-        } catch (error) {
-            console.log('Not on chat list screen, continuing...');
-        }
+        // Ensure we're logged out and on the auth screen
+        await TestHelpers.ensureLoggedOut();
         
-        // Dismiss any error alerts that might be blocking the screen
-        try {
-            const alert = await $('XCUIElementTypeAlert');
-            if (await alert.isDisplayed()) {
-                console.log('Dismissing error alert...');
-                // Try to find and click the OK button by name
-                const okButton = await $('~OK');
-                if (await okButton.isDisplayed()) {
-                    await okButton.click();
-                    await browser.pause(2000); // Wait for alert to dismiss
-                } else {
-                    // Alternative: try clicking the alert itself to dismiss
-                    await alert.click();
-                    await browser.pause(2000);
-                }
-            }
-        } catch (error) {
-            console.log('No alert to dismiss or error dismissing:', error.message);
-        }
-        
-        // Wait for auth screen to load
+        // Wait for auth screen to be fully loaded
         await TestHelpers.waitForElement('~email-input');
     });
 
