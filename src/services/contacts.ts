@@ -66,83 +66,21 @@ export const subscribeToContacts = (
   const db = getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
-  // Map to track user presence subscriptions
-  const presenceUnsubscribers: Record<string, () => void> = {};
-
-  // Use Map to store contacts so presence updates work correctly
-  const contactsMap = new Map<string, Contact>();
-
-  const contactsUnsubscribe = onSnapshot(contactsRef, snapshot => {
-    const contactIds: string[] = [];
-
-    // Get all contact IDs
+  return onSnapshot(contactsRef, snapshot => {
+    const contacts: Contact[] = [];
     snapshot.forEach(doc => {
       const data = doc.data();
-      contactIds.push(doc.id);
-
-      // Initialize contact in map
-      if (!contactsMap.has(doc.id)) {
-        contactsMap.set(doc.id, {
-          id: doc.id,
-          name: data.name,
-          email: data.email,
-          photoUrl: data.photoUrl,
-          online: false,
-          lastSeen: data.lastSeen?.toDate() || new Date(),
-        });
-      }
+      contacts.push({
+        id: doc.id,
+        name: data.name,
+        email: data.email,
+        photoUrl: data.photoUrl,
+        online: data.online || false,
+        lastSeen: data.lastSeen?.toDate() || new Date(),
+      });
     });
-
-    // Clean up removed contacts
-    Object.keys(presenceUnsubscribers).forEach(id => {
-      if (!contactIds.includes(id)) {
-        const unsub = presenceUnsubscribers[id];
-        if (unsub) unsub();
-        delete presenceUnsubscribers[id];
-        contactsMap.delete(id);
-      }
-    });
-
-    // Subscribe to presence for each contact
-    for (const contactId of contactIds) {
-      const contactDoc = snapshot.docs.find(d => d.id === contactId);
-      if (!contactDoc) continue;
-
-      const contactData = contactDoc.data();
-
-      if (!presenceUnsubscribers[contactId]) {
-        const userRef = doc(db, 'users', contactId);
-
-        presenceUnsubscribers[contactId] = onSnapshot(userRef, userSnap => {
-          const userData = userSnap.data();
-
-          // Update contact in map with latest presence
-          const updatedContact: Contact = {
-            id: contactId,
-            name: userData?.name || contactData.name || contactData.email,
-            email: contactData.email,
-            photoUrl: userData?.photoUrl || contactData.photoUrl,
-            online: userData?.online === true, // Explicitly check for boolean true
-            lastSeen: userData?.lastSeen?.toDate() || new Date(),
-          };
-
-          contactsMap.set(contactId, updatedContact);
-
-          // Callback with updated array from map
-          callback(Array.from(contactsMap.values()));
-        });
-      }
-    }
-
-    // Initial callback
-    callback(Array.from(contactsMap.values()));
+    callback(contacts);
   });
-
-  // Return cleanup function that unsubscribes from everything
-  return () => {
-    contactsUnsubscribe();
-    Object.values(presenceUnsubscribers).forEach(unsub => unsub());
-  };
 };
 
 // Update user's online status with proper error handling
@@ -154,7 +92,7 @@ export const updateUserOnlineStatus = async (
   const userRef = doc(db, 'users', userId);
 
   try {
-    // Update user's own status only
+    // Update user's own status in users collection
     await setDoc(
       userRef,
       {
@@ -163,6 +101,35 @@ export const updateUserOnlineStatus = async (
       },
       { merge: true }
     );
+
+    // Also update this user in all other users' contact lists
+    // This ensures the green circle shows up in real-time
+    const usersRef = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersRef);
+
+    const updatePromises = [];
+    for (const userDoc of usersSnapshot.docs) {
+      const contactRef = doc(db, 'users', userDoc.id, 'contacts', userId);
+      const contactDoc = await getDoc(contactRef);
+
+      if (contactDoc.exists()) {
+        // This user has userId in their contacts, update the online status
+        updatePromises.push(
+          setDoc(
+            contactRef,
+            {
+              online,
+              lastSeen: new Date(),
+            },
+            { merge: true }
+          )
+        );
+      }
+    }
+
+    if (updatePromises.length > 0) {
+      await Promise.all(updatePromises);
+    }
 
     console.log(`Updated online status for ${userId}: ${online}`);
   } catch (error) {
@@ -279,39 +246,39 @@ export const autoCreateTestUsers = async (): Promise<void> => {
 export const initializeTestUserContacts = async (
   currentUserId: string
 ): Promise<void> => {
-  const testUsers = [
-    {
-      id: 'alice@demo.com',
-      name: 'Alice Johnson',
-      email: 'alice@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-    {
-      id: 'bob@demo.com',
-      name: 'Bob Smith',
-      email: 'bob@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-    {
-      id: 'charlie@demo.com',
-      name: 'Charlie Davis',
-      email: 'charlie@demo.com',
-      online: false,
-      lastSeen: new Date(),
-    },
-  ];
+  const db = getDb();
+
+  // Fetch all users from Firestore to get their actual UIDs
+  const usersRef = collection(db, 'users');
+  const usersSnapshot = await getDocs(usersRef);
+
+  const demoEmails = ['alice@demo.com', 'bob@demo.com', 'charlie@demo.com'];
+  const demoUsers: Contact[] = [];
+
+  // Find demo users by email and use their Firebase UIDs
+  usersSnapshot.forEach(doc => {
+    const userData = doc.data();
+    if (demoEmails.includes(userData.email)) {
+      demoUsers.push({
+        id: doc.id, // Use Firebase UID, not email!
+        name: userData.name || userData.email,
+        email: userData.email,
+        photoUrl: userData.photoUrl,
+        online: userData.online || false,
+        lastSeen: userData.lastSeen?.toDate() || new Date(),
+      });
+    }
+  });
 
   try {
-    // Only add contacts for the current authenticated user
-    for (const contact of testUsers) {
+    // Add all demo users except current user as contacts
+    for (const contact of demoUsers) {
       if (contact.id !== currentUserId) {
         try {
           await addContact(currentUserId, contact);
+          console.log(`Added contact: ${contact.name} (${contact.id})`);
         } catch (error) {
-          console.log(`Failed to add contact ${contact.id}:`, error);
-          // Continue with other contacts even if one fails
+          console.log(`Failed to add contact ${contact.name}:`, error);
         }
       }
     }
