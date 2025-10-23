@@ -31,10 +31,6 @@ export default function ChatScreen({ route, navigation }: any) {
   // Don't show notifications for messages in this thread (user is viewing it)
   useInAppNotifications(threadId);
 
-  // Debug logging
-
-  console.log('ChatScreen params:', { threadId, thread, contact });
-
   // Handle case where thread is undefined (navigating from contacts)
   const safeThread = thread || {
     id: threadId,

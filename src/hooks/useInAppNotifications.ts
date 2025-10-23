@@ -28,7 +28,7 @@ export const useInAppNotifications = (currentThreadId?: string) => {
   useEffect(() => {
     if (!user?.uid || threads.length === 0) return;
 
-    // Check each thread for new messages
+    // Check each thread for new messages (with proper timestamp comparison)
     threads.forEach(thread => {
       // Skip if this is the currently open thread
       if (thread.id === currentThreadId) {

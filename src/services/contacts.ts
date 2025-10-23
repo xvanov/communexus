@@ -81,24 +81,38 @@ export const subscribeToContacts = (
     const contacts: Contact[] = [];
 
     // For each contact, fetch their current online status from users collection
-    for (const contactDoc of snapshot.docs) {
+    const contactPromises = snapshot.docs.map(async contactDoc => {
       const contactData = contactDoc.data();
 
       // Fetch the actual user document to get real-time online status
-      const userDoc = await getDoc(doc(db, 'users', contactDoc.id));
-      const userData = userDoc.exists() ? userDoc.data() : {};
+      try {
+        const userDoc = await getDoc(doc(db, 'users', contactDoc.id));
+        const userData = userDoc.exists() ? userDoc.data() : {};
 
-      contacts.push({
-        id: contactDoc.id,
-        name: contactData.name,
-        email: contactData.email,
-        photoUrl: contactData.photoUrl,
-        online: userData.online === true, // Get from users collection
-        lastSeen: userData.lastSeen?.toDate() || new Date(),
-      });
-    }
+        return {
+          id: contactDoc.id,
+          name: contactData.name,
+          email: contactData.email,
+          photoUrl: contactData.photoUrl,
+          online: Boolean(userData?.online), // Explicitly convert to boolean
+          lastSeen: userData?.lastSeen?.toDate() || new Date(),
+        };
+      } catch (error) {
+        console.error(`Error fetching user data for ${contactDoc.id}:`, error);
+        // Return contact with offline status if user doc fetch fails
+        return {
+          id: contactDoc.id,
+          name: contactData.name,
+          email: contactData.email,
+          photoUrl: contactData.photoUrl,
+          online: false,
+          lastSeen: contactData.lastSeen?.toDate() || new Date(),
+        };
+      }
+    });
 
-    callback(contacts);
+    const resolvedContacts = await Promise.all(contactPromises);
+    callback(resolvedContacts);
   });
 };
 
