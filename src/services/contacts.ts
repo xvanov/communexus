@@ -238,9 +238,13 @@ export const initializeTestUserContacts = async (
 ): Promise<void> => {
   const db = getDb();
 
+  console.log(`Initializing contacts for user: ${currentUserId}`);
+
   // Fetch all users from Firestore to get their actual UIDs
   const usersRef = collection(db, 'users');
   const usersSnapshot = await getDocs(usersRef);
+
+  console.log(`Found ${usersSnapshot.docs.length} users in Firestore`);
 
   const demoEmails = ['alice@demo.com', 'bob@demo.com', 'charlie@demo.com'];
   const demoUsers: Contact[] = [];
@@ -248,32 +252,42 @@ export const initializeTestUserContacts = async (
   // Find demo users by email and use their Firebase UIDs
   usersSnapshot.forEach(doc => {
     const userData = doc.data();
+    console.log(`Checking user: ${userData.email} (${doc.id})`);
+
     if (demoEmails.includes(userData.email)) {
-      demoUsers.push({
+      const contact: Contact = {
         id: doc.id, // Use Firebase UID, not email!
         name: userData.name || userData.email,
         email: userData.email,
         photoUrl: userData.photoUrl,
         online: userData.online || false,
         lastSeen: userData.lastSeen?.toDate() || new Date(),
-      });
+      };
+      demoUsers.push(contact);
+      console.log(`Added to demo users list: ${contact.name} (${contact.id})`);
     }
   });
 
-  try {
-    // Add all demo users except current user as contacts
-    for (const contact of demoUsers) {
-      if (contact.id !== currentUserId) {
-        try {
-          await addContact(currentUserId, contact);
-          console.log(`Added contact: ${contact.name} (${contact.id})`);
-        } catch (error) {
-          console.log(`Failed to add contact ${contact.name}:`, error);
-        }
+  console.log(`Found ${demoUsers.length} demo users to add as contacts`);
+
+  // Add all demo users except current user as contacts
+  let addedCount = 0;
+  for (const contact of demoUsers) {
+    if (contact.id !== currentUserId) {
+      try {
+        console.log(`Adding contact: ${contact.name} (${contact.id})`);
+        await addContact(currentUserId, contact);
+        addedCount++;
+        console.log(`✅ Successfully added contact: ${contact.name}`);
+      } catch (error) {
+        console.error(`❌ Failed to add contact ${contact.name}:`, error);
       }
+    } else {
+      console.log(`Skipping self: ${contact.name}`);
     }
-  } catch (error) {
-    console.error('Failed to initialize test user contacts:', error);
-    throw error;
   }
+
+  console.log(
+    `✅ Contact initialization complete: ${addedCount} contacts added`
+  );
 };
