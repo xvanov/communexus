@@ -99,6 +99,12 @@ yarn-error.*
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
+firestore-debug.log
+firestore-debug.*.log
+
+# CodeQL
+codeql.zip
+codeql/
 
 # Environment variables
 .env
