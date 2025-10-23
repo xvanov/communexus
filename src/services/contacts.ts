@@ -69,73 +69,73 @@ export const subscribeToContacts = (
   // Map to track user presence subscriptions
   const presenceUnsubscribers: Record<string, () => void> = {};
 
-  const contactsUnsubscribe = onSnapshot(contactsRef, async snapshot => {
-    const contacts: Contact[] = [];
+  // Use Map to store contacts so presence updates work correctly
+  const contactsMap = new Map<string, Contact>();
+
+  const contactsUnsubscribe = onSnapshot(contactsRef, snapshot => {
     const contactIds: string[] = [];
 
-    // First, get all contact IDs
+    // Get all contact IDs
     snapshot.forEach(doc => {
+      const data = doc.data();
       contactIds.push(doc.id);
+
+      // Initialize contact in map
+      if (!contactsMap.has(doc.id)) {
+        contactsMap.set(doc.id, {
+          id: doc.id,
+          name: data.name,
+          email: data.email,
+          photoUrl: data.photoUrl,
+          online: false,
+          lastSeen: data.lastSeen?.toDate() || new Date(),
+        });
+      }
     });
 
-    // Clean up old presence subscriptions
+    // Clean up removed contacts
     Object.keys(presenceUnsubscribers).forEach(id => {
       if (!contactIds.includes(id)) {
         const unsub = presenceUnsubscribers[id];
         if (unsub) unsub();
         delete presenceUnsubscribers[id];
+        contactsMap.delete(id);
       }
     });
 
-    // Subscribe to each contact's presence in users collection
+    // Subscribe to presence for each contact
     for (const contactId of contactIds) {
       const contactDoc = snapshot.docs.find(d => d.id === contactId);
       if (!contactDoc) continue;
 
       const contactData = contactDoc.data();
 
-      // If not already subscribed, subscribe to this user's presence
       if (!presenceUnsubscribers[contactId]) {
         const userRef = doc(db, 'users', contactId);
 
         presenceUnsubscribers[contactId] = onSnapshot(userRef, userSnap => {
           const userData = userSnap.data();
 
-          // Update the contact in the contacts array
-          const existingIndex = contacts.findIndex(c => c.id === contactId);
+          // Update contact in map with latest presence
           const updatedContact: Contact = {
             id: contactId,
-            name: contactData.name || userData?.name || contactData.email,
+            name: userData?.name || contactData.name || contactData.email,
             email: contactData.email,
-            photoUrl: contactData.photoUrl || userData?.photoUrl,
-            online: userData?.online || false,
+            photoUrl: userData?.photoUrl || contactData.photoUrl,
+            online: userData?.online === true, // Explicitly check for boolean true
             lastSeen: userData?.lastSeen?.toDate() || new Date(),
           };
 
-          if (existingIndex >= 0) {
-            contacts[existingIndex] = updatedContact;
-          } else {
-            contacts.push(updatedContact);
-          }
+          contactsMap.set(contactId, updatedContact);
 
-          // Trigger callback with updated contacts
-          callback([...contacts]);
+          // Callback with updated array from map
+          callback(Array.from(contactsMap.values()));
         });
       }
-
-      // Add initial contact data
-      contacts.push({
-        id: contactId,
-        name: contactData.name,
-        email: contactData.email,
-        photoUrl: contactData.photoUrl,
-        online: false, // Will be updated by presence subscription
-        lastSeen: contactData.lastSeen?.toDate() || new Date(),
-      });
     }
 
     // Initial callback
-    callback(contacts);
+    callback(Array.from(contactsMap.values()));
   });
 
   // Return cleanup function that unsubscribes from everything
