@@ -21,6 +21,9 @@ describe('Authentication Flow Tests', () => {
         
         // Wait for Firebase emulator
         await TestHelpers.waitForFirebaseEmulator();
+        
+        // Create test users programmatically (no UI interaction needed!)
+        await TestHelpers.createFirebaseTestUsers();
     });
 
     beforeEach(async () => {

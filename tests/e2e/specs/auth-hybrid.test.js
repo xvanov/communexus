@@ -29,27 +29,8 @@ describe('Hybrid Authentication Flow Tests', () => {
         // Wait for Firebase emulator
         await TestHelpers.waitForFirebaseEmulator();
 
-        // CRITICAL: Create test users in Firebase before running tests
-        console.log('🔧 Creating demo users in Firebase emulator...');
-        try {
-            // Click the "Create Demo Users" button to set up test accounts
-            await TestHelpers.ensureLoggedOut();
-            await TestHelpers.waitForElement('~email-input');
-            
-            // Find and click "Create Demo Users" button
-            const createUsersButton = await $('//XCUIElementTypeOther[@name="Create Demo Users"]');
-            if (await createUsersButton.isExisting()) {
-                await createUsersButton.click();
-                console.log('✅ Demo users creation initiated');
-                await browser.pause(5000); // Wait for users to be created
-                
-                // Dismiss success alert if it appears
-                await TestHelpers.dismissAnyAlerts();
-            }
-        } catch (error) {
-            console.log('⚠️  Could not create demo users via button:', error.message);
-            console.log('   Users may already exist or need manual creation');
-        }
+        // Create test users programmatically (no UI interaction needed!)
+        await TestHelpers.createFirebaseTestUsers();
     });
 
     beforeEach(async () => {

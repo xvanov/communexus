@@ -117,6 +117,62 @@ export class TestHelpers {
         );
     }
 
+    // Create test users in Firebase emulator
+    static async createFirebaseTestUsers() {
+        console.log('🔧 Creating test users in Firebase emulator...');
+        
+        try {
+            const admin = require('firebase-admin');
+            
+            // Initialize admin SDK for emulator if not already initialized
+            let app;
+            if (admin.apps.length === 0) {
+                app = admin.initializeApp({
+                    projectId: 'demo-communexus'
+                });
+            } else {
+                app = admin.apps[0];
+            }
+            
+            // Connect to emulator
+            const auth = admin.auth(app);
+            process.env.FIREBASE_AUTH_EMULATOR_HOST = 'localhost:9099';
+            
+            const testUsers = [
+                { email: 'john@test.com', password: 'password', displayName: 'John' },
+                { email: 'jane@test.com', password: 'password', displayName: 'Jane' },
+                { email: 'alice@test.com', password: 'password', displayName: 'Alice' },
+                { email: 'bob@test.com', password: 'password', displayName: 'Bob' }
+            ];
+            
+            for (const user of testUsers) {
+                try {
+                    await auth.createUser({
+                        email: user.email,
+                        password: user.password,
+                        displayName: user.displayName,
+                        emailVerified: true
+                    });
+                    console.log(`✅ Created test user: ${user.email}`);
+                } catch (error) {
+                    if (error.code === 'auth/email-already-exists') {
+                        console.log(`ℹ️  Test user already exists: ${user.email}`);
+                    } else {
+                        console.error(`❌ Failed to create ${user.email}:`, error.message);
+                    }
+                }
+            }
+            
+            console.log('✅ Test users ready');
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to create test users:', error.message);
+            console.error('   Make sure Firebase emulators are running:');
+            console.error('   firebase emulators:start --only auth,firestore,storage');
+            return false;
+        }
+    }
+
     // Test environment validation
     static async validateTestEnvironment() {
         const deviceInfo = await this.getDeviceInfo();
