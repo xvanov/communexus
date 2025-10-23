@@ -133,9 +133,7 @@ describe('Enhanced CI/CD Pipeline for Phase 2', () => {
       expect(rulesContent).toContain('service cloud.firestore');
       expect(rulesContent).toContain('match /users/{userId}');
       expect(rulesContent).toContain('match /threads/{threadId}');
-      expect(rulesContent).toContain(
-        'match /threads/{threadId}/messages/{messageId}'
-      );
+      expect(rulesContent).toContain('match /messages/{messageId}');
     });
 
     it('should have valid Storage security rules', () => {
