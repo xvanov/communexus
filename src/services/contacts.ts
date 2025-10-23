@@ -66,19 +66,27 @@ export const subscribeToContacts = (
   const db = getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
-  return onSnapshot(contactsRef, snapshot => {
+  return onSnapshot(contactsRef, async snapshot => {
     const contacts: Contact[] = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
+
+    // For each contact, fetch their current online status from users collection
+    for (const contactDoc of snapshot.docs) {
+      const contactData = contactDoc.data();
+
+      // Fetch the actual user document to get real-time online status
+      const userDoc = await getDoc(doc(db, 'users', contactDoc.id));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
       contacts.push({
-        id: doc.id,
-        name: data.name,
-        email: data.email,
-        photoUrl: data.photoUrl,
-        online: data.online || false,
-        lastSeen: data.lastSeen?.toDate() || new Date(),
+        id: contactDoc.id,
+        name: contactData.name,
+        email: contactData.email,
+        photoUrl: contactData.photoUrl,
+        online: userData.online === true, // Get from users collection
+        lastSeen: userData.lastSeen?.toDate() || new Date(),
       });
-    });
+    }
+
     callback(contacts);
   });
 };
@@ -101,35 +109,6 @@ export const updateUserOnlineStatus = async (
       },
       { merge: true }
     );
-
-    // Also update this user in all other users' contact lists
-    // This ensures the green circle shows up in real-time
-    const usersRef = collection(db, 'users');
-    const usersSnapshot = await getDocs(usersRef);
-
-    const updatePromises = [];
-    for (const userDoc of usersSnapshot.docs) {
-      const contactRef = doc(db, 'users', userDoc.id, 'contacts', userId);
-      const contactDoc = await getDoc(contactRef);
-
-      if (contactDoc.exists()) {
-        // This user has userId in their contacts, update the online status
-        updatePromises.push(
-          setDoc(
-            contactRef,
-            {
-              online,
-              lastSeen: new Date(),
-            },
-            { merge: true }
-          )
-        );
-      }
-    }
-
-    if (updatePromises.length > 0) {
-      await Promise.all(updatePromises);
-    }
 
     console.log(`Updated online status for ${userId}: ${online}`);
   } catch (error) {
