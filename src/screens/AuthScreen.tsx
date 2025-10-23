@@ -330,6 +330,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
   container: {
     backgroundColor: '#000000',
     flex: 1,
@@ -421,10 +425,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#1E3A8A',
-    fontSize: 14,
-  },
-  cancelButtonText: {
-    color: '#FFFFFF',
     fontSize: 14,
   },
   logoContainer: {

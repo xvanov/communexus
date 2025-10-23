@@ -25,7 +25,7 @@ export default function App() {
   useEffect(() => {
     // Suppress Firebase warnings and errors in console during development/testing
     // This prevents error overlays from blocking automated tests
-    // eslint-disable-next-line no-undef
+
     if (__DEV__) {
       LogBox.ignoreAllLogs(true);
     }
@@ -44,7 +44,6 @@ export default function App() {
     }
 
     return () => {
-      // eslint-disable-next-line no-undef
       if (__DEV__) {
         LogBox.ignoreAllLogs(false);
       }

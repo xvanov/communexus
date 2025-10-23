@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useMessages } from '../hooks/useMessages';
 import { useAuth } from '../hooks/useAuth';
+import { useInAppNotifications } from '../hooks/useInAppNotifications';
 import { Message } from '../types/Message';
 import { Thread } from '../types/Thread';
 import { sendMessage, createOptimisticMessage } from '../services/messaging';
@@ -26,6 +27,9 @@ export default function ChatScreen({ route, navigation }: any) {
   const { messages, loading, error } = useMessages(threadId);
   const { user } = useAuth();
   const flatListRef = useRef<FlatList>(null);
+
+  // Don't show notifications for messages in this thread (user is viewing it)
+  useInAppNotifications(threadId);
 
   // Debug logging
 
