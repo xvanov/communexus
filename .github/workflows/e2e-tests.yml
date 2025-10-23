@@ -17,7 +17,7 @@ jobs:
   test-ios:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: false  # E2E tests run locally - too slow and expensive for CI/CD
+    if: false # E2E tests run locally - too slow and expensive for CI/CD
 
     steps:
       - name: Checkout code
@@ -189,11 +189,10 @@ jobs:
           name: cross-platform-report
           path: test-report.md
 
-  # Test Summary
+  # Test Summary - DISABLED (E2E tests run locally only)
   test-summary:
     runs-on: ubuntu-latest
-    needs: [test-ios] # Only iOS tests for now
-    if: always()
+    if: false # Disabled with other E2E jobs
 
     steps:
       - name: Test Summary
