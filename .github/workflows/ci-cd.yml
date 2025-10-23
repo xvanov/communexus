@@ -195,17 +195,8 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
-      - name: Build and Deploy Mobile App (EAS)
-        run: |
-          eas build --platform all --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Notify Mobile Build Completion
-        run: |
-          echo "📱 Mobile app build completed successfully!"
-          echo "🚀 Your app is ready for installation/update"
-          echo "📲 Check EAS dashboard for build details and QR codes"
+      # Note: Mobile app builds (EAS) are done manually or on separate workflow
+      # Development builds are local-only, not deployed via CI/CD
 
   deploy-staging:
     name: Deploy to Staging
