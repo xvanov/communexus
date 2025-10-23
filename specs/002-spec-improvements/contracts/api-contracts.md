@@ -7,6 +7,7 @@
 ## Specification Management API
 
 ### Base URL
+
 ```
 /specs/{spec-id}
 ```
@@ -14,6 +15,7 @@
 ### Endpoints
 
 #### 1. Consolidate AI Service Requirements
+
 ```http
 POST /specs/{spec-id}/consolidate/ai-service
 Content-Type: application/json
@@ -29,6 +31,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "consolidatedRequirement": {
@@ -36,7 +39,7 @@ Content-Type: application/json
     "text": "System MUST provide unified AI service interface...",
     "capabilities": [
       "thread-summarization",
-      "action-extraction", 
+      "action-extraction",
       "priority-detection",
       "proactive-assistance"
     ],
@@ -47,6 +50,7 @@ Content-Type: application/json
 ```
 
 #### 2. Define Performance Metrics
+
 ```http
 POST /specs/{spec-id}/performance/metrics
 Content-Type: application/json
@@ -67,6 +71,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "performanceMetric": {
@@ -82,6 +87,7 @@ Content-Type: application/json
 ```
 
 #### 3. Specify Edge Case Handling
+
 ```http
 POST /specs/{spec-id}/edge-cases/{scenario-id}/handling
 Content-Type: application/json
@@ -98,6 +104,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "edgeCaseHandling": {
@@ -114,6 +121,7 @@ Content-Type: application/json
 ```
 
 #### 4. Enforce Memory Bank Management
+
 ```http
 POST /specs/{spec-id}/workflow/memory-bank
 Content-Type: application/json
@@ -127,6 +135,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "memoryBankWorkflow": {
@@ -140,6 +149,7 @@ Content-Type: application/json
 ```
 
 #### 5. Align Phase Structure
+
 ```http
 POST /specs/{spec-id}/phases/align
 Content-Type: application/json
@@ -156,6 +166,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "phaseAlignment": {
@@ -175,16 +186,19 @@ Content-Type: application/json
 ## Validation API
 
 ### Base URL
+
 ```
 /validation/specs/{spec-id}
 ```
 
 #### 1. Validate Specification Quality
+
 ```http
 GET /validation/specs/{spec-id}/quality
 ```
 
 **Response**:
+
 ```json
 {
   "qualityScore": 95,
@@ -206,11 +220,13 @@ GET /validation/specs/{spec-id}/quality
 ```
 
 #### 2. Validate Constitution Compliance
+
 ```http
 GET /validation/specs/{spec-id}/constitution
 ```
 
 **Response**:
+
 ```json
 {
   "complianceScore": 100,
@@ -227,6 +243,7 @@ GET /validation/specs/{spec-id}/constitution
 ## Error Handling
 
 ### Standard Error Response
+
 ```json
 {
   "error": {
@@ -243,6 +260,7 @@ GET /validation/specs/{spec-id}/constitution
 ```
 
 ### Error Codes
+
 - `DUPLICATE_REQUIREMENT`: Requirement already exists
 - `INVALID_PHASE_STRUCTURE`: Phase numbering conflicts
 - `MISSING_PERFORMANCE_METRIC`: Performance criteria not defined
@@ -250,11 +268,13 @@ GET /validation/specs/{spec-id}/constitution
 - `EDGE_CASE_UNDERSPECIFIED`: Edge case handling not defined
 
 ## Rate Limiting
+
 - **Consolidation Operations**: 10 requests per minute
 - **Validation Operations**: 50 requests per minute
 - **Read Operations**: 100 requests per minute
 
 ## Authentication
+
 - **API Key**: Required for all operations
 - **Scope**: `specification:read`, `specification:write`, `specification:validate`
 - **Permissions**: Based on user role and project access

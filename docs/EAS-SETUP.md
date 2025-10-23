@@ -58,6 +58,7 @@ npx expo prebuild --platform ios
 ```
 
 **Expected Output:**
+
 ```
 ✔ Created native directory
 ✔ Updated package.json
@@ -80,6 +81,7 @@ npx expo run:ios --device "iPhone 15"
 ```
 
 **Alternative: Build with Xcode GUI**
+
 ```bash
 # Open project in Xcode
 open ios/Communexus.xcworkspace
@@ -119,6 +121,7 @@ npm run test:e2e:ios
 ## 🔧 Configuration Files (Already Updated)
 
 ### ✅ `.gitignore`
+
 ```
 ios/build/      # Ignore build outputs
 ios/Pods/       # Ignore CocoaPods
@@ -126,15 +129,19 @@ ios/Pods/       # Ignore CocoaPods
 ```
 
 ### ✅ `wdio.ios.conf.js`
+
 ```javascript
-capabilities: [{
+capabilities: [
+  {
     'appium:bundleId': 'com.communexus.communexus',
-    'appium:noReset': false,        // Clear state between tests
-    'appium:autoAcceptAlerts': true // Dismiss system alerts
-}]
+    'appium:noReset': false, // Clear state between tests
+    'appium:autoAcceptAlerts': true, // Dismiss system alerts
+  },
+];
 ```
 
 ### ✅ `app.json`
+
 ```json
 {
   "ios": {
@@ -193,6 +200,7 @@ xcrun simctl spawn booted log stream --predicate 'process == "Communexus"'
 ## 📁 Development Workflow (After Setup)
 
 ### **Daily Development:**
+
 ```bash
 # Start development server
 npm start
@@ -202,7 +210,9 @@ npm start
 ```
 
 ### **When to Rebuild:**
+
 Only rebuild when you change:
+
 - Native dependencies (npm install new package)
 - app.json configuration
 - Native code (if you add any)
@@ -214,6 +224,7 @@ npx expo run:ios
 ```
 
 ### **Running E2E Tests:**
+
 ```bash
 # Make sure app is running in simulator
 # Then:
@@ -227,13 +238,13 @@ npm run test:e2e:ios
 
 ## ⏱️ Timeline
 
-| Step | Time | What Happens |
-|------|------|--------------|
-| Xcode upgrade | 30-60 min | ⏳ Happening now... |
-| expo prebuild | 5-10 min | Generates iOS project |
-| First build | 5-10 min | Compiles app |
-| Install & verify | 1 min | Ready to test! |
-| Run E2E tests | 1 min | **PASSING TESTS!** ✅ |
+| Step             | Time      | What Happens          |
+| ---------------- | --------- | --------------------- |
+| Xcode upgrade    | 30-60 min | ⏳ Happening now...   |
+| expo prebuild    | 5-10 min  | Generates iOS project |
+| First build      | 5-10 min  | Compiles app          |
+| Install & verify | 1 min     | Ready to test!        |
+| Run E2E tests    | 1 min     | **PASSING TESTS!** ✅ |
 
 **Total: 40-80 minutes** (mostly waiting for Xcode)
 
@@ -242,6 +253,7 @@ npm run test:e2e:ios
 ## 🎉 What You'll Get
 
 After this setup:
+
 - ✅ Fast development (JS hot reload still works!)
 - ✅ Proper E2E tests that PASS
 - ✅ `noReset: false` clears state between tests
@@ -278,14 +290,15 @@ npm run test:e2e:ios
 ## 📝 Next Steps
 
 **While Xcode upgrades:**
+
 - ☕ Grab coffee
 - 📖 Read the docs above
 - ✅ Make sure simulator is running
 
 **When Xcode finishes:**
+
 1. Run `xcodebuild -version` to verify
 2. Follow the "Quick Start" commands above
 3. Let me know if you hit any issues!
 
 I'll be here to help troubleshoot each step. **Good luck!** 🚀
-

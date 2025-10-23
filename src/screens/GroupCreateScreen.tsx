@@ -170,6 +170,21 @@ export default function GroupCreateScreen({ navigation }: any) {
         }
       );
 
+      // Define participants for navigation
+      const directChatParticipantIds = [user.uid, otherUserId];
+      const directChatParticipantDetails = [
+        {
+          id: user.uid,
+          name: user.displayName || user.email || 'You',
+          email: user.email || '',
+        },
+        {
+          id: otherUserId,
+          name: email,
+          email,
+        },
+      ];
+
       Alert.alert('Success', 'Conversation started!', [
         {
           text: 'OK',
@@ -178,8 +193,8 @@ export default function GroupCreateScreen({ navigation }: any) {
               threadId,
               thread: {
                 id: threadId,
-                participants: participantIds,
-                participantDetails,
+                participants: directChatParticipantIds,
+                participantDetails: directChatParticipantDetails,
                 isGroup: false,
                 lastMessage: {
                   text: '',

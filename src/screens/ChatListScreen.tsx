@@ -78,10 +78,10 @@ export default function ChatListScreen({ navigation }: any) {
         'Logout',
         'Are you sure you want to logout?',
         [
-          { 
-            text: 'Cancel', 
+          {
+            text: 'Cancel',
             style: 'cancel',
-            onPress: () => console.log('Logout cancelled')
+            onPress: () => console.log('Logout cancelled'),
           },
           {
             text: 'OK',

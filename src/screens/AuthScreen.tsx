@@ -154,7 +154,6 @@ export default function AuthScreen({
             editable={!loading}
             testID="email-input"
             accessibilityLabel="email-input"
-            accessibilityIdentifier="email-input"
           />
 
           <TextInput
@@ -166,7 +165,6 @@ export default function AuthScreen({
             editable={!loading}
             testID="password-input"
             accessibilityLabel="password-input"
-            accessibilityIdentifier="password-input"
           />
 
           <TouchableOpacity
@@ -175,7 +173,6 @@ export default function AuthScreen({
             disabled={loading}
             testID="sign-in-button"
             accessibilityLabel={isSignUp ? 'Sign Up button' : 'Sign In button'}
-            accessibilityIdentifier="sign-in-button"
           >
             {loading ? (
               <ActivityIndicator
@@ -389,6 +386,14 @@ const styles = StyleSheet.create({
   linkButton: {
     alignItems: 'center',
     marginBottom: 16,
+  },
+  linkText: {
+    color: '#1E3A8A',
+    fontSize: 14,
+  },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
   },
   logoContainer: {
     alignItems: 'center',

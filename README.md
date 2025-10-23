@@ -61,6 +61,7 @@
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 # Run unit tests
 npm test
@@ -70,6 +71,7 @@ npm run test:emul
 ```
 
 ### E2E Tests (Phase 3.5.1)
+
 ```bash
 # Install Appium and drivers
 npm install -g appium@latest
@@ -89,6 +91,7 @@ npm run test:e2e:android # Android only
 ```
 
 ### Test Coverage
+
 - **Unit Tests**: Jest for business logic and utilities
 - **Integration Tests**: Firebase emulators for backend services
 - **E2E Tests**: Appium + WebDriverIO for UI automation
@@ -150,6 +153,7 @@ npx firebase emulators:start --only functions,firestore,auth,storage
 ```
 
 This will start:
+
 - **Firestore**: `http://localhost:8080`
 - **Auth**: `http://localhost:9099`
 - **Storage**: `http://localhost:9199`
@@ -163,6 +167,7 @@ npx expo start -c
 ```
 
 This will:
+
 - Start Metro bundler
 - Open Expo DevTools in your browser
 - Provide QR code for Expo Go app
@@ -171,19 +176,23 @@ This will:
 ### 🧪 Testing the App
 
 #### Option 1: Web Browser
+
 - Open `http://localhost:8081` in your browser
 - Test authentication and messaging features
 
 #### Option 2: Mobile Device (Recommended)
+
 - Install **Expo Go** app on your phone
 - Scan the QR code from the terminal
 - Test on real device for best experience
 
 #### Option 3: iOS Simulator (macOS only)
+
 - Press `i` in the terminal to open iOS Simulator
 - Test iOS-specific features
 
 #### Option 4: Android Emulator
+
 - Press `a` in the terminal to open Android Emulator
 - Test Android-specific features
 
@@ -192,6 +201,7 @@ This will:
 The app includes built-in test users for easy testing:
 
 #### Create Test Users
+
 1. Open the app
 2. On the AuthScreen, tap **"👥 Create Test Users"**
 3. This creates two test accounts:
@@ -201,9 +211,11 @@ The app includes built-in test users for easy testing:
    - `bob@test.com` / `password`
 
 #### Demo Account
+
 - `demo@communexus.com` / `demo123`
 
 #### Test Multi-User Messaging
+
 1. Sign in as `a@test.com`
 2. Create a project thread
 3. Add `b@test.com` as a participant
@@ -214,6 +226,7 @@ The app includes built-in test users for easy testing:
 ## 🔧 Development Commands
 
 ### Package Management
+
 ```bash
 # Install dependencies
 npm install
@@ -226,6 +239,7 @@ npm outdated
 ```
 
 ### Development
+
 ```bash
 # Start Expo development server
 npx expo start
@@ -240,6 +254,7 @@ npx expo start --web
 ```
 
 ### Firebase
+
 ```bash
 # Start Firebase emulators
 npx firebase emulators:start --only functions,firestore,auth,storage
@@ -254,6 +269,7 @@ npx firebase deploy --only storage
 ```
 
 ### Code Quality
+
 ```bash
 # Run TypeScript type checking
 npm run type-check
@@ -272,6 +288,7 @@ npm run format:check
 ```
 
 ### Testing
+
 ```bash
 # Run tests
 npm test
@@ -305,11 +322,13 @@ communexus/main/
 ## 🔐 Authentication & Security
 
 ### Firebase Auth
+
 - **Email/Password**: Primary authentication method
 - **Security Rules**: Firestore rules prevent unauthorized access
 - **User Management**: Automatic user creation and profile management
 
 ### Data Security
+
 - **Firestore Rules**: Restrict access to user's own data
 - **Storage Rules**: Secure media uploads with user validation
 - **Environment Variables**: Sensitive data stored in `.env`
@@ -317,12 +336,14 @@ communexus/main/
 ## 📊 Performance
 
 ### Real-time Updates
+
 - **Sub-200ms**: Message delivery time
 - **60 FPS**: Smooth scrolling performance
 - **<2 seconds**: App launch time
 - **Optimistic UI**: Immediate message display
 
 ### Firebase Optimization
+
 - **Real-time Listeners**: Efficient data synchronization
 - **Pagination**: Limit message history for performance
 - **Caching**: Local data persistence with SQLite
@@ -330,11 +351,13 @@ communexus/main/
 ## 🚀 Deployment
 
 ### Development
+
 - **Local Emulators**: Full Firebase emulator suite
 - **Expo Go**: Real device testing
 - **Hot Reloading**: Instant code updates
 
 ### Production
+
 - **Firebase Hosting**: Web app deployment
 - **EAS Build**: Mobile app builds
 - **CI/CD**: Automated testing and deployment
@@ -342,6 +365,7 @@ communexus/main/
 ## 🤝 Contributing
 
 ### Development Workflow
+
 1. **Fork** the repository
 2. **Create** a feature branch
 3. **Implement** changes with tests
@@ -350,6 +374,7 @@ communexus/main/
 6. **Submit** a pull request
 
 ### Code Standards
+
 - **TypeScript**: Strict mode enabled
 - **ESLint**: Configured for React Native
 - **Prettier**: Consistent code formatting
@@ -367,6 +392,7 @@ communexus/main/
 ### Common Issues
 
 #### Firebase Connection Issues
+
 ```bash
 # Check emulator status
 npx firebase emulators:start --only firestore,auth,storage
@@ -376,6 +402,7 @@ cat .env
 ```
 
 #### Expo Issues
+
 ```bash
 # Clear cache and restart
 npx expo start -c
@@ -385,6 +412,7 @@ npx expo start --clear
 ```
 
 #### TypeScript Errors
+
 ```bash
 # Run type checking
 npm run type-check
@@ -394,6 +422,7 @@ cat tsconfig.json
 ```
 
 ### Getting Help
+
 - **Issues**: Create GitHub issues for bugs
 - **Discussions**: Use GitHub Discussions for questions
 - **Documentation**: Check `/specs/` and `/memory-bank/`

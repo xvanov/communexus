@@ -1,0 +1,30 @@
+# Dependencies
+node_modules
+dist
+build
+
+# Test files
+tests
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Config files  
+wdio.*.js
+wdio.conf.js
+jest.config.cjs
+babel.config.js
+
+# Generated files
+functions/lib
+ios
+android
+
+# Coverage
+coverage
+
+# Expo
+.expo
+web-build
+

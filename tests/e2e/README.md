@@ -7,6 +7,7 @@ This directory contains automated UI tests for the Communexus mobile app using A
 ### Overview
 
 The automated testing infrastructure provides:
+
 - **Cross-platform testing** for iOS and Android
 - **Page Object Model** for maintainable test code
 - **CI/CD integration** with GitHub Actions
@@ -65,6 +66,7 @@ npm run test:e2e:headless
 #### CI/CD Pipeline
 
 Tests run automatically on:
+
 - Push to `main` or `develop` branches
 - Pull requests to `main`
 - Daily at 2 AM UTC (scheduled)
@@ -87,12 +89,14 @@ tests/e2e/
 ### Page Object Model
 
 Each screen has a corresponding Page Object that encapsulates:
+
 - **Element selectors** using accessibility IDs
 - **Actions** (tap, type, swipe, etc.)
 - **Verification methods** (isDisplayed, getText, etc.)
 - **Wait methods** (waitForElement, waitForText, etc.)
 
 Example:
+
 ```javascript
 // Using Page Object
 const authScreen = new AuthScreen();
@@ -103,6 +107,7 @@ await authScreen.waitForLoadingToComplete();
 ### Test Data Management
 
 Test data is managed through environment variables:
+
 - `TEST_USER_EMAIL`: Primary test user email
 - `TEST_USER_PASSWORD`: Primary test user password
 - `TEST_USER_EMAIL_2`: Secondary test user email
@@ -143,20 +148,23 @@ private signInButton = '~sign-in-button';
 #### Common Issues
 
 1. **Appium server not running**
+
    ```bash
    npm run appium:server
    ```
 
 2. **Simulator/Emulator not found**
+
    ```bash
    # iOS
    xcrun simctl list devices
-   
+
    # Android
    adb devices
    ```
 
 3. **Firebase emulators not running**
+
    ```bash
    firebase emulators:start --only firestore,auth,storage
    ```
@@ -169,6 +177,7 @@ private signInButton = '~sign-in-button';
 #### Debug Mode
 
 Run tests with debug logging:
+
 ```bash
 LOG_LEVEL=debug npm run test:e2e
 ```
@@ -176,6 +185,7 @@ LOG_LEVEL=debug npm run test:e2e
 ### Contributing
 
 When adding new tests:
+
 1. Create Page Objects for new screens
 2. Add accessibility IDs to new elements
 3. Write tests following the existing patterns
@@ -188,5 +198,3 @@ When adding new tests:
 - [ ] Test data factories for complex scenarios
 - [ ] Parallel test execution
 - [ ] Cloud testing integration (BrowserStack, Sauce Labs)
-
-

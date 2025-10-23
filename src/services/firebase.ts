@@ -52,12 +52,15 @@ export const initializeFirebase = (
       app =
         getApps()[0] ||
         initializeApp({
-          apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
+          apiKey:
+            process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
           authDomain:
-            process.env.FIREBASE_AUTH_DOMAIN || 'demo-communexus.firebaseapp.com',
+            process.env.FIREBASE_AUTH_DOMAIN ||
+            'demo-communexus.firebaseapp.com',
           projectId: process.env.FIREBASE_PROJECT_ID || 'demo-communexus',
           storageBucket:
-            process.env.FIREBASE_STORAGE_BUCKET || 'demo-communexus.appspot.com',
+            process.env.FIREBASE_STORAGE_BUCKET ||
+            'demo-communexus.appspot.com',
           appId: process.env.FIREBASE_APP_ID || '1:123456789:web:abcdef123456',
         });
       // Initialize Auth with platform-specific persistence
@@ -93,7 +96,7 @@ export const initializeFirebase = (
       console.error('Firebase initialization error:', firebaseError);
       // Continue with existing app if initialization fails
       if (!app && getApps().length > 0) {
-        app = getApps()[0];
+        app = getApps()[0] || null;
       }
       if (!auth && app) {
         auth = getAuth(app);

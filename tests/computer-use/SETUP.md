@@ -13,11 +13,13 @@
 ### Step 2: Set Environment Variable (30 seconds)
 
 **Option A: Export in terminal (temporary)**
+
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-your-key-here"
 ```
 
 **Option B: Add to your shell profile (permanent)**
+
 ```bash
 # For zsh (macOS default)
 echo 'export ANTHROPIC_API_KEY="sk-ant-your-key-here"' >> ~/.zshrc
@@ -95,6 +97,7 @@ Total Tests:  7
 Each test run costs approximately **$0.05-0.10**.
 
 **Monthly estimates:**
+
 - Development (20 runs/day): ~$40/month
 - CI/CD only (5 runs/week): ~$2/month
 - Mixed usage: ~$25-30/month
@@ -104,9 +107,11 @@ Each test run costs approximately **$0.05-0.10**.
 ### Test hangs or fails
 
 1. **Check simulator**:
+
    ```bash
    xcrun simctl list devices booted
    ```
+
    Make sure you have exactly ONE booted device.
 
 2. **Check app is running**:
@@ -114,9 +119,11 @@ Each test run costs approximately **$0.05-0.10**.
    - Verify Communexus is displayed (not Expo Go home)
 
 3. **Check API key**:
+
    ```bash
    echo $ANTHROPIC_API_KEY
    ```
+
    Should print your key.
 
 4. **Check screenshot directory**:
@@ -128,15 +135,16 @@ Each test run costs approximately **$0.05-0.10**.
 ### Improve accuracy
 
 1. **Add more context** to questions:
+
    ```javascript
    // Bad
    await runner.assert('Is this correct?', 'yes');
-   
+
    // Good
    await runner.assert(
-       'Is this the login screen with a large "Communexus" title at the top, ' +
+     'Is this the login screen with a large "Communexus" title at the top, ' +
        'email and password input fields in the middle, and a blue Sign In button below?',
-       'yes'
+     'yes'
    );
    ```
 
@@ -152,10 +160,9 @@ Each test run costs approximately **$0.05-0.10**.
 ## ✅ You're All Set!
 
 Run your first AI-powered test:
+
 ```bash
 npm run test:ai:auth
 ```
 
 Watch as Claude interacts with your app automatically! 🎉
-
-

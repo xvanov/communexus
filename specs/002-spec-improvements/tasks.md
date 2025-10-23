@@ -286,6 +286,7 @@ With multiple developers:
 ## Constitution Compliance
 
 **Memory Bank Management (Principle I - NON-NEGOTIABLE)**:
+
 - ALL developers MUST read memory bank before starting any work
 - ALL developers MUST update memory bank after completing work
 - Memory Bank tasks (T036-T045) are mandatory
@@ -293,16 +294,19 @@ With multiple developers:
 - No work is complete without documenting changes and insights
 
 **Test-Driven Development (Principle II)**:
+
 - Focus on critical improvements that provide valuable feedback
 - Each improvement must be independently testable
 - Validation checklists serve as test criteria
 
 **Simple Implementation Philosophy (Principle IV)**:
+
 - Keep improvements simple and focused
 - Avoid over-engineering specification changes
 - Clear, actionable improvements only
 
 **Atomic Development Workflow (Principle V)**:
+
 - Each task addresses a single, atomic improvement
 - Work structured to enable parallel development streams
 - Independent improvements to avoid conflicts

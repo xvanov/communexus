@@ -1,7 +1,10 @@
 // sendNotification.ts - Push notification Cloud Function (FCM Option A)
 import { onCall } from 'firebase-functions/v2/https';
 import { setGlobalOptions } from 'firebase-functions/v2';
-import { initializeApp as initializeAdminApp, getApps as getAdminApps } from 'firebase-admin/app';
+import {
+  initializeApp as initializeAdminApp,
+  getApps as getAdminApps,
+} from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
 
 setGlobalOptions({ region: 'us-central1' });
@@ -20,12 +23,19 @@ type SendPayload = {
 export const sendNotification = onCall<SendPayload>(async request => {
   const { token, tokens, title, body, data } = request.data ?? {};
   const messaging = getMessaging();
-  const notification = title || body ? { title: title ?? '', body: body ?? '' } : undefined;
+  const notification =
+    title || body ? { title: title ?? '', body: body ?? '' } : undefined;
 
   try {
     if (tokens && tokens.length > 0) {
       const res = await messaging.sendMulticast({ tokens, notification, data });
-      return { success: true, multicast: { successCount: res.successCount, failureCount: res.failureCount } };
+      return {
+        success: true,
+        multicast: {
+          successCount: res.successCount,
+          failureCount: res.failureCount,
+        },
+      };
     }
     if (token) {
       const id = await messaging.send({ token, notification, data });

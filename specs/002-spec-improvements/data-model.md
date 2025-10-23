@@ -11,6 +11,7 @@
 **Purpose**: Unified interface specification for all AI capabilities
 
 **Attributes**:
+
 - `serviceId`: Unique identifier for the AI service
 - `capabilities`: Array of supported AI features (thread summarization, action extraction, priority detection, proactive assistance)
 - `responseFormat`: Standardized response structure for all AI operations
@@ -19,11 +20,13 @@
 - `version`: Service version for compatibility tracking
 
 **Relationships**:
+
 - Contains multiple `PerformanceMetric` entities
 - Implements multiple `EdgeCaseScenario` handling requirements
 - Referenced by multiple `Requirement` entities
 
 **Validation Rules**:
+
 - Must support all four core AI capabilities
 - Response format must be consistent across all capabilities
 - Error handling must follow fail-fast pattern
@@ -34,6 +37,7 @@
 **Purpose**: Specific measurement criteria for AI feature validation
 
 **Attributes**:
+
 - `metricId`: Unique identifier for the performance metric
 - `metricName`: Human-readable name (e.g., "Thread Summarization Accuracy")
 - `measurementMethod`: Specific approach using synthetic test data
@@ -43,11 +47,13 @@
 - `validationProtocol`: Step-by-step validation process
 
 **Relationships**:
+
 - Belongs to `AI Service Specification`
 - Validates multiple `Requirement` entities
 - Uses multiple `TestScenario` entities
 
 **Validation Rules**:
+
 - Must use synthetic test data with predefined scenarios
 - Target value must be measurable and objective
 - Validation protocol must be repeatable
@@ -58,6 +64,7 @@
 **Purpose**: Error condition requiring specific handling requirements
 
 **Attributes**:
+
 - `scenarioId`: Unique identifier for the edge case
 - `scenarioName`: Human-readable description
 - `triggerCondition`: Specific condition that triggers the edge case
@@ -67,11 +74,13 @@
 - `recoveryAction`: Optional recovery steps for the user
 
 **Relationships**:
+
 - Handled by `AI Service Specification`
 - Referenced by multiple `Requirement` entities
 - Validates `SuccessCriteria` entities
 
 **Validation Rules**:
+
 - Must specify fail-fast handling approach
 - Error message must be clear and actionable
 - User feedback must be provided
@@ -82,6 +91,7 @@
 **Purpose**: Project context, decisions, and learnings for continuity
 
 **Attributes**:
+
 - `entryId`: Unique identifier for the memory bank entry
 - `entryType`: Type of entry (context, decision, learning, pattern)
 - `content`: Detailed content of the entry
@@ -91,11 +101,13 @@
 - `priority`: Importance level (critical, high, medium, low)
 
 **Relationships**:
+
 - Part of `Memory Bank Management` workflow
 - Referenced by multiple `Requirement` entities
 - Supports `Phase Structure` alignment
 
 **Validation Rules**:
+
 - Must be read before starting any development task
 - Must be updated after completing work
 - Content must be clear and actionable
@@ -106,6 +118,7 @@
 **Purpose**: Consistent project progression framework
 
 **Attributes**:
+
 - `phaseId`: Unique identifier for the phase
 - `phaseName`: Human-readable phase name
 - `phaseNumber`: Sequential phase number
@@ -115,11 +128,13 @@
 - `successCriteria`: Phase completion criteria
 
 **Relationships**:
+
 - Contains multiple `Requirement` entities
 - Referenced by `Implementation Plan`
 - Aligned with `Task` entities
 
 **Validation Rules**:
+
 - Phase numbers must be sequential and consistent
 - Dependencies must be clearly defined
 - Deliverables must be measurable
@@ -130,6 +145,7 @@
 **Purpose**: Clear, unambiguous functional specification
 
 **Attributes**:
+
 - `requirementId`: Unique identifier (e.g., "FR-001")
 - `requirementText`: Complete requirement statement
 - `category`: Requirement category (functional, non-functional, constraint)
@@ -139,12 +155,14 @@
 - `duplicateOf`: Reference to consolidated requirement if this is a duplicate
 
 **Relationships**:
+
 - Belongs to `Phase Structure`
 - Validated by `Performance Metric` entities
 - Handles `Edge Case Scenario` entities
 - Referenced by `SuccessCriteria` entities
 
 **Validation Rules**:
+
 - Must be unambiguous and testable
 - Acceptance criteria must be specific
 - Cannot be duplicated without consolidation
@@ -153,14 +171,17 @@
 ## State Transitions
 
 ### AI Service Specification States
+
 - `Draft` → `Consolidated` → `Validated` → `Implemented`
 - Transitions require validation against performance metrics and edge case handling
 
 ### Memory Bank Entry States
+
 - `Created` → `Updated` → `Archived`
 - Entries must be updated after each development session
 
 ### Requirement States
+
 - `Identified` → `Consolidated` → `Validated` → `Implemented` → `Verified`
 - Consolidation eliminates duplicates, validation ensures testability
 

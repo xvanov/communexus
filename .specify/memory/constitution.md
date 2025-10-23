@@ -1,7 +1,7 @@
 <!--
 Sync Impact Report:
 Version change: 2.3.0 → 2.3.1 (fixed principle numbering)
-Modified principles: 
+Modified principles:
   - Memory Bank Management - Restored as Principle I (was missing)
   - All principles correctly numbered I-VII
 Added sections: N/A

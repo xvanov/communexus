@@ -18,6 +18,7 @@ export default function App() {
   useEffect(() => {
     // Suppress Firebase warnings and errors in console during development/testing
     // This prevents error overlays from blocking automated tests
+    // eslint-disable-next-line no-undef
     if (__DEV__) {
       LogBox.ignoreAllLogs(true);
     }
@@ -29,13 +30,14 @@ export default function App() {
     };
 
     // Note: ErrorUtils is available in React Native but not in TypeScript types
-    // @ts-ignore
+    // @ts-expect-error - ErrorUtils exists in React Native runtime
     if (global.ErrorUtils) {
-      // @ts-ignore
+      // @ts-expect-error - setGlobalHandler exists but not in types
       global.ErrorUtils.setGlobalHandler(errorHandler);
     }
 
     return () => {
+      // eslint-disable-next-line no-undef
       if (__DEV__) {
         LogBox.ignoreAllLogs(false);
       }

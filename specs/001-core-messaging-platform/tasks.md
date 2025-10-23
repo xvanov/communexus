@@ -102,6 +102,7 @@ description: 'Task list template for feature implementation'
 - [x] T035 [US1] Create project thread creation flow in src/screens/GroupCreateScreen.tsx
 
 **Additional Features Implemented**:
+
 - [x] T036 [US1] User authentication with Firebase Auth in src/screens/AuthScreen.tsx
 - [x] T037 [US1] Logout functionality with confirmation dialog
 - [x] T038 [US1] Username display in ChatListScreen header
@@ -199,7 +200,8 @@ description: 'Task list template for feature implementation'
 
 **Checkpoint**: 🔄 Phase 3.5 is 85% complete with major infrastructure and bug fixes implemented. Appium testing infrastructure complete, critical bugs mostly resolved, UI/UX modernization complete, and cross-platform consistency largely achieved. Remaining: notification system implementation and final testing validation.
 
-**Current Status**: 
+**Current Status**:
+
 - ✅ Phase 3.5.1: Appium Setup & Automated Testing Infrastructure (COMPLETE)
 - 🔄 Phase 3.5.2: Critical Bug Fixes (95% complete - 1 remaining issue)
 - ⏳ Phase 3.5.3: Notification System Implementation (PENDING)
@@ -472,6 +474,7 @@ With multiple developers:
 ## Constitution Compliance
 
 **Memory Bank Management (Principle I - NON-NEGOTIABLE)**:
+
 - ALL developers MUST read memory bank before starting any work
 - ALL developers MUST update memory bank after completing work
 - Memory bank tasks (T009, T010, T020, T021, T218) are mandatory
@@ -479,6 +482,7 @@ With multiple developers:
 - No work is complete without documenting changes and insights
 
 **Test-Driven Development (Principle II)**:
+
 - Tests MUST be written BEFORE implementation code
 - Tests MUST be quick to implement and simple to understand
 - Focus on critical tests that provide valuable feedback
@@ -486,6 +490,7 @@ With multiple developers:
 - If tests fail repeatedly after 5+ development cycles, MUST pivot to different approach
 
 **Resource Constraints (Principle VI)**:
+
 - All development operates under finite time and compute constraints
 - Choose testing tools and approaches that maximize feedback speed per development hour
 - Pivot on test failures - if setup issues persist, switch to simpler approach/framework
