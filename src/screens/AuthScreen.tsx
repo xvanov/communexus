@@ -73,13 +73,23 @@ export default function AuthScreen({
         await signInWithEmailAndPassword(auth, email.trim(), password);
       }
 
-      // Initialize contacts for test users after successful auth
-      try {
-        if (auth.currentUser) {
+      // Create user document in Firestore if signing up or logging in
+      if (auth.currentUser) {
+        const { upsertCurrentUser } = await import('../services/users');
+        await upsertCurrentUser({
+          name:
+            auth.currentUser.displayName || auth.currentUser.email || 'User',
+          email: auth.currentUser.email || '',
+        }).catch(error => {
+          console.log('Failed to create user document:', error);
+        });
+
+        // Initialize contacts for test users
+        try {
           await initializeTestUserContacts(auth.currentUser.uid);
+        } catch (contactError) {
+          console.log('Contacts initialization skipped:', contactError);
         }
-      } catch (contactError) {
-        console.log('Contacts initialization skipped:', contactError);
       }
 
       onAuthSuccess();
