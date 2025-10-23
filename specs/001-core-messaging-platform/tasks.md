@@ -153,18 +153,32 @@ description: 'Task list template for feature implementation'
 
 **E2E Test Status**: Test infrastructure significantly improved with new helper methods (dismissAnyAlerts, ensureLoggedOut with 3-retry logic), but tests still blocked by logout not working properly in Expo Go environment. The logout button click executes but doesn't trigger auth state change. **Next step**: Either implement EAS Development Build for full app control, or add deep link/test utility to force logout programmatically.
 
-### Phase 3.5.3: Notification System Implementation ✅ COMPLETED
+### Phase 3.5.3: Notification System Implementation ⚠️ 80% COMPLETE
 
-- [x] T061 [P] [US1.5] Implement real-time push notifications with FCM
-- [x] T062 [P] [US1.5] Add in-app notification handling and display
-- [x] T063 [P] [US1.5] Create notification preferences and settings UI
-- [x] T064 [P] [US1.5] Implement notification actions and deep linking
-- [x] T065 [P] [US1.5] Add notification history and management
-- [x] T066 [P] [US1.5] Implement notification sound and vibration
-- [x] T067 [P] [US1.5] Add notification badges and unread counts
-- [x] T068 [P] [US1.5] Create notification testing and validation
+- [x] T061 [P] [US1.5] Implement real-time push notifications with FCM ✅
+- [~] T062 [P] [US1.5] Add in-app notification handling and display ⚠️ (infrastructure done, triggering broken)
+- [x] T063 [P] [US1.5] Create notification preferences and settings UI ✅
+- [x] T064 [P] [US1.5] Implement notification actions and deep linking ✅
+- [x] T065 [P] [US1.5] Add notification history and management ✅
+- [x] T066 [P] [US1.5] Implement notification sound and vibration ✅
+- [x] T067 [P] [US1.5] Add notification badges and unread counts ✅
+- [x] T068 [P] [US1.5] Create notification testing and validation ✅
 
-**Phase 3.5.3 Summary**: ✅ Complete notification system with FCM integration, in-app handling, deep linking, preferences UI in SettingsScreen, badge management, unread count tracking, and comprehensive testing. Notifications configured for foreground display with sound and vibration support.
+**Phase 3.5.3 Summary**: ⚠️ Notification infrastructure complete with Settings UI, preferences, badge management, and testing. Manual notifications work (test button), but automatic notifications NOT triggering when messages sent. Cloud Function `sendMessageNotification` exists but doesn't fire. In-app local notifications hook created (`useInAppNotifications`) but shows empty messages.
+
+**Blockers**:
+1. Cloud Function trigger not executing on message creation
+2. In-app local notifications receive empty message text
+3. Real-time presence indicators don't auto-update (need screen refresh)
+
+**What Works**:
+- Settings screen with all notification toggles
+- Test notification button
+- Badge count syncing with unread messages
+- Deep linking from notifications to chats
+- Notification preferences persisted
+
+**Branch**: `001-notifications-system` (18 commits, all pushed)
 
 ### Phase 3.5.4: Thread Management & Duplication Prevention
 
