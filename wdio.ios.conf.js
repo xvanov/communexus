@@ -18,15 +18,23 @@ export const config = {
     // Maximum number of concurrent workers
     maxInstances: 1,
     
-    // iOS capabilities only
+    // iOS capabilities - Development Build configuration
     capabilities: [
         {
             platformName: 'iOS',
             'appium:platformVersion': '17.5',
             'appium:deviceName': 'iPhone 15',
             'appium:automationName': 'XCUITest',
+            'appium:bundleId': 'com.communexus.communexus',
             'appium:newCommandTimeout': 300,
             'appium:commandTimeouts': 300,
+            // Reset app state between test runs
+            'appium:noReset': false,
+            'appium:fullReset': false,
+            // Auto-dismiss system alerts
+            'appium:autoAcceptAlerts': true,
+            // Wait for app to be ready
+            'appium:waitForIdleTimeout': 5000
         }
     ],
     

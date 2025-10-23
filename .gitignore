@@ -202,9 +202,15 @@ ios/Pods/
 android/app/build/
 ios/build/
 
-# Expo Prebuild - Regenerate with npx expo prebuild
-ios/
-android/
+# Expo Prebuild - Commit native projects for development builds
+# ios/ - Keep this for EAS development builds
+# android/ - Keep this for EAS development builds
+
+# But ignore build outputs and pods
+ios/build/
+ios/Pods/
+android/app/build/
+android/.gradle/
 
 # Testing
 coverage/
