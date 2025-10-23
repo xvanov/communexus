@@ -10,6 +10,7 @@
 ### Just Completed (This Session)
 
 ✅ **Notification System Implementation (Phase 3.5.3)**
+
 - FCM integration and Cloud Function trigger
 - Settings screen with notification preferences
 - Badge management and unread count tracking
@@ -18,6 +19,7 @@
 - Test notification button working
 
 ✅ **UI/UX Improvements**
+
 - Demo users changed to Alice, Bob, Charlie with full names
 - Clean login screen (logo only, no text)
 - Simplified header (user name only)
@@ -26,6 +28,7 @@
 - Settings screen accessible via gear icon (⚙️)
 
 ✅ **Bug Fixes & Infrastructure**
+
 - Fixed duplicate chat creation (using Firebase UIDs)
 - Updated Firestore security rules for proper access
 - Fixed contact initialization with proper UIDs
@@ -36,6 +39,7 @@
 ### Active Issues (Known)
 
 ⚠️ **Notifications Not Triggering**
+
 - Test notification button works ✅
 - Manual notification via Settings works ✅
 - Automatic notifications when messages sent NOT working ❌
@@ -44,12 +48,14 @@
 - Needs investigation: Why notification trigger doesn't fire
 
 ⚠️ **Online Presence Doesn't Auto-Update**
+
 - Green/gray circles show correctly on initial load ✅
 - Status changes require leaving and re-entering Contacts screen ❌
 - subscribeToContacts uses onSnapshot but doesn't re-fetch user status
 - Needs real-time listener on users collection for each contact
 
 ⚠️ **Minor Issues**
+
 - Login has slight screen flicker (demo user creation process)
 - AsyncStorage persistence warning (users re-login after app restart)
 - Some undefined email fields in Firestore (older user documents)
@@ -59,6 +65,7 @@
 ### Files Created
 
 **New Services/Hooks**:
+
 - `src/hooks/useInAppNotifications.ts` - Local notification trigger on new messages
 - `src/hooks/useUnreadCount.ts` - Automatic badge count management
 - `functions/src/sendMessageNotification.ts` - Cloud Function for push notifications
@@ -66,6 +73,7 @@
 - `tests/__mocks__/expo-notifications.js` - Expo notifications mock for testing
 
 **Documentation**:
+
 - `UI_IMPROVEMENTS_SUMMARY.md` - Complete summary of UI changes
 - Updated `README.md` - Multi-simulator and physical iPhone testing guides
 - Updated `.env.example` - Firebase emulator host configuration
@@ -73,6 +81,7 @@
 ### Files Modified (18 total)
 
 **Notification System**:
+
 - `src/services/notifications.ts` - Enhanced with preferences, badge management
 - `src/screens/SettingsScreen.tsx` - Complete implementation with notification toggles
 - `App.tsx` - Notification initialization and deep linking
@@ -80,15 +89,18 @@
 - `jest.config.cjs` - expo-notifications module mapping
 
 **UI/UX Improvements**:
+
 - `src/screens/AuthScreen.tsx` - Name field, clean UI, Alice/Bob/Charlie
 - `src/screens/ChatListScreen.tsx` - Simplified header, Settings button, presence tracking
 - `src/hooks/usePresence.ts` - Full online/offline presence implementation
 
 **Contact System**:
+
 - `src/services/contacts.ts` - Firebase UID-based contacts, demo user creation
 - `src/screens/ContactsScreen.tsx` - Green circle indicators for online status
 
 **Security & Config**:
+
 - `firestore.rules` - Allow reading users collection for contacts
 - `functions/eslint.config.js` - Added Node.js globals (console, process, etc.)
 - `functions/package.json` - Removed problematic "type": "module"
@@ -97,6 +109,7 @@
 ### Key Architectural Changes
 
 **Demo Users**:
+
 - Changed from john/jane/a/b to Alice Johnson, Bob Smith, Charlie Davis
 - Emails: alice@demo.com, bob@demo.com, charlie@demo.com
 - Password: password123 (consistent across all)
@@ -104,12 +117,14 @@
 - Firestore documents created on first login
 
 **Contact System**:
+
 - Contact IDs now use Firebase Auth UIDs (not emails)
 - Prevents duplicate thread creation
 - Enables proper thread deduplication
 - Real-time online status from users collection
 
 **Notification Architecture**:
+
 - Client: Local notifications via useInAppNotifications
 - Server: Cloud Function trigger on message creation
 - Settings: User preferences in notificationPreferences collection
@@ -120,6 +135,7 @@
 ### What's Working Perfectly
 
 ✅ **Core Messaging**
+
 - Send/receive messages in real-time
 - One-on-one and group conversations
 - Message bubbles with proper styling
@@ -127,12 +143,14 @@
 - Chat input and message display functional
 
 ✅ **User Management**
+
 - Login with demo users (Alice, Bob, Charlie)
 - Sign up with name, email, password
 - User profiles with display names
 - Firebase Auth working correctly
 
 ✅ **Contacts System**
+
 - Contact list displays properly
 - Names shown first, email secondary
 - Initialize Test Contacts button works
@@ -140,6 +158,7 @@
 - Green/gray circles show online status (on initial load)
 
 ✅ **Settings & Preferences**
+
 - Settings screen accessible via ⚙️ icon
 - Notification preference toggles functional
 - Test notification button works
@@ -147,6 +166,7 @@
 - Preferences saved to Firestore
 
 ✅ **Development Experience**
+
 - Hot reload works perfectly
 - Multi-simulator testing (iPhone 15 + 15 Plus)
 - Firebase emulators functional
@@ -154,6 +174,7 @@
 - Clean, minimal UI
 
 ✅ **Code Quality**
+
 - TypeScript: 0 errors
 - ESLint: 0 errors (168 warnings pre-existing)
 - Prettier: All formatted
@@ -163,6 +184,7 @@
 ### What's Not Working
 
 ❌ **Automatic Message Notifications**
+
 - **Issue**: When User A sends message to User B, User B doesn't get notified
 - **Status**: Cloud Function `sendMessageNotification` deployed but not triggering
 - **Workaround**: Test notification button works for manual testing
@@ -170,6 +192,7 @@
 - **Priority**: HIGH - Core feature for messaging app
 
 ❌ **Real-Time Presence Updates**
+
 - **Issue**: Green/gray circles don't update when users log in/out
 - **Behavior**: Shows correct status on Contacts screen load
 - **Workaround**: Exit and re-enter Contacts to refresh status
@@ -177,6 +200,7 @@
 - **Priority**: MEDIUM - Nice-to-have for UX
 
 ⚠️ **Login Experience**
+
 - **Issue**: Screen flickers during demo user login
 - **Cause**: autoCreateTestUsers process creates Auth accounts
 - **Impact**: Slightly confusing UX, but functional
@@ -185,6 +209,7 @@
 ### What Needs Investigation
 
 🔍 **Why Notifications Don't Trigger**
+
 - Cloud Function exists and compiles
 - Firestore trigger path: `threads/{threadId}/messages/{messageId}`
 - Function appears in emulator logs on startup
@@ -192,6 +217,7 @@
 - Need to verify: Function permissions, trigger configuration, emulator logs
 
 🔍 **Why Presence Doesn't Update**
+
 - `subscribeToContacts` uses onSnapshot on contacts subcollection
 - Fetches user online status via getDoc (not real-time)
 - Need nested listener on each user document
@@ -323,12 +349,14 @@
 **Status**: Stable but incomplete
 
 **What's Ready**:
+
 - ✅ Notification infrastructure (Settings UI, preferences)
 - ✅ Contact system (UIDs, names, initialization)
 - ✅ UI improvements (clean login, names first)
 - ✅ All CI/CD checks passing
 
 **What Needs Work**:
+
 - ❌ Automatic notifications (Cloud Function not triggering)
 - ❌ Real-time presence (requires screen refresh)
 - ⚠️ Login flicker (cosmetic)
@@ -336,12 +364,14 @@
 ## 📚 Documentation Updates
 
 **Updated This Session**:
+
 - **README.md**: Multi-simulator testing, physical iPhone setup
 - **UI_IMPROVEMENTS_SUMMARY.md**: Complete UI change documentation
 - **firestore.rules**: Security rules for contacts and notifications
 - **functions/eslint.config.js**: Node.js globals for linting
 
 **Needs Update**:
+
 - memory-bank/progress.md (this update in progress)
 - specs/001-core-messaging-platform/tasks.md (mark Phase 3.5.3 status)
 

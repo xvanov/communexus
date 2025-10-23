@@ -15,6 +15,7 @@
 **Impact**: Users don't receive notifications when messages are sent
 
 #### What Works ✅
+
 - Settings screen with notification preferences
 - Test notification button (manual trigger)
 - Badge count syncing with unread messages
@@ -22,17 +23,18 @@
 - Notification sound and vibration settings
 
 #### What's Broken ❌
+
 - Cloud Function `sendMessageNotification` doesn't trigger on message creation
 - In-app local notifications (useInAppNotifications) shows empty messages
 - Users must manually check for new messages
 
 #### Root Causes
+
 1. **Eventarc Permissions (Production)**:
    - First-time 2nd gen Cloud Function deployment
    - Eventarc Service Agent needs permissions
    - Google Cloud setup takes 5-10 minutes
    - Error: "Permission denied while using the Eventarc Service Agent"
-   
 2. **Trigger Not Firing (Development)**:
    - Cloud Function compiles and deploys to emulator
    - Trigger path: `threads/{threadId}/messages/{messageId}`
@@ -42,16 +44,18 @@
 
 3. **Empty Message Text (In-App)**:
    - useInAppNotifications hook triggers
-   - Logs show: "📬 Local notification shown:  -"
+   - Logs show: "📬 Local notification shown: -"
    - thread.lastMessage.text is empty
    - Need to investigate message data structure
 
 #### Temporary Workaround
+
 - Commented out `sendMessageNotification` export in functions/src/index.ts
 - Allows CI/CD to pass without Eventarc permissions
 - Re-enable after Google Cloud finishes permission setup (5-10 minutes)
 
 #### Next Steps to Fix
+
 1. **For Production**: Wait 10 minutes, uncomment export, redeploy
 2. **For Development**: Debug why emulator trigger doesn't fire
 3. **For In-App**: Fix empty message text in useInAppNotifications
@@ -66,22 +70,26 @@
 **Impact**: Users can't see real-time online/offline status changes
 
 #### What Works ✅
+
 - Green/gray circles show online status on Contacts screen load
 - Correct status displayed initially
 - "Online" vs "Last seen X ago" text accurate
 
 #### What's Broken ❌
+
 - Status doesn't update when users log in/out
 - Must exit and re-enter Contacts screen to see changes
 - Not truly "real-time"
 
 #### Root Cause
+
 - `subscribeToContacts` uses onSnapshot on contacts subcollection
 - Fetches user online status via getDoc (one-time fetch)
 - Not subscribing to user documents for status changes
 - Need nested real-time listeners
 
 #### Next Steps to Fix
+
 1. Add onSnapshot listener for each contact's user document
 2. Update contact status when user.online field changes
 3. Balance performance (multiple listeners) vs real-time updates
@@ -98,11 +106,13 @@
 **Impact**: Slight visual distraction during demo user login
 
 #### Issue
+
 - Demo user login shows brief flash/flicker
 - Caused by autoCreateTestUsers checking Auth status
 - Not a functional problem, just UX polish
 
 #### Next Steps
+
 - Optimize demo user creation flow
 - Consider caching demo user existence
 - Low priority - doesn't affect functionality
@@ -114,18 +124,21 @@
 **Impact**: Users re-login after app restart (development only)
 
 #### Issue
+
 ```
-Warning: You are initializing Firebase Auth for React Native without 
+Warning: You are initializing Firebase Auth for React Native without
 providing AsyncStorage. Auth state will default to memory persistence...
 ```
 
 #### Explanation
+
 - Expected in development with simulators
 - Users stay logged in during hot reload
 - Only affects full app restart
 - Production builds handle persistence differently
 
 #### Next Steps
+
 - Can be ignored for now
 - Fix before production release if needed
 
@@ -139,6 +152,7 @@ providing AsyncStorage. Auth state will default to memory persistence...
 **Status**: Code complete, deployment blocked
 
 **Function**: Firestore trigger on message creation
+
 ```javascript
 onDocumentCreated('threads/{threadId}/messages/{messageId}', async event => {
   // Get thread participants
@@ -149,12 +163,14 @@ onDocumentCreated('threads/{threadId}/messages/{messageId}', async event => {
 ```
 
 **Deployment Issue**:
+
 - First time using 2nd gen Firestore triggers
 - Requires Eventarc Service Agent permissions
 - Google Cloud auto-setup takes 5-10 minutes
 - Deploy will succeed after permission propagation
 
 **Temporary State**:
+
 - Export commented out in functions/src/index.ts
 - Allows CI/CD to pass
 - Re-enable when permissions ready
@@ -167,12 +183,14 @@ onDocumentCreated('threads/{threadId}/messages/{messageId}', async event => {
 **Purpose**: Show local notifications when messages received (simulator workaround)
 
 **Issue**: Messages appear empty in notifications
+
 ```javascript
 // Current behavior:
 📬 Local notification shown:  -  // Empty message!
 ```
 
 **Investigation Needed**:
+
 - Verify thread.lastMessage.text structure
 - Check if lastMessage updates before notification fires
 - May need slight delay or better timestamp tracking
@@ -205,4 +223,3 @@ Despite the above issues, these features are solid:
 ---
 
 **Current Recommendation**: Temporarily disable sendMessageNotification export for CI/CD, document as known issue, fix Eventarc permissions, then re-enable and implement proper notification triggering.
-

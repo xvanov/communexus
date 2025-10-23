@@ -79,6 +79,7 @@
 - [x] **T068**: Create notification testing and validation ✅
 
 **Blockers**:
+
 - ❌ Cloud Function trigger not firing when messages created
 - ❌ In-app local notifications show empty messages
 - Need to debug trigger configuration and message data flow

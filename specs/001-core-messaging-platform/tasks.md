@@ -167,11 +167,13 @@ description: 'Task list template for feature implementation'
 **Phase 3.5.3 Summary**: ⚠️ Notification infrastructure complete with Settings UI, preferences, badge management, and testing. Manual notifications work (test button), but automatic notifications NOT triggering when messages sent. Cloud Function `sendMessageNotification` exists but doesn't fire. In-app local notifications hook created (`useInAppNotifications`) but shows empty messages.
 
 **Blockers**:
+
 1. Cloud Function trigger not executing on message creation
 2. In-app local notifications receive empty message text
 3. Real-time presence indicators don't auto-update (need screen refresh)
 
 **What Works**:
+
 - Settings screen with all notification toggles
 - Test notification button
 - Badge count syncing with unread messages
