@@ -4,18 +4,16 @@ import { AIFeatures } from '../../src/types/AIFeatures';
 // Mock OpenAI responses
 export const mockOpenAIResponses = {
   threadSummary: {
-    summary: 'This is a mock thread summary discussing project updates and action items.',
+    summary:
+      'This is a mock thread summary discussing project updates and action items.',
     keyPoints: [
       'Project timeline discussed',
       'Budget approved',
-      'Next meeting scheduled'
+      'Next meeting scheduled',
     ],
-    actionItems: [
-      'Send invoice by Friday',
-      'Review contract tomorrow'
-    ]
+    actionItems: ['Send invoice by Friday', 'Review contract tomorrow'],
   },
-  
+
   actionItems: [
     {
       id: 'action_1',
@@ -24,123 +22,133 @@ export const mockOpenAIResponses = {
       assignee: 'John Doe',
       dueDate: new Date('2024-12-27'),
       status: 'pending' as AIFeatures.ActionItemStatus,
-      createdAt: new Date()
+      createdAt: new Date(),
     },
     {
-      id: 'action_2', 
+      id: 'action_2',
       text: 'Review contract tomorrow',
       priority: 'medium' as AIFeatures.PriorityLevel,
       assignee: 'Jane Smith',
       dueDate: new Date('2024-12-26'),
       status: 'pending' as AIFeatures.ActionItemStatus,
-      createdAt: new Date()
-    }
+      createdAt: new Date(),
+    },
   ],
-  
+
   priorityDetection: 'high' as AIFeatures.PriorityLevel,
-  
+
   searchResults: [
     {
       messageId: 'msg_1',
       threadId: 'thread_1',
       snippet: 'Invoice payment discussion',
       relevanceScore: 0.95,
-      context: 'Payment terms and due dates'
+      context: 'Payment terms and due dates',
     },
     {
       messageId: 'msg_2',
-      threadId: 'thread_1', 
+      threadId: 'thread_1',
       snippet: 'Contract review needed',
       relevanceScore: 0.87,
-      context: 'Legal document review'
-    }
+      context: 'Legal document review',
+    },
   ],
-  
+
   proactiveSuggestions: [
     {
       id: 'suggestion_1',
       type: 'follow_up' as AIFeatures.SuggestionType,
       message: 'Follow up on invoice payment status',
       confidence: 0.9,
-      createdAt: new Date()
+      createdAt: new Date(),
     },
     {
       id: 'suggestion_2',
       type: 'reminder' as AIFeatures.SuggestionType,
       message: 'Remind team about contract review deadline',
       confidence: 0.8,
-      createdAt: new Date()
-    }
-  ]
+      createdAt: new Date(),
+    },
+  ],
 };
 
 // Mock OpenAI client
 export class MockOpenAI {
   chat = {
     completions: {
-      create: jest.fn().mockImplementation(async (params) => {
+      create: jest.fn().mockImplementation(async params => {
         const { messages } = params;
         const lastMessage = messages[messages.length - 1];
-        
+
         // Determine response based on message content
         if (lastMessage.content.includes('summarize')) {
           return {
-            choices: [{
-              message: {
-                content: JSON.stringify(mockOpenAIResponses.threadSummary)
-              }
-            }]
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify(mockOpenAIResponses.threadSummary),
+                },
+              },
+            ],
           };
         }
-        
+
         if (lastMessage.content.includes('action items')) {
           return {
-            choices: [{
-              message: {
-                content: JSON.stringify(mockOpenAIResponses.actionItems)
-              }
-            }]
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify(mockOpenAIResponses.actionItems),
+                },
+              },
+            ],
           };
         }
-        
+
         if (lastMessage.content.includes('priority')) {
           return {
-            choices: [{
-              message: {
-                content: mockOpenAIResponses.priorityDetection
-              }
-            }]
+            choices: [
+              {
+                message: {
+                  content: mockOpenAIResponses.priorityDetection,
+                },
+              },
+            ],
           };
         }
-        
+
         if (lastMessage.content.includes('search')) {
           return {
-            choices: [{
-              message: {
-                content: JSON.stringify(mockOpenAIResponses.searchResults)
-              }
-            }]
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify(mockOpenAIResponses.searchResults),
+                },
+              },
+            ],
           };
         }
-        
+
         // Default response
         return {
-          choices: [{
-            message: {
-              content: 'Mock AI response'
-            }
-          }]
+          choices: [
+            {
+              message: {
+                content: 'Mock AI response',
+              },
+            },
+          ],
         };
-      })
-    }
+      }),
+    },
   };
 }
 
 // Mock LangChain ChatOpenAI
 export class MockChatOpenAI {
-  invoke = jest.fn().mockImplementation(async (messages) => {
+  invoke = jest.fn().mockImplementation(async messages => {
     return {
-      content: JSON.stringify(mockOpenAIResponses.proactiveSuggestions)
+      content: JSON.stringify(mockOpenAIResponses.proactiveSuggestions),
     };
   });
 }
@@ -151,8 +159,8 @@ export const generateMockMessages = (count: number = 5) => {
     id: `msg_${index + 1}`,
     text: `Mock message ${index + 1} content`,
     timestamp: new Date(Date.now() - (count - index) * 60000), // 1 minute apart
-    senderId: `user_${index % 2 + 1}`,
-    threadId: 'thread_1'
+    senderId: `user_${(index % 2) + 1}`,
+    threadId: 'thread_1',
   }));
 };
 
@@ -163,7 +171,7 @@ export const generateMockThread = (messageCount: number = 10) => {
     participants: ['user_1', 'user_2'],
     messages: generateMockMessages(messageCount),
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 };
 
@@ -175,14 +183,14 @@ export const generateMockContext = () => {
       role: 'contractor',
       preferences: {
         notifications: true,
-        aiFeatures: true
-      }
+        aiFeatures: true,
+      },
     },
     projectContext: {
       name: 'Mock Project',
       status: 'active',
-      deadline: new Date('2024-12-31')
-    }
+      deadline: new Date('2024-12-31'),
+    },
   };
 };
 
@@ -194,7 +202,7 @@ export const measurePerformance = async <T>(
   const startTime = Date.now();
   const result = await operation();
   const duration = Date.now() - startTime;
-  
+
   console.log(`${operationName} completed in ${duration}ms`);
   return { result, duration };
 };
@@ -206,7 +214,9 @@ export const expectPerformanceWithinLimit = (
 ) => {
   expect(duration).toBeLessThanOrEqual(limitMs);
   if (duration > limitMs) {
-    console.warn(`${operationName} exceeded performance limit: ${duration}ms > ${limitMs}ms`);
+    console.warn(
+      `${operationName} exceeded performance limit: ${duration}ms > ${limitMs}ms`
+    );
   }
 };
 
@@ -224,23 +234,25 @@ export const testConfig = {
     maxActionItems: 20,
     maxSearchResults: 10,
     maxSuggestions: 5,
-  }
+  },
 };
 
 // Error simulation utilities
-export const simulateAPIError = (errorType: 'rate_limit' | 'timeout' | 'invalid_key' | 'network') => {
+export const simulateAPIError = (
+  errorType: 'rate_limit' | 'timeout' | 'invalid_key' | 'network'
+) => {
   const errors = {
     rate_limit: new Error('Rate limit exceeded'),
     timeout: new Error('Request timeout'),
     invalid_key: new Error('Invalid API key'),
-    network: new Error('Network error')
+    network: new Error('Network error'),
   };
-  
+
   throw errors[errorType];
 };
 
 export const simulateSlowResponse = (delayMs: number = 5000) => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve('Slow response');
     }, delayMs);
@@ -267,7 +279,9 @@ export const validateActionItem = (actionItem: AIFeatures.ActionItem) => {
   expect(typeof actionItem.text).toBe('string');
   expect(actionItem.text.length).toBeGreaterThan(0);
   expect(['high', 'medium', 'low']).toContain(actionItem.priority);
-  expect(['pending', 'in_progress', 'completed', 'cancelled']).toContain(actionItem.status);
+  expect(['pending', 'in_progress', 'completed', 'cancelled']).toContain(
+    actionItem.status
+  );
   expect(actionItem.createdAt).toBeInstanceOf(Date);
 };
 
@@ -284,10 +298,14 @@ export const validateSearchResult = (result: AIFeatures.SearchResult) => {
   expect(result.relevanceScore).toBeLessThanOrEqual(1);
 };
 
-export const validateProactiveSuggestion = (suggestion: AIFeatures.ProactiveSuggestion) => {
+export const validateProactiveSuggestion = (
+  suggestion: AIFeatures.ProactiveSuggestion
+) => {
   expect(suggestion).toBeDefined();
   expect(suggestion.id).toBeDefined();
-  expect(['follow_up', 'reminder', 'suggestion', 'alert']).toContain(suggestion.type);
+  expect(['follow_up', 'reminder', 'suggestion', 'alert']).toContain(
+    suggestion.type
+  );
   expect(suggestion.message).toBeDefined();
   expect(typeof suggestion.message).toBe('string');
   expect(suggestion.message.length).toBeGreaterThan(0);

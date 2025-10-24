@@ -12,8 +12,8 @@ jest.mock('../../functions/src/aiService', () => ({
     extractActionItems: jest.fn(),
     detectPriority: jest.fn(),
     smartSearch: jest.fn(),
-    getProactiveSuggestions: jest.fn()
-  }
+    getProactiveSuggestions: jest.fn(),
+  },
 }));
 
 describe('AI Cloud Functions', () => {
@@ -31,7 +31,7 @@ describe('AI Cloud Functions', () => {
         summary: 'Mock thread summary',
         keyPoints: ['Point 1', 'Point 2'],
         actionItems: [],
-        generatedAt: new Date()
+        generatedAt: new Date(),
       };
 
       mockAiService.generateThreadSummary.mockResolvedValue(mockSummary);
@@ -39,8 +39,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiThreadSummary(request);
@@ -49,14 +49,17 @@ describe('AI Cloud Functions', () => {
       expect(result.summary).toBe(mockSummary.summary);
       expect(result.keyPoints).toEqual(mockSummary.keyPoints);
       expect(result.actionItems).toEqual(mockSummary.actionItems);
-      expect(mockAiService.generateThreadSummary).toHaveBeenCalledWith('thread-1', request.data.messages);
+      expect(mockAiService.generateThreadSummary).toHaveBeenCalledWith(
+        'thread-1',
+        request.data.messages
+      );
     });
 
     it('should handle missing threadId', async () => {
       const request = {
         data: {
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiThreadSummary(request);
@@ -68,8 +71,8 @@ describe('AI Cloud Functions', () => {
     it('should handle missing messages', async () => {
       const request = {
         data: {
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiThreadSummary(request);
@@ -79,13 +82,15 @@ describe('AI Cloud Functions', () => {
     });
 
     it('should handle AI service errors', async () => {
-      mockAiService.generateThreadSummary.mockRejectedValue(new Error('AI Service Error'));
+      mockAiService.generateThreadSummary.mockRejectedValue(
+        new Error('AI Service Error')
+      );
 
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiThreadSummary(request);
@@ -100,8 +105,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: []
-        }
+          messages: [],
+        },
       };
 
       const result = await aiThreadSummary(request);
@@ -119,8 +124,8 @@ describe('AI Cloud Functions', () => {
           text: 'Send invoice',
           priority: 'high' as const,
           status: 'pending' as const,
-          createdAt: new Date()
-        }
+          createdAt: new Date(),
+        },
       ];
 
       mockAiService.extractActionItems.mockResolvedValue(mockActionItems);
@@ -128,8 +133,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiActionExtraction(request);
@@ -137,14 +142,17 @@ describe('AI Cloud Functions', () => {
       expect(result.success).toBe(true);
       expect(result.actionItems).toEqual(mockActionItems);
       expect(result.count).toBe(1);
-      expect(mockAiService.extractActionItems).toHaveBeenCalledWith('thread-1', request.data.messages);
+      expect(mockAiService.extractActionItems).toHaveBeenCalledWith(
+        'thread-1',
+        request.data.messages
+      );
     });
 
     it('should handle missing threadId', async () => {
       const request = {
         data: {
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiActionExtraction(request);
@@ -154,13 +162,15 @@ describe('AI Cloud Functions', () => {
     });
 
     it('should handle AI service errors', async () => {
-      mockAiService.extractActionItems.mockRejectedValue(new Error('AI Service Error'));
+      mockAiService.extractActionItems.mockRejectedValue(
+        new Error('AI Service Error')
+      );
 
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiActionExtraction(request);
@@ -183,9 +193,9 @@ describe('AI Cloud Functions', () => {
           message: {
             id: 'msg-1',
             text: 'URGENT: Server down!',
-            timestamp: new Date()
-          }
-        }
+            timestamp: new Date(),
+          },
+        },
       };
 
       const result = await aiPriorityDetection(request);
@@ -193,14 +203,17 @@ describe('AI Cloud Functions', () => {
       expect(result.success).toBe(true);
       expect(result.priority).toBe('high');
       expect(result.messageId).toBe('msg-1');
-      expect(mockAiService.detectPriority).toHaveBeenCalledWith('msg-1', request.data.message);
+      expect(mockAiService.detectPriority).toHaveBeenCalledWith(
+        'msg-1',
+        request.data.message
+      );
     });
 
     it('should handle missing messageId', async () => {
       const request = {
         data: {
-          message: { text: 'Test message' }
-        }
+          message: { text: 'Test message' },
+        },
       };
 
       const result = await aiPriorityDetection(request);
@@ -212,8 +225,8 @@ describe('AI Cloud Functions', () => {
     it('should handle missing message', async () => {
       const request = {
         data: {
-          messageId: 'msg-1'
-        }
+          messageId: 'msg-1',
+        },
       };
 
       const result = await aiPriorityDetection(request);
@@ -228,8 +241,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           messageId: 'msg-1',
-          message: { text: 'Test message' }
-        }
+          message: { text: 'Test message' },
+        },
       };
 
       const result = await aiPriorityDetection(request);
@@ -247,8 +260,8 @@ describe('AI Cloud Functions', () => {
           threadId: 'thread-1',
           snippet: 'Invoice payment discussion',
           relevanceScore: 0.95,
-          context: 'Payment terms'
-        }
+          context: 'Payment terms',
+        },
       ];
 
       mockAiService.smartSearch.mockResolvedValue(mockResults);
@@ -256,8 +269,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           query: 'invoice payment',
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiSmartSearch(request);
@@ -266,14 +279,17 @@ describe('AI Cloud Functions', () => {
       expect(result.results).toEqual(mockResults);
       expect(result.count).toBe(1);
       expect(result.query).toBe('invoice payment');
-      expect(mockAiService.smartSearch).toHaveBeenCalledWith('invoice payment', 'thread-1');
+      expect(mockAiService.smartSearch).toHaveBeenCalledWith(
+        'invoice payment',
+        'thread-1'
+      );
     });
 
     it('should handle missing query', async () => {
       const request = {
         data: {
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiSmartSearch(request);
@@ -286,8 +302,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           query: 123, // Invalid type
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiSmartSearch(request);
@@ -297,13 +313,15 @@ describe('AI Cloud Functions', () => {
     });
 
     it('should handle AI service errors', async () => {
-      mockAiService.smartSearch.mockRejectedValue(new Error('AI Service Error'));
+      mockAiService.smartSearch.mockRejectedValue(
+        new Error('AI Service Error')
+      );
 
       const request = {
         data: {
           query: 'test query',
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiSmartSearch(request);
@@ -322,8 +340,8 @@ describe('AI Cloud Functions', () => {
           type: 'follow_up' as const,
           message: 'Follow up on invoice payment',
           confidence: 0.9,
-          createdAt: new Date()
-        }
+          createdAt: new Date(),
+        },
       ];
 
       mockAiService.getProactiveSuggestions.mockResolvedValue(mockSuggestions);
@@ -331,8 +349,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           threadId: 'thread-1',
-          context: generateMockContext()
-        }
+          context: generateMockContext(),
+        },
       };
 
       const result = await aiProactiveAgent(request);
@@ -341,14 +359,17 @@ describe('AI Cloud Functions', () => {
       expect(result.suggestions).toEqual(mockSuggestions);
       expect(result.count).toBe(1);
       expect(result.threadId).toBe('thread-1');
-      expect(mockAiService.getProactiveSuggestions).toHaveBeenCalledWith('thread-1', request.data.context);
+      expect(mockAiService.getProactiveSuggestions).toHaveBeenCalledWith(
+        'thread-1',
+        request.data.context
+      );
     });
 
     it('should handle missing threadId', async () => {
       const request = {
         data: {
-          context: generateMockContext()
-        }
+          context: generateMockContext(),
+        },
       };
 
       const result = await aiProactiveAgent(request);
@@ -360,8 +381,8 @@ describe('AI Cloud Functions', () => {
     it('should handle missing context', async () => {
       const request = {
         data: {
-          threadId: 'thread-1'
-        }
+          threadId: 'thread-1',
+        },
       };
 
       const result = await aiProactiveAgent(request);
@@ -371,13 +392,15 @@ describe('AI Cloud Functions', () => {
     });
 
     it('should handle AI service errors', async () => {
-      mockAiService.getProactiveSuggestions.mockRejectedValue(new Error('AI Service Error'));
+      mockAiService.getProactiveSuggestions.mockRejectedValue(
+        new Error('AI Service Error')
+      );
 
       const request = {
         data: {
           threadId: 'thread-1',
-          context: generateMockContext()
-        }
+          context: generateMockContext(),
+        },
       };
 
       const result = await aiProactiveAgent(request);
@@ -395,8 +418,8 @@ describe('AI Cloud Functions', () => {
       const request = {
         data: {
           threadId: 'thread-1',
-          messages: generateMockMessages(5)
-        }
+          messages: generateMockMessages(5),
+        },
       };
 
       const result = await aiThreadSummary(request);

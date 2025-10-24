@@ -1,19 +1,36 @@
 import { OpenAI } from 'openai';
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization of OpenAI client
+let _openai: OpenAI | null = null;
+let _chatModel: ChatOpenAI | null = null;
 
-// Initialize LangChain ChatOpenAI
-const chatModel = new ChatOpenAI({
-  openAIApiKey: process.env.OPENAI_API_KEY,
-  modelName: 'gpt-4',
-  temperature: 0.7,
-  maxTokens: 1000,
-});
+export const getOpenAI = (): OpenAI => {
+  if (!_openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set');
+    }
+    _openai = new OpenAI({ apiKey });
+  }
+  return _openai;
+};
+
+export const getChatModel = (): ChatOpenAI => {
+  if (!_chatModel) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set');
+    }
+    _chatModel = new ChatOpenAI({
+      openAIApiKey: apiKey,
+      modelName: 'gpt-4',
+      temperature: 0.7,
+      maxTokens: 1000,
+    });
+  }
+  return _chatModel;
+};
 
 export interface AIConfig {
   openai: {
@@ -131,7 +148,10 @@ export const validateAIConfig = (config: AIConfig): string[] => {
     errors.push('Thread summary maxMessages must be at least 1');
   }
 
-  if (config.features.actionExtraction.minConfidence < 0 || config.features.actionExtraction.minConfidence > 1) {
+  if (
+    config.features.actionExtraction.minConfidence < 0 ||
+    config.features.actionExtraction.minConfidence > 1
+  ) {
     errors.push('Action extraction minConfidence must be between 0 and 1');
   }
 
@@ -177,7 +197,8 @@ export const getAIConfig = (): AIConfig => {
   }
 
   if (process.env.AI_CACHE_ENABLED) {
-    config.performance.enableCaching = process.env.AI_CACHE_ENABLED.toLowerCase() === 'true';
+    config.performance.enableCaching =
+      process.env.AI_CACHE_ENABLED.toLowerCase() === 'true';
   }
 
   if (process.env.AI_CACHE_EXPIRY) {
@@ -236,10 +257,14 @@ export const getCachedResult = <T>(key: string): T | null => {
   return cached.data as T;
 };
 
-export const setCachedResult = <T>(key: string, data: T, config: AIConfig): void => {
+export const setCachedResult = <T>(
+  key: string,
+  data: T,
+  config: AIConfig
+): void => {
   if (!config.performance.enableCaching) return;
 
-  const expiry = Date.now() + (config.performance.cacheExpiry * 1000);
+  const expiry = Date.now() + config.performance.cacheExpiry * 1000;
   cache.set(key, { data, expiry });
 
   // Clean up expired entries periodically
@@ -252,6 +277,3 @@ export const setCachedResult = <T>(key: string, data: T, config: AIConfig): void
     }
   }
 };
-
-// Export OpenAI and LangChain instances
-export { openai, chatModel };

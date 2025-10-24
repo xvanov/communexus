@@ -75,7 +75,7 @@ class OfflineService {
 
   private initDatabase(): void {
     this.db = SQLite.openDatabase(DB_NAME);
-    
+
     this.db.transaction(tx => {
       // Messages table
       tx.executeSql(`
@@ -148,10 +148,18 @@ class OfflineService {
       `);
 
       // Create indexes for performance
-      tx.executeSql('CREATE INDEX IF NOT EXISTS idx_messages_thread ON offline_messages(threadId)');
-      tx.executeSql('CREATE INDEX IF NOT EXISTS idx_messages_status ON offline_messages(status)');
-      tx.executeSql('CREATE INDEX IF NOT EXISTS idx_threads_updated ON offline_threads(updatedAt)');
-      tx.executeSql('CREATE INDEX IF NOT EXISTS idx_users_online ON offline_users(isOnline)');
+      tx.executeSql(
+        'CREATE INDEX IF NOT EXISTS idx_messages_thread ON offline_messages(threadId)'
+      );
+      tx.executeSql(
+        'CREATE INDEX IF NOT EXISTS idx_messages_status ON offline_messages(status)'
+      );
+      tx.executeSql(
+        'CREATE INDEX IF NOT EXISTS idx_threads_updated ON offline_threads(updatedAt)'
+      );
+      tx.executeSql(
+        'CREATE INDEX IF NOT EXISTS idx_users_online ON offline_users(isOnline)'
+      );
     });
   }
 
@@ -190,7 +198,7 @@ class OfflineService {
             message.senderId,
             message.text,
             message.timestamp.getTime(),
-            Date.now()
+            Date.now(),
           ],
           () => {
             console.log(`Message ${message.id} queued for offline delivery`);
@@ -210,10 +218,10 @@ class OfflineService {
     if (!this.db) throw new Error('Database not initialized');
 
     return new Promise((resolve, reject) => {
-      const query = threadId 
+      const query = threadId
         ? 'SELECT * FROM offline_messages WHERE status = "pending" AND threadId = ? ORDER BY createdAt ASC'
         : 'SELECT * FROM offline_messages WHERE status = "pending" ORDER BY createdAt ASC';
-      
+
       const params = threadId ? [threadId] : [];
 
       this.db!.transaction(tx => {
@@ -291,7 +299,7 @@ class OfflineService {
             thread.lastMessage?.text,
             thread.lastMessage?.timestamp.getTime(),
             thread.unreadCount || 0,
-            Date.now()
+            Date.now(),
           ],
           () => resolve(),
           (_, error) => {
@@ -319,15 +327,17 @@ class OfflineService {
                 id: row.threadId,
                 name: row.name,
                 participants: JSON.parse(row.participants),
-                lastMessage: row.lastMessage ? {
-                  id: 'offline',
-                  text: row.lastMessage,
-                  timestamp: new Date(row.lastMessageAt),
-                  senderId: 'unknown'
-                } : undefined,
+                lastMessage: row.lastMessage
+                  ? {
+                      id: 'offline',
+                      text: row.lastMessage,
+                      timestamp: new Date(row.lastMessageAt),
+                      senderId: 'unknown',
+                    }
+                  : undefined,
                 unreadCount: row.unreadCount,
                 createdAt: new Date(row.updatedAt),
-                updatedAt: new Date(row.updatedAt)
+                updatedAt: new Date(row.updatedAt),
               });
             }
             resolve(threads);
@@ -358,7 +368,7 @@ class OfflineService {
             user.photoUrl,
             user.isOnline ? 1 : 0,
             user.lastSeenAt?.getTime(),
-            Date.now()
+            Date.now(),
           ],
           () => resolve(),
           (_, error) => {
@@ -388,9 +398,11 @@ class OfflineService {
                 displayName: row.displayName,
                 photoUrl: row.photoUrl,
                 isOnline: Boolean(row.isOnline),
-                lastSeenAt: row.lastSeenAt ? new Date(row.lastSeenAt) : undefined,
+                lastSeenAt: row.lastSeenAt
+                  ? new Date(row.lastSeenAt)
+                  : undefined,
                 createdAt: new Date(row.updatedAt),
-                updatedAt: new Date(row.updatedAt)
+                updatedAt: new Date(row.updatedAt),
               });
             }
             resolve(users);
@@ -416,10 +428,10 @@ class OfflineService {
     try {
       // Sync pending messages
       await this.syncPendingMessages();
-      
+
       // Sync threads
       await this.syncThreads();
-      
+
       // Sync users
       await this.syncUsers();
 
@@ -433,12 +445,12 @@ class OfflineService {
 
   private async syncPendingMessages(): Promise<void> {
     const pendingMessages = await this.getPendingMessages();
-    
+
     for (const message of pendingMessages) {
       try {
         // Simulate sending message to server
         const success = await this.sendMessageToServer(message);
-        
+
         if (success) {
           await this.markMessageSent(message.messageId);
           console.log(`Message ${message.messageId} synced successfully`);
@@ -491,7 +503,7 @@ class OfflineService {
             JSON.stringify(localData),
             JSON.stringify(remoteData),
             resolution,
-            Date.now()
+            Date.now(),
           ],
           () => resolve(),
           (_, error) => {
@@ -508,16 +520,18 @@ class OfflineService {
     if (!this.db) throw new Error('Database not initialized');
 
     const failedMessages = await this.getFailedMessages();
-    
+
     for (const message of failedMessages) {
       if (message.retryCount >= this.maxRetries) {
-        console.log(`Message ${message.messageId} exceeded max retries, giving up`);
+        console.log(
+          `Message ${message.messageId} exceeded max retries, giving up`
+        );
         continue;
       }
 
       const delay = this.calculateRetryDelay(message.retryCount);
       const timeSinceLastRetry = Date.now() - (message.lastRetryAt || 0);
-      
+
       if (timeSinceLastRetry >= delay) {
         try {
           const success = await this.sendMessageToServer(message);
@@ -527,7 +541,10 @@ class OfflineService {
             await this.markMessageFailed(message.messageId);
           }
         } catch (error) {
-          console.error(`Retry failed for message ${message.messageId}:`, error);
+          console.error(
+            `Retry failed for message ${message.messageId}:`,
+            error
+          );
           await this.markMessageFailed(message.messageId);
         }
       }
@@ -567,7 +584,7 @@ class OfflineService {
   async clearOldData(daysOld: number = 30): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
-    const cutoffTime = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
+    const cutoffTime = Date.now() - daysOld * 24 * 60 * 60 * 1000;
 
     return new Promise((resolve, reject) => {
       this.db!.transaction(tx => {
@@ -611,7 +628,7 @@ class OfflineService {
           failedMessages: 0,
           totalThreads: 0,
           totalUsers: 0,
-          conflictsResolved: 0
+          conflictsResolved: 0,
         };
 
         const checkComplete = () => {
@@ -693,4 +710,10 @@ class OfflineService {
 export const offlineService = new OfflineService();
 
 // Export types for external use
-export type { OfflineMessage, OfflineThread, OfflineUser, SyncStatus, ConflictResolution };
+export type {
+  OfflineMessage,
+  OfflineThread,
+  OfflineUser,
+  SyncStatus,
+  ConflictResolution,
+};

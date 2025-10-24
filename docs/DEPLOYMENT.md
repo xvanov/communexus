@@ -7,12 +7,14 @@ This guide covers deploying the Communexus messaging app to various platforms in
 ### Required Tools
 
 1. **EAS CLI** - For building and submitting mobile apps
+
    ```bash
    npm install -g @expo/eas-cli
    eas login
    ```
 
 2. **Firebase CLI** - For deploying backend services
+
    ```bash
    npm install -g firebase-tools
    firebase login
@@ -63,11 +65,13 @@ GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH=./path-to-service-account-key.json
 ### 2. Firebase Configuration
 
 1. Initialize Firebase in your project:
+
    ```bash
    firebase init
    ```
 
 2. Configure Firebase Functions:
+
    ```bash
    cd functions
    npm install
@@ -82,6 +86,7 @@ GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH=./path-to-service-account-key.json
 ### 3. EAS Configuration
 
 1. Configure EAS project:
+
    ```bash
    eas init
    ```
@@ -101,6 +106,7 @@ For rapid development and testing:
 ```
 
 This will:
+
 - Run tests and linting
 - Build development version
 - Deploy Firebase Functions
@@ -115,6 +121,7 @@ For full production deployment:
 ```
 
 This will:
+
 - Run all validation checks
 - Build production version
 - Deploy all Firebase services
@@ -168,11 +175,13 @@ This will:
 #### TestFlight
 
 1. **Build for TestFlight:**
+
    ```bash
    eas build --platform ios --profile testflight
    ```
 
 2. **Submit to TestFlight:**
+
    ```bash
    eas submit --platform ios --profile testflight
    ```
@@ -185,11 +194,13 @@ This will:
 #### App Store
 
 1. **Build for App Store:**
+
    ```bash
    eas build --platform ios --profile production
    ```
 
 2. **Submit to App Store:**
+
    ```bash
    eas submit --platform ios --profile production
    ```
@@ -205,11 +216,13 @@ This will:
 #### Play Store Internal Testing
 
 1. **Build AAB:**
+
    ```bash
    eas build --platform android --profile production
    ```
 
 2. **Submit to Play Store:**
+
    ```bash
    eas submit --platform android --profile production
    ```
@@ -277,11 +290,13 @@ npm run test:e2e
 ### Manual Testing
 
 1. **Development Build Testing:**
+
    ```bash
    eas build --platform all --profile development
    ```
 
 2. **Preview Build Testing:**
+
    ```bash
    eas build --platform all --profile preview
    ```
@@ -309,11 +324,13 @@ npx expo export --platform all
 #### Build Failures
 
 1. **Check EAS CLI version:**
+
    ```bash
    eas --version
    ```
 
 2. **Clear build cache:**
+
    ```bash
    eas build --clear-cache
    ```
@@ -326,11 +343,13 @@ npx expo export --platform all
 #### Firebase Deployment Issues
 
 1. **Check Firebase CLI version:**
+
    ```bash
    firebase --version
    ```
 
 2. **Re-authenticate:**
+
    ```bash
    firebase logout
    firebase login

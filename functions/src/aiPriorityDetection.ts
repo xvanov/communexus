@@ -2,7 +2,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { aiService } from './aiService';
 
-export const aiPriorityDetection = onCall(async (request) => {
+export const aiPriorityDetection = onCall(async request => {
   try {
     const { messageId, message } = request.data;
 

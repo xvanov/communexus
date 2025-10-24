@@ -160,7 +160,7 @@ export const listThreadsForUser = async (userId: string): Promise<Thread[]> => {
 export const subscribeToUserThreads = async (
   userId: string,
   callback: (threads: Thread[]) => void
-): Promise<(() => void)> => {
+): Promise<() => void> => {
   const db = await getDb();
   const col = collection(db, 'threads');
   const q = query(

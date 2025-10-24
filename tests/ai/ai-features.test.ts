@@ -1,5 +1,5 @@
-import { AIFeatures } from '../../src/types/AIFeatures';
-import { aiService } from '../../src/services/ai';
+import { AIDecision } from '../../src/types/AIFeatures';
+import { aiService } from '../../functions/src/aiService';
 
 describe('AI Features', () => {
   describe('Thread Summary', () => {
@@ -10,8 +10,11 @@ describe('AI Features', () => {
         { id: '3', text: 'Great to hear!', timestamp: new Date() },
       ];
 
-      const summary = await aiService.generateThreadSummary('thread-1', mockMessages);
-      
+      const summary = await aiService.generateThreadSummary(
+        'thread-1',
+        mockMessages
+      );
+
       expect(summary).toBeDefined();
       expect(summary?.summary).toBeDefined();
       expect(typeof summary?.summary).toBe('string');
@@ -19,7 +22,7 @@ describe('AI Features', () => {
 
     it('should handle empty message list', async () => {
       const summary = await aiService.generateThreadSummary('thread-1', []);
-      
+
       expect(summary).toBeNull();
     });
   });
@@ -27,16 +30,27 @@ describe('AI Features', () => {
   describe('Action Item Extraction', () => {
     it('should extract action items from messages', async () => {
       const mockMessages = [
-        { id: '1', text: 'Please send the invoice by Friday', timestamp: new Date() },
-        { id: '2', text: 'I will review the contract tomorrow', timestamp: new Date() },
+        {
+          id: '1',
+          text: 'Please send the invoice by Friday',
+          timestamp: new Date(),
+        },
+        {
+          id: '2',
+          text: 'I will review the contract tomorrow',
+          timestamp: new Date(),
+        },
         { id: '3', text: 'Thanks for the update', timestamp: new Date() },
       ];
 
-      const actionItems = await aiService.extractActionItems('thread-1', mockMessages);
-      
+      const actionItems = await aiService.extractActionItems(
+        'thread-1',
+        mockMessages
+      );
+
       expect(Array.isArray(actionItems)).toBe(true);
       expect(actionItems.length).toBeGreaterThan(0);
-      
+
       if (actionItems.length > 0) {
         expect(actionItems[0]).toHaveProperty('text');
         expect(actionItems[0]).toHaveProperty('priority');
@@ -49,8 +63,11 @@ describe('AI Features', () => {
         { id: '2', text: 'How are you?', timestamp: new Date() },
       ];
 
-      const actionItems = await aiService.extractActionItems('thread-1', mockMessages);
-      
+      const actionItems = await aiService.extractActionItems(
+        'thread-1',
+        mockMessages
+      );
+
       expect(Array.isArray(actionItems)).toBe(true);
       expect(actionItems.length).toBe(0);
     });
@@ -65,7 +82,7 @@ describe('AI Features', () => {
       };
 
       const priority = await aiService.detectPriority('message-1', mockMessage);
-      
+
       expect(priority).toBeDefined();
       expect(['high', 'medium', 'low']).toContain(priority);
     });
@@ -78,7 +95,7 @@ describe('AI Features', () => {
       };
 
       const priority = await aiService.detectPriority('message-1', mockMessage);
-      
+
       expect(priority).toBeDefined();
       expect(['high', 'medium', 'low']).toContain(priority);
     });
@@ -87,9 +104,9 @@ describe('AI Features', () => {
   describe('Smart Search', () => {
     it('should perform semantic search', async () => {
       const results = await aiService.smartSearch('invoice payment');
-      
+
       expect(Array.isArray(results)).toBe(true);
-      
+
       if (results.length > 0) {
         expect(results[0]).toHaveProperty('messageId');
         expect(results[0]).toHaveProperty('relevanceScore');
@@ -99,7 +116,7 @@ describe('AI Features', () => {
 
     it('should handle empty search query', async () => {
       const results = await aiService.smartSearch('');
-      
+
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBe(0);
     });
@@ -107,10 +124,11 @@ describe('AI Features', () => {
 
   describe('Decision Tracking', () => {
     it('should track a decision', async () => {
-      const mockDecision: AIFeatures.Decision = {
+      const mockDecision: AIDecision = {
         id: 'decision-1',
         title: 'Approved budget increase',
-        description: 'Client approved 10% budget increase for additional features',
+        description:
+          'Client approved 10% budget increase for additional features',
         status: 'approved',
         decidedAt: new Date(),
         decidedBy: 'John Doe',
@@ -118,8 +136,11 @@ describe('AI Features', () => {
         impact: 'Allows for additional feature development',
       };
 
-      const trackedDecision = await aiService.trackDecision('message-1', mockDecision);
-      
+      const trackedDecision = await aiService.trackDecision(
+        'message-1',
+        mockDecision
+      );
+
       expect(trackedDecision).toBeDefined();
       expect(trackedDecision?.id).toBe(mockDecision.id);
       expect(trackedDecision?.title).toBe(mockDecision.title);
@@ -139,10 +160,13 @@ describe('AI Features', () => {
         },
       };
 
-      const suggestions = await aiService.getProactiveSuggestions('thread-1', mockContext);
-      
+      const suggestions = await aiService.getProactiveSuggestions(
+        'thread-1',
+        mockContext
+      );
+
       expect(Array.isArray(suggestions)).toBe(true);
-      
+
       if (suggestions.length > 0) {
         expect(suggestions[0]).toHaveProperty('id');
         expect(suggestions[0]).toHaveProperty('type');
@@ -152,8 +176,11 @@ describe('AI Features', () => {
     });
 
     it('should handle empty context', async () => {
-      const suggestions = await aiService.getProactiveSuggestions('thread-1', {});
-      
+      const suggestions = await aiService.getProactiveSuggestions(
+        'thread-1',
+        {}
+      );
+
       expect(Array.isArray(suggestions)).toBe(true);
       expect(suggestions.length).toBe(0);
     });

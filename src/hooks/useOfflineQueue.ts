@@ -44,10 +44,10 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
       totalUsers: 0,
       conflictsResolved: 0,
       lastSyncTime: null,
-      nextSyncTime: new Date()
+      nextSyncTime: new Date(),
     },
     syncResult: null,
-    error: null
+    error: null,
   });
 
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -63,7 +63,10 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
         console.error('Error initializing offline service:', error);
         setState(prev => ({
           ...prev,
-          error: error instanceof Error ? error.message : 'Failed to initialize offline service'
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to initialize offline service',
         }));
       }
     };
@@ -92,13 +95,13 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
     try {
       const [pendingMessages, failedMessages] = await Promise.all([
         offlineService.getPendingMessages(),
-        offlineService.getFailedMessages()
+        offlineService.getFailedMessages(),
       ]);
 
       setState(prev => ({
         ...prev,
         pendingMessages,
-        failedMessages
+        failedMessages,
       }));
     } catch (error) {
       console.error('Error loading offline data:', error);
@@ -117,8 +120,8 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
         syncStats: {
           ...stats,
           lastSyncTime: syncStatus.lastSyncTime,
-          nextSyncTime: syncStatus.nextSyncTime
-        }
+          nextSyncTime: syncStatus.nextSyncTime,
+        },
       }));
     } catch (error) {
       console.error('Error getting offline stats:', error);
@@ -126,52 +129,62 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
   }, []);
 
   // Add message to offline queue
-  const addMessage = useCallback(async (message: Message) => {
-    try {
-      setState(prev => ({ ...prev, error: null }));
+  const addMessage = useCallback(
+    async (message: Message) => {
+      try {
+        setState(prev => ({ ...prev, error: null }));
 
-      await offlineService.queueMessage(message);
-      
-      // Reload offline data to reflect the new message
-      await loadOfflineData();
-      await getOfflineStats();
+        await offlineService.queueMessage(message);
 
-      console.log(`Message ${message.id} added to offline queue`);
-    } catch (error) {
-      console.error('Error adding message to offline queue:', error);
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to add message to offline queue'
-      }));
-      throw error;
-    }
-  }, [loadOfflineData, getOfflineStats]);
-
-  // Retry a specific failed message
-  const retryMessage = useCallback(async (messageId: string): Promise<boolean> => {
-    try {
-      setState(prev => ({ ...prev, error: null }));
-
-      const success = await syncService.syncEntity('message', messageId);
-      
-      if (success) {
+        // Reload offline data to reflect the new message
         await loadOfflineData();
         await getOfflineStats();
-        console.log(`Message ${messageId} retry successful`);
-      } else {
-        console.log(`Message ${messageId} retry failed`);
-      }
 
-      return success;
-    } catch (error) {
-      console.error(`Error retrying message ${messageId}:`, error);
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to retry message'
-      }));
-      return false;
-    }
-  }, [loadOfflineData, getOfflineStats]);
+        console.log(`Message ${message.id} added to offline queue`);
+      } catch (error) {
+        console.error('Error adding message to offline queue:', error);
+        setState(prev => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to add message to offline queue',
+        }));
+        throw error;
+      }
+    },
+    [loadOfflineData, getOfflineStats]
+  );
+
+  // Retry a specific failed message
+  const retryMessage = useCallback(
+    async (messageId: string): Promise<boolean> => {
+      try {
+        setState(prev => ({ ...prev, error: null }));
+
+        const success = await syncService.syncEntity('message', messageId);
+
+        if (success) {
+          await loadOfflineData();
+          await getOfflineStats();
+          console.log(`Message ${messageId} retry successful`);
+        } else {
+          console.log(`Message ${messageId} retry failed`);
+        }
+
+        return success;
+      } catch (error) {
+        console.error(`Error retrying message ${messageId}:`, error);
+        setState(prev => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : 'Failed to retry message',
+        }));
+        return false;
+      }
+    },
+    [loadOfflineData, getOfflineStats]
+  );
 
   // Retry all failed messages
   const retryAllFailed = useCallback(async () => {
@@ -179,7 +192,7 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
       setState(prev => ({ ...prev, error: null, isSyncing: true }));
 
       await offlineService.retryFailedMessages();
-      
+
       // Reload data after retry attempts
       await loadOfflineData();
       await getOfflineStats();
@@ -189,7 +202,10 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
       console.error('Error retrying all failed messages:', error);
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Failed to retry failed messages'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to retry failed messages',
       }));
     } finally {
       setState(prev => ({ ...prev, isSyncing: false }));
@@ -202,11 +218,11 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
       setState(prev => ({ ...prev, error: null, isSyncing: true }));
 
       const syncResult = await syncService.triggerSync();
-      
+
       setState(prev => ({
         ...prev,
         syncResult,
-        isSyncing: false
+        isSyncing: false,
       }));
 
       // Reload data after sync
@@ -219,7 +235,7 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Sync failed',
-        isSyncing: false
+        isSyncing: false,
       }));
     }
   }, [loadOfflineData, getOfflineStats]);
@@ -256,7 +272,7 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
 
     // Check network status every 5 seconds
     const interval = setInterval(checkNetworkStatus, 5000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -269,7 +285,7 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
 
     // Check sync status every second
     const interval = setInterval(checkSyncStatus, 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -280,6 +296,6 @@ export const useOfflineQueue = (): OfflineQueueState & OfflineQueueActions => {
     retryAllFailed,
     triggerSync,
     clearError,
-    getOfflineStats
+    getOfflineStats,
   };
 };

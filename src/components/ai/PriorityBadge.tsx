@@ -8,7 +8,7 @@ interface PriorityBadgeProps {
 
 export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   priority,
-  size = 'medium'
+  size = 'medium',
 }) => {
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
@@ -61,15 +61,14 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   };
 
   return (
-    <View style={[
-      styles.badge,
-      { backgroundColor: getPriorityColor(priority) },
-      getSizeStyles()
-    ]}>
-      <Text style={[
-        styles.text,
-        { fontSize: getTextSize() }
-      ]}>
+    <View
+      style={[
+        styles.badge,
+        { backgroundColor: getPriorityColor(priority) },
+        getSizeStyles(),
+      ]}
+    >
+      <Text style={[styles.text, { fontSize: getTextSize() }]}>
         {priority.toUpperCase()}
       </Text>
     </View>
@@ -82,8 +81,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    fontWeight: '600',
     color: '#FFFFFF',
+    fontWeight: '600',
     textTransform: 'uppercase',
   },
 });

@@ -130,7 +130,7 @@ export const subscribeToMessages = async (
   threadId: string,
   callback: (messages: Message[]) => void,
   limitCount: number = 50
-): Promise<(() => void)> => {
+): Promise<() => void> => {
   const db = await getDb();
   const col = collection(db, `threads/${threadId}/messages`);
   const q = query(col, orderBy('createdAt', 'desc'), limit(limitCount));
@@ -179,7 +179,7 @@ export const subscribeToMessages = async (
 export const subscribeToThread = async (
   threadId: string,
   callback: (thread: Thread | null) => void
-): Promise<(() => void)> => {
+): Promise<() => void> => {
   const db = await getDb();
   const threadRef = doc(db, 'threads', threadId);
 

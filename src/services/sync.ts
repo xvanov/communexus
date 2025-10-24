@@ -1,5 +1,10 @@
 // sync.ts - Data synchronization with conflict resolution
-import { offlineService, OfflineMessage, OfflineThread, OfflineUser } from './offline';
+import {
+  offlineService,
+  OfflineMessage,
+  OfflineThread,
+  OfflineUser,
+} from './offline';
 import { Message, Thread, User } from '../types';
 
 export interface SyncResult {
@@ -41,7 +46,7 @@ class SyncService {
         syncedThreads: 0,
         syncedUsers: 0,
         conflictsResolved: 0,
-        errors: ['Sync already in progress']
+        errors: ['Sync already in progress'],
       };
     }
 
@@ -54,7 +59,7 @@ class SyncService {
       syncedThreads: 0,
       syncedUsers: 0,
       conflictsResolved: 0,
-      errors: []
+      errors: [],
     };
 
     try {
@@ -82,11 +87,12 @@ class SyncService {
 
       result.success = result.errors.length === 0;
       console.log('Sync completed:', result);
-
     } catch (error) {
       console.error('Sync failed:', error);
       result.success = false;
-      result.errors.push(error instanceof Error ? error.message : 'Unknown sync error');
+      result.errors.push(
+        error instanceof Error ? error.message : 'Unknown sync error'
+      );
     } finally {
       this.syncInProgress = false;
     }
@@ -133,7 +139,7 @@ class SyncService {
         threadId: message.threadId,
         senderId: message.senderId,
         text: message.text,
-        timestamp: message.timestamp
+        timestamp: message.timestamp,
       });
 
       return response.success;
@@ -178,7 +184,7 @@ class SyncService {
         name: thread.name,
         participants: thread.participants,
         lastMessage: thread.lastMessage,
-        unreadCount: thread.unreadCount
+        unreadCount: thread.unreadCount,
       });
 
       return response.success;
@@ -224,7 +230,7 @@ class SyncService {
         displayName: user.displayName,
         photoUrl: user.photoUrl,
         isOnline: user.isOnline,
-        lastSeenAt: user.lastSeenAt
+        lastSeenAt: user.lastSeenAt,
       });
 
       return response.success;
@@ -235,7 +241,10 @@ class SyncService {
   }
 
   // Conflict resolution
-  private async resolveConflicts(): Promise<{ resolved: number; errors: string[] }> {
+  private async resolveConflicts(): Promise<{
+    resolved: number;
+    errors: string[];
+  }> {
     const errors: string[] = [];
     let resolved = 0;
 
@@ -258,7 +267,9 @@ class SyncService {
             );
           }
         } catch (error) {
-          errors.push(`Error resolving conflict ${conflict.entityId}: ${error}`);
+          errors.push(
+            `Error resolving conflict ${conflict.entityId}: ${error}`
+          );
         }
       }
     } catch (error) {
@@ -270,7 +281,7 @@ class SyncService {
 
   private async getConflicts(): Promise<ConflictResolution[]> {
     // Simulate getting conflicts from server
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         resolve([
           {
@@ -279,34 +290,36 @@ class SyncService {
             localData: { text: 'Local version' },
             remoteData: { text: 'Remote version' },
             resolution: 'merge',
-            resolvedAt: new Date()
-          }
+            resolvedAt: new Date(),
+          },
         ]);
       }, 100);
     });
   }
 
-  private async resolveConflict(conflict: ConflictResolution): Promise<ConflictResolution | null> {
+  private async resolveConflict(
+    conflict: ConflictResolution
+  ): Promise<ConflictResolution | null> {
     // Simple conflict resolution strategy
     // In production, this would be more sophisticated
-    
+
     if (conflict.entityType === 'message') {
       // For messages, prefer remote version (server is authoritative)
       return {
         ...conflict,
-        resolution: 'remote'
+        resolution: 'remote',
       };
     } else if (conflict.entityType === 'thread') {
       // For threads, merge the data
       return {
         ...conflict,
-        resolution: 'merge'
+        resolution: 'merge',
       };
     } else if (conflict.entityType === 'user') {
       // For users, prefer local version (user preferences)
       return {
         ...conflict,
-        resolution: 'local'
+        resolution: 'local',
       };
     }
 
@@ -314,16 +327,22 @@ class SyncService {
   }
 
   // API communication
-  private async callAPI(method: string, endpoint: string, data?: any): Promise<any> {
+  private async callAPI(
+    method: string,
+    endpoint: string,
+    data?: any
+  ): Promise<any> {
     // Simulate API call with retry logic
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
-        
+        await new Promise(resolve =>
+          setTimeout(resolve, 100 + Math.random() * 200)
+        );
+
         // Simulate success/failure (90% success rate)
         const success = Math.random() > 0.1;
-        
+
         if (success) {
           return { success: true, data };
         } else {
@@ -333,7 +352,7 @@ class SyncService {
         if (attempt === this.maxRetries) {
           throw error;
         }
-        
+
         // Exponential backoff
         const delay = this.retryDelay * Math.pow(2, attempt - 1);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -367,39 +386,45 @@ class SyncService {
     return {
       inProgress: this.syncInProgress,
       lastSyncTime: this.lastSyncTime > 0 ? new Date(this.lastSyncTime) : null,
-      nextSyncTime: new Date(this.lastSyncTime + this.syncInterval)
+      nextSyncTime: new Date(this.lastSyncTime + this.syncInterval),
     };
   }
 
   // Force sync specific entity
-  async syncEntity(entityType: 'message' | 'thread' | 'user', entityId: string): Promise<boolean> {
+  async syncEntity(
+    entityType: 'message' | 'thread' | 'user',
+    entityId: string
+  ): Promise<boolean> {
     try {
       switch (entityType) {
-        case 'message':
+        case 'message': {
           const messages = await offlineService.getPendingMessages();
           const message = messages.find(m => m.messageId === entityId);
           if (message) {
             return await this.syncMessage(message);
           }
           break;
-        
-        case 'thread':
+        }
+
+        case 'thread': {
           const threads = await offlineService.getThreads();
           const thread = threads.find(t => t.id === entityId);
           if (thread) {
             return await this.syncThread(thread);
           }
           break;
-        
-        case 'user':
+        }
+
+        case 'user': {
           const users = await offlineService.getUsers();
           const user = users.find(u => u.id === entityId);
           if (user) {
             return await this.syncUser(user);
           }
           break;
+        }
       }
-      
+
       return false;
     } catch (error) {
       console.error(`Error syncing ${entityType} ${entityId}:`, error);
@@ -434,7 +459,7 @@ class SyncService {
     return {
       ...offlineStats,
       lastSyncTime: syncStatus.lastSyncTime,
-      nextSyncTime: syncStatus.nextSyncTime
+      nextSyncTime: syncStatus.nextSyncTime,
     };
   }
 }

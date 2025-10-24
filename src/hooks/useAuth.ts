@@ -14,9 +14,9 @@ export const useAuth = () => {
       try {
         // Initialize Firebase first - this ensures all services are ready
         await initializeFirebase();
-        
+
         const { auth } = await initializeFirebase();
-        
+
         unsubscribe = onAuthStateChanged(auth, firebaseUser => {
           console.log(
             'Auth state changed:',

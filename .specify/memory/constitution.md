@@ -3,40 +3,66 @@
 <!--
 SYNC IMPACT REPORT - Constitution Amendment
 
-Version Change: 1.0.0 → 1.1.0
-Amendment Date: 2025-10-23
+Version Change: 1.1.0 → 1.2.0
+Amendment Date: 2025-10-24
 Ratification Date: 2025-10-23
 
 MODIFIED PRINCIPLES:
-- None
+- IX. CI/CD Discipline - Updated to clarify that AI agents don't run emulators/test programs; human developers do
 
 ADDED PRINCIPLES:
-- VIII. CI/CD Discipline - New principle requiring local pipeline validation before commits
+- I. Security & Secrets Management - New principle establishing strict boundaries for AI agents regarding secrets and credentials
+- X. Human-AI Collaboration Boundaries - New principle clarifying division of responsibilities between AI agents and human developers
 
 REMOVED PRINCIPLES:
 - None
 
+RENUMBERED PRINCIPLES:
+- Former Principle I (Memory Bank Management) → Principle II
+- Former Principle II (Test-Driven Development) → Principle III
+- Former Principle III (Critical Test Focus) → Principle IV
+- Former Principle IV (Simple Implementation Philosophy) → Principle V
+- Former Principle V (Atomic Development Workflow) → Principle VI
+- Former Principle VI (Resource Constraints Reality) → Principle VII
+- Former Principle VII (Cross-Platform Consistency) → Principle VIII
+- Former Principle VIII (CI/CD Discipline) → Principle IX (with modifications)
+
 TEMPLATE UPDATES REQUIRED:
-- ✅ plan-template.md - Constitution Check section aligns with CI/CD requirements
-- ✅ spec-template.md - No changes needed (scope-level, CI/CD is implementation detail)
-- ✅ tasks-template.md - Already includes validation tasks in Polish phase
-- ✅ CI-CD-Pipeline.md - Already documents pre-commit checks (lines 82-97)
+- ✅ plan-template.md - Constitution Check section aligned with new principles
+- ✅ spec-template.md - No changes needed (specification remains technology-agnostic)
+- ✅ tasks-template.md - Task phases already structured to support human-AI collaboration
+- ⚠ All command templates - Should reference new security principle when dealing with credentials
 
 FOLLOW-UP ITEMS:
-- None - all placeholders resolved
+- Document in project memory-bank which files contain secrets (e.g., .env files, credential configs)
+- Update .gitignore to ensure all secret files are properly ignored
+- Review all command templates in .specify/templates/commands/ to ensure they reference new security principle
 
 BUMP RATIONALE:
-MINOR version bump (1.0.0 → 1.1.0) because this adds a new principle section
-with new governance requirements without breaking existing principles.
+MINOR version bump (1.1.0 → 1.2.0) because this adds new principle sections that expand
+governance guidance without breaking existing principles. While it modifies Principle IX,
+the modification is a clarification/expansion rather than a breaking redefinition.
 -->
 
-**Version**: 1.1.0  
+**Version**: 1.2.0  
 **Ratified**: 2025-10-23  
-**Last Amended**: 2025-10-23
+**Last Amended**: 2025-10-24
 
 ## Core Principles
 
-### I. Memory Bank Management
+### I. Security & Secrets Management
+
+AI agents have NO ACCESS to secrets, credentials, API keys, or environment configuration files. AI agents MUST NOT attempt to read, write, copy, or manipulate any files containing sensitive information including but not limited to `.env` files, credential configuration files, API key storage, or secret management systems. All secret management, credential configuration, and sensitive file operations are the exclusive responsibility of human developers.
+
+- **No Secret Access**: AI agents MUST NOT read, write, or access any files containing secrets, credentials, or API keys
+- **Environment Files**: AI agents MUST NOT open or manipulate `.env`, `.env.local`, `.env.production` or similar environment configuration files
+- **Credential Management**: All API key configuration, credential storage, and secret management is handled exclusively by humans
+- **Code References Only**: AI agents may reference the existence of environment variables in code (e.g., `process.env.API_KEY`) but MUST NOT access the actual values
+- **Security by Design**: When designing features requiring secrets, AI agents MUST document where secrets should be stored and how humans should configure them, without accessing the secrets themselves
+
+**Rationale**: Maintaining strict boundaries around secrets prevents accidental exposure, ensures security best practices, and establishes clear responsibility for sensitive information management. AI agents operate on code structure and logic; humans manage the sensitive data that powers that code.
+
+### II. Memory Bank Management
 
 Every developer MUST read the memory bank (/memory-bank at repo root) before starting any work and MUST update it upon completion. The memory bank contains critical project context, decisions, patterns, and learnings that ensure continuity and prevent knowledge loss. No work begins without understanding the current project state, and no work is complete without documenting changes and insights.
 
@@ -45,11 +71,11 @@ Every developer MUST read the memory bank (/memory-bank at repo root) before sta
 - **Context Preservation**: All significant decisions, patterns, and learnings MUST be documented
 - **Knowledge Continuity**: Memory bank serves as the single source of truth for project evolution
 
-### II. Test-Driven Development
+### III. Test-Driven Development
 
 Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST be written BEFORE implementation code and MUST be quick to implement and simple to understand. Focus on critical tests that provide valuable feedback - tests that catch real user-impacting issues like authentication failures, API errors, or broken user flows. Avoid over-testing trivial operations like mathematical calculations. Tests serve as living documentation and specification.
 
-### III. Critical Test Focus
+### IV. Critical Test Focus
 
 - **End-to-End UI Tests**: High-level user journeys MUST be tested using simulators/emulators - these are the MOST critical tests
 - **Authentication & API Tests**: Login failures, Firebase errors, and API integration failures MUST be tested
@@ -58,7 +84,7 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 - **Backend Critical Tests**: Non-visible critical code (data processing, business logic) MUST be tested
 - **KISS Testing**: Keep tests simple and focused - avoid complex test setups and over-engineering
 
-### IV. Simple Implementation Philosophy
+### V. Simple Implementation Philosophy
 
 - **KISS Principle**: Keep implementations as simple as possible while meeting requirements
 - **Avoid Over-Engineering**: Resist the urge to add complexity "just in case"
@@ -66,7 +92,7 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 - **Minimal Dependencies**: Only add dependencies when absolutely necessary
 - **Progressive Enhancement**: Start simple, add complexity only when needed
 
-### V. Atomic Development Workflow
+### VI. Atomic Development Workflow
 
 - **Small PRs**: Each PR MUST address a single, atomic change
 - **Parallel Development**: Work MUST be structured to enable parallel development streams
@@ -74,7 +100,7 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 - **Incremental Delivery**: Deliver value in small, frequent increments
 - **Rollback Safety**: Each change MUST be easily reversible
 
-### VI. Resource Constraints Reality
+### VII. Resource Constraints Reality
 
 - **Finite Time & Compute**: All development operates under finite time and compute constraints
 - **Fast Test Feedback**: Tests MUST provide feedback in seconds, not minutes - unit tests under 10 seconds, integration tests under 30 seconds
@@ -82,25 +108,40 @@ Every feature MUST be developed using Test-Driven Development (TDD). Tests MUST 
 - **Test Framework Flexibility**: If tests are consistently flaky or complex, MUST switch to simpler testing approach/framework
 - **Resource Efficiency**: Choose testing tools and approaches that maximize feedback speed per development hour invested
 
-### VII. Cross-Platform Consistency
+### VIII. Cross-Platform Consistency
 
 - **Unified UX**: User experience MUST be consistent across all platforms
 - **Platform-Specific Optimization**: Leverage platform strengths while maintaining consistency
 - **Responsive Design**: UI MUST adapt gracefully to different screen sizes and orientations
 - **Accessibility**: All features MUST meet accessibility standards on all platforms
 
-### VIII. CI/CD Discipline
+### IX. CI/CD Discipline
 
-Every project MUST have CI/CD pipelines configured from the start. Before ANY code is committed to version control, developers MUST run all CI/CD pipeline steps locally and ensure they pass. Only after local validation succeeds should code be committed and pushed to trigger remote CI/CD pipelines. This principle prevents broken commits, reduces CI/CD failures, and maintains a clean main branch.
+Every project MUST have CI/CD pipelines configured from the start. Human developers are responsible for running emulators. AI agents assist by writing test code and implementation logic, but MUST NOT execute emulators, start test runners, or run interactive programs, but they MUST ask the user to start them. Before ANY code is committed to version control, the AI agent MUST run all CI/CD pipeline steps locally and ensure they pass, if emulators are necessary they MUST ask the human to start the emulators before. This principle prevents broken commits, reduces CI/CD failures, and maintains a clean main branch.
 
 - **Pipeline Setup Required**: CI/CD pipelines (linting, formatting, type checking, tests, builds) MUST be configured at project initialization
-- **Local Validation First**: ALL CI/CD checks MUST pass locally before committing code
-- **Pre-Commit Workflow**: The required workflow is: run local checks → verify all pass → commit → push → remote CI/CD validation
+- **Human Execution**: Human developers run emulators, test programs, and validation tools - AI agents write the code and run automated tests, and ask humans to start any needed infra.
+- **AI Writes, Human Runs**: AI agents write test files and implementation code; humans execute test runners and emulators to validate
+- **Local Validation First**: ALL CI/CD checks MUST pass locally (run by human) before committing code
+- **Pre-Commit Workflow**: The required workflow is: AI writes code → Human runs local checks → Human verifies all pass → Human commits → Human pushes → Remote CI/CD validation
 - **No Broken Commits**: Code that fails any CI/CD check MUST NOT be committed to version control
 - **Fast Local Feedback**: Local CI/CD validation MUST complete in reasonable time (< 1 minutes for quick checks, < 2 minutes for full suite)
 - **CI/CD Documentation**: Project MUST document all CI/CD steps and how to run them locally (see docs/CI-CD-Pipeline.md)
 
-**Rationale**: Running CI/CD checks locally before committing prevents wasted time on remote pipeline failures, keeps the commit history clean, enables faster feedback loops, and ensures the team can work efficiently without breaking the build for others. This is especially critical in team environments where broken commits block other developers.
+**Rationale**: Running CI/CD checks locally before committing prevents wasted time on remote pipeline failures, keeps the commit history clean, enables faster feedback loops, and ensures the team can work efficiently without breaking the build for others. The human-AI division ensures AI agents focus on code generation while humans handle execution environments, emulators, and interactive programs.
+
+### X. Human-AI Collaboration Boundaries
+
+Clear boundaries between AI agent capabilities and human responsibilities ensure efficient collaboration and prevent AI agents from attempting operations outside their scope. AI agents excel at code generation, analysis, and documentation; humans handle execution environments, secret management, and interactive tools.
+
+- **AI Agent Responsibilities**: Write code, analyze codebases, generate tests, create documentation, suggest refactorings, identify patterns
+- **AI Agent Restrictions**: MUST NOT run emulators, start test programs, execute interactive tools, access secrets, or manage credentials
+- **Human Developer Responsibilities**: Run emulators and simulators, execute test suites, manage secrets and credentials, validate builds, commit code
+- **Collaboration Model**: AI agents propose changes and write code; humans execute, validate, and deploy
+- **Command Execution**: AI agents may run non-interactive commands (linting, formatting checks, static analysis) but MUST NOT run interactive programs or long-running processes like emulators
+- **Test Execution**: AI agents write test files; humans run test suites using appropriate tools (Jest, pytest, XCTest, etc.)
+
+**Rationale**: This division maximizes efficiency by leveraging AI agents for rapid code generation while relying on human developers for execution environments that require system resources, user interaction, or access to sensitive credentials. It prevents AI agents from getting stuck waiting for interactive prompts or trying to access restricted resources.
 
 ## Technical Standards
 
@@ -215,5 +256,6 @@ This constitution applies to all cross-platform mobile development projects with
 
 ### Version History
 
+- **1.2.0** (2025-10-24): Added Principles I (Security & Secrets Management) and X (Human-AI Collaboration Boundaries); renumbered existing principles II-IX; updated Principle IX (CI/CD Discipline) to clarify human-AI execution boundaries
 - **1.1.0** (2025-10-23): Added Principle VIII (CI/CD Discipline) - local validation before commits
 - **1.0.0** (2025-10-23): Initial ratification - Core principles I-VII established

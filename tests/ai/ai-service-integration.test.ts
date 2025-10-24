@@ -1,5 +1,5 @@
 import { AIService } from '../../functions/src/aiService';
-import { 
+import {
   mockOpenAIResponses,
   generateMockMessages,
   generateMockThread,
@@ -10,7 +10,7 @@ import {
   validateActionItem,
   validateSearchResult,
   validateProactiveSuggestion,
-  testConfig
+  testConfig,
 } from './testUtils';
 
 // Mock the AI service dependencies
@@ -18,38 +18,42 @@ jest.mock('../../functions/src/aiConfig', () => ({
   openai: {
     chat: {
       completions: {
-        create: jest.fn()
-      }
-    }
+        create: jest.fn(),
+      },
+    },
   },
   chatModel: {
-    invoke: jest.fn()
+    invoke: jest.fn(),
   },
   getAIConfig: () => ({
     openai: {
       apiKey: 'test-key',
       model: 'gpt-4',
       temperature: 0.7,
-      maxTokens: 1000
+      maxTokens: 1000,
     },
     features: {
       threadSummary: { enabled: true, maxMessages: 50, responseTime: 2000 },
-      actionExtraction: { enabled: true, minConfidence: 0.8, responseTime: 1500 },
+      actionExtraction: {
+        enabled: true,
+        minConfidence: 0.8,
+        responseTime: 1500,
+      },
       priorityDetection: { enabled: true, responseTime: 1000 },
       smartSearch: { enabled: true, maxResults: 10, responseTime: 2000 },
       decisionTracking: { enabled: true, responseTime: 1000 },
-      proactiveAgent: { enabled: true, responseTime: 3000 }
+      proactiveAgent: { enabled: true, responseTime: 3000 },
     },
     performance: {
       enableCaching: true,
       cacheExpiry: 3600,
-      rateLimitPerMinute: 60
-    }
+      rateLimitPerMinute: 60,
+    },
   }),
   validateAIConfig: () => [],
   checkRateLimit: () => true,
   getCachedResult: () => null,
-  setCachedResult: () => {}
+  setCachedResult: () => {},
 }));
 
 describe('AIService Integration Tests', () => {
@@ -68,11 +72,13 @@ describe('AIService Integration Tests', () => {
       // Mock OpenAI response
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: JSON.stringify(mockOpenAIResponses.threadSummary)
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: JSON.stringify(mockOpenAIResponses.threadSummary),
+            },
+          },
+        ],
       });
 
       const { result: summary, duration } = await measurePerformance(
@@ -82,15 +88,19 @@ describe('AIService Integration Tests', () => {
 
       expect(summary).toBeDefined();
       validateThreadSummary(summary!);
-      expectPerformanceWithinLimit(duration, testConfig.performance.threadSummary, 'Thread Summary');
-      
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.threadSummary,
+        'Thread Summary'
+      );
+
       expect(mockOpenAI.chat.completions.create).toHaveBeenCalledWith(
         expect.objectContaining({
           model: 'gpt-4',
           messages: expect.arrayContaining([
             expect.objectContaining({ role: 'system' }),
-            expect.objectContaining({ role: 'user' })
-          ])
+            expect.objectContaining({ role: 'user' }),
+          ]),
         })
       );
     });
@@ -106,18 +116,22 @@ describe('AIService Integration Tests', () => {
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: JSON.stringify(mockOpenAIResponses.threadSummary)
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: JSON.stringify(mockOpenAIResponses.threadSummary),
+            },
+          },
+        ],
       });
 
       await aiService.generateThreadSummary(threadId, messages);
 
       // Verify that only the last 50 messages were processed
       const callArgs = mockOpenAI.chat.completions.create.mock.calls[0][0];
-      const userMessage = callArgs.messages.find((msg: any) => msg.role === 'user');
+      const userMessage = callArgs.messages.find(
+        (msg: any) => msg.role === 'user'
+      );
       expect(userMessage.content).toContain('50.'); // Last message should be #50
     });
   });
@@ -129,11 +143,13 @@ describe('AIService Integration Tests', () => {
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: JSON.stringify(mockOpenAIResponses.actionItems)
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: JSON.stringify(mockOpenAIResponses.actionItems),
+            },
+          },
+        ],
       });
 
       const { result: actionItems, duration } = await measurePerformance(
@@ -143,27 +159,36 @@ describe('AIService Integration Tests', () => {
 
       expect(Array.isArray(actionItems)).toBe(true);
       expect(actionItems.length).toBeGreaterThan(0);
-      
+
       actionItems.forEach(validateActionItem);
-      expectPerformanceWithinLimit(duration, testConfig.performance.actionExtraction, 'Action Extraction');
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.actionExtraction,
+        'Action Extraction'
+      );
     });
 
     it('should handle messages with no action items', async () => {
       const messages = [
         { id: '1', text: 'Hello there', timestamp: new Date() },
-        { id: '2', text: 'How are you?', timestamp: new Date() }
+        { id: '2', text: 'How are you?', timestamp: new Date() },
       ];
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: '[]' // Empty array
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: '[]', // Empty array
+            },
+          },
+        ],
       });
 
-      const actionItems = await aiService.extractActionItems('no-actions-thread', messages);
+      const actionItems = await aiService.extractActionItems(
+        'no-actions-thread',
+        messages
+      );
       expect(Array.isArray(actionItems)).toBe(true);
       expect(actionItems.length).toBe(0);
     });
@@ -174,16 +199,18 @@ describe('AIService Integration Tests', () => {
       const message = {
         id: 'urgent-msg',
         text: 'URGENT: Server is down, need immediate attention!',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: 'high'
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: 'high',
+            },
+          },
+        ],
       });
 
       const { result: priority, duration } = await measurePerformance(
@@ -192,23 +219,29 @@ describe('AIService Integration Tests', () => {
       );
 
       expect(priority).toBe('high');
-      expectPerformanceWithinLimit(duration, testConfig.performance.priorityDetection, 'Priority Detection');
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.priorityDetection,
+        'Priority Detection'
+      );
     });
 
     it('should detect low priority messages', async () => {
       const message = {
         id: 'casual-msg',
         text: 'Just wanted to say hello',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: 'low'
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: 'low',
+            },
+          },
+        ],
       });
 
       const priority = await aiService.detectPriority(message.id, message);
@@ -223,11 +256,13 @@ describe('AIService Integration Tests', () => {
 
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{
-          message: {
-            content: JSON.stringify(mockOpenAIResponses.searchResults)
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: JSON.stringify(mockOpenAIResponses.searchResults),
+            },
+          },
+        ],
       });
 
       const { result: results, duration } = await measurePerformance(
@@ -237,9 +272,13 @@ describe('AIService Integration Tests', () => {
 
       expect(Array.isArray(results)).toBe(true);
       expect(results.length).toBeGreaterThan(0);
-      
+
       results.forEach(validateSearchResult);
-      expectPerformanceWithinLimit(duration, testConfig.performance.smartSearch, 'Smart Search');
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.smartSearch,
+        'Smart Search'
+      );
     });
 
     it('should handle empty search query', async () => {
@@ -259,7 +298,7 @@ describe('AIService Integration Tests', () => {
         decidedAt: new Date(),
         decidedBy: 'John Doe',
         context: 'Budget discussion',
-        impact: 'Allows additional features'
+        impact: 'Allows additional features',
       };
 
       const { result: trackedDecision, duration } = await measurePerformance(
@@ -270,7 +309,11 @@ describe('AIService Integration Tests', () => {
       expect(trackedDecision).toBeDefined();
       expect(trackedDecision!.id).toBe(decision.id);
       expect(trackedDecision!.title).toBe(decision.title);
-      expectPerformanceWithinLimit(duration, testConfig.performance.decisionTracking, 'Decision Tracking');
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.decisionTracking,
+        'Decision Tracking'
+      );
     });
   });
 
@@ -281,7 +324,7 @@ describe('AIService Integration Tests', () => {
 
       const mockChatModel = require('../../functions/src/aiConfig').chatModel;
       mockChatModel.invoke.mockResolvedValue({
-        content: JSON.stringify(mockOpenAIResponses.proactiveSuggestions)
+        content: JSON.stringify(mockOpenAIResponses.proactiveSuggestions),
       });
 
       const { result: suggestions, duration } = await measurePerformance(
@@ -291,18 +334,25 @@ describe('AIService Integration Tests', () => {
 
       expect(Array.isArray(suggestions)).toBe(true);
       expect(suggestions.length).toBeGreaterThan(0);
-      
+
       suggestions.forEach(validateProactiveSuggestion);
-      expectPerformanceWithinLimit(duration, testConfig.performance.proactiveSuggestions, 'Proactive Suggestions');
+      expectPerformanceWithinLimit(
+        duration,
+        testConfig.performance.proactiveSuggestions,
+        'Proactive Suggestions'
+      );
     });
 
     it('should handle empty context', async () => {
       const mockChatModel = require('../../functions/src/aiConfig').chatModel;
       mockChatModel.invoke.mockResolvedValue({
-        content: '[]' // Empty array
+        content: '[]', // Empty array
       });
 
-      const suggestions = await aiService.getProactiveSuggestions('empty-context', {});
+      const suggestions = await aiService.getProactiveSuggestions(
+        'empty-context',
+        {}
+      );
       expect(Array.isArray(suggestions)).toBe(true);
       expect(suggestions.length).toBe(0);
     });
@@ -311,7 +361,9 @@ describe('AIService Integration Tests', () => {
   describe('Error Handling', () => {
     it('should handle OpenAI API errors gracefully', async () => {
       const mockOpenAI = require('../../functions/src/aiConfig').openai;
-      mockOpenAI.chat.completions.create.mockRejectedValue(new Error('API Error'));
+      mockOpenAI.chat.completions.create.mockRejectedValue(
+        new Error('API Error')
+      );
 
       await expect(
         aiService.generateThreadSummary('error-thread', generateMockMessages(5))
@@ -320,11 +372,15 @@ describe('AIService Integration Tests', () => {
 
     it('should handle rate limiting', async () => {
       // Mock rate limit check to return false
-      const mockCheckRateLimit = require('../../functions/src/aiConfig').checkRateLimit;
+      const mockCheckRateLimit =
+        require('../../functions/src/aiConfig').checkRateLimit;
       mockCheckRateLimit.mockReturnValue(false);
 
       await expect(
-        aiService.generateThreadSummary('rate-limited-thread', generateMockMessages(5))
+        aiService.generateThreadSummary(
+          'rate-limited-thread',
+          generateMockMessages(5)
+        )
       ).rejects.toThrow('Rate limit exceeded');
     });
   });
@@ -336,10 +392,10 @@ describe('AIService Integration Tests', () => {
 
       // Mock fast responses
       mockOpenAI.chat.completions.create.mockResolvedValue({
-        choices: [{ message: { content: 'Fast response' } }]
+        choices: [{ message: { content: 'Fast response' } }],
       });
       mockChatModel.invoke.mockResolvedValue({
-        content: '[]'
+        content: '[]',
       });
 
       const messages = generateMockMessages(10);
@@ -349,33 +405,38 @@ describe('AIService Integration Tests', () => {
       const tests = [
         {
           name: 'Thread Summary',
-          operation: () => aiService.generateThreadSummary('perf-test', messages),
-          limit: testConfig.performance.threadSummary
+          operation: () =>
+            aiService.generateThreadSummary('perf-test', messages),
+          limit: testConfig.performance.threadSummary,
         },
         {
           name: 'Action Extraction',
           operation: () => aiService.extractActionItems('perf-test', messages),
-          limit: testConfig.performance.actionExtraction
+          limit: testConfig.performance.actionExtraction,
         },
         {
           name: 'Priority Detection',
           operation: () => aiService.detectPriority('perf-test', messages[0]),
-          limit: testConfig.performance.priorityDetection
+          limit: testConfig.performance.priorityDetection,
         },
         {
           name: 'Smart Search',
           operation: () => aiService.smartSearch('test query', 'perf-test'),
-          limit: testConfig.performance.smartSearch
+          limit: testConfig.performance.smartSearch,
         },
         {
           name: 'Proactive Suggestions',
-          operation: () => aiService.getProactiveSuggestions('perf-test', context),
-          limit: testConfig.performance.proactiveSuggestions
-        }
+          operation: () =>
+            aiService.getProactiveSuggestions('perf-test', context),
+          limit: testConfig.performance.proactiveSuggestions,
+        },
       ];
 
       for (const test of tests) {
-        const { duration } = await measurePerformance(test.operation, test.name);
+        const { duration } = await measurePerformance(
+          test.operation,
+          test.name
+        );
         expectPerformanceWithinLimit(duration, test.limit, test.name);
       }
     });

@@ -9,9 +9,10 @@ interface OfflineIndicatorProps {
 
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   position = 'top',
-  showDetails = false
+  showDetails = false,
 }) => {
-  const { isOnline, pendingMessages, failedMessages, isSyncing } = useOfflineQueue();
+  const { isOnline, pendingMessages, failedMessages, isSyncing } =
+    useOfflineQueue();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -34,24 +35,26 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   const getStatusText = () => {
     if (isSyncing) return 'Syncing...';
-    if (failedMessages.length > 0) return `Offline - ${failedMessages.length} failed${getMessageCount()}`;
-    if (pendingMessages.length > 0) return `Offline - ${pendingMessages.length} pending${getMessageCount()}`;
+    if (failedMessages.length > 0)
+      return `Offline - ${failedMessages.length} failed${getMessageCount()}`;
+    if (pendingMessages.length > 0)
+      return `Offline - ${pendingMessages.length} pending${getMessageCount()}`;
     return 'Offline';
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         position === 'top' ? styles.topPosition : styles.bottomPosition,
-        { opacity: fadeAnim }
+        { opacity: fadeAnim },
       ]}
     >
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <Text style={styles.icon}>📡</Text>
         </View>
-        
+
         <View style={styles.textContainer}>
           <Text style={styles.statusText}>{getStatusText()}</Text>
           {showDetails && (
@@ -66,44 +69,44 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    backgroundColor: '#FF9500',
-    zIndex: 1000,
-  },
-  topPosition: {
-    top: 0,
-  },
   bottomPosition: {
     bottom: 0,
   },
+  container: {
+    backgroundColor: '#FF9500',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    zIndex: 1000,
+  },
   content: {
-    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FF9500',
+    flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#FF9500',
   },
-  iconContainer: {
-    marginRight: 8,
+  detailsText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 2,
+    opacity: 0.9,
   },
   icon: {
     fontSize: 16,
   },
+  iconContainer: {
+    marginRight: 8,
+  },
+  statusText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   textContainer: {
     flex: 1,
   },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  detailsText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    opacity: 0.9,
-    marginTop: 2,
+  topPosition: {
+    top: 0,
   },
 });

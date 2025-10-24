@@ -73,7 +73,7 @@ export const getUserContacts = async (userId: string): Promise<Contact[]> => {
 export const subscribeToContacts = async (
   userId: string,
   callback: (contacts: Contact[]) => void
-): Promise<(() => void)> => {
+): Promise<() => void> => {
   const db = await getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 

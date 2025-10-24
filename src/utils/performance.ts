@@ -49,7 +49,7 @@ class PerformanceMonitor {
   // Start timing an operation
   startTiming(operation: string): void {
     if (!this.config.enableMonitoring) return;
-    
+
     this.startTimes.set(operation, Date.now());
   }
 
@@ -60,7 +60,7 @@ class PerformanceMonitor {
     const startTime = this.startTimes.get(operation);
     if (!startTime) return 0;
 
-    const duration = value || (Date.now() - startTime);
+    const duration = value || Date.now() - startTime;
     this.startTimes.delete(operation);
 
     // Only record if we're within sample rate
@@ -76,7 +76,7 @@ class PerformanceMonitor {
     if (!this.config.enableMonitoring) return;
 
     const metric: Partial<PerformanceMetrics> = {};
-    
+
     switch (operation) {
       case 'appLaunch':
         metric.appLaunchTime = value;
@@ -138,10 +138,10 @@ class PerformanceMonitor {
       'batteryUsage',
     ];
 
-    keys.forEach((key) => {
+    keys.forEach(key => {
       const values = this.metrics
-        .map((m) => m[key])
-        .filter((v) => v !== undefined) as number[];
+        .map(m => m[key])
+        .filter(v => v !== undefined) as number[];
 
       if (values.length > 0) {
         stats.average[key] = values.reduce((a, b) => a + b, 0) / values.length;
@@ -149,9 +149,12 @@ class PerformanceMonitor {
         stats.min[key] = Math.min(...values);
 
         // Check for threshold violations
-        const threshold = this.config.thresholds[key as keyof typeof this.config.thresholds];
+        const threshold =
+          this.config.thresholds[key as keyof typeof this.config.thresholds];
         if (threshold && stats.average[key]! > threshold) {
-          stats.violations.push(`${key} average (${stats.average[key]}) exceeds threshold (${threshold})`);
+          stats.violations.push(
+            `${key} average (${stats.average[key]}) exceeds threshold (${threshold})`
+          );
         }
       }
     });
@@ -177,7 +180,7 @@ class PerformanceMonitor {
 
     if (stats.violations.length > 0) {
       report += `Violations:\n`;
-      stats.violations.forEach((violation) => {
+      stats.violations.forEach(violation => {
         report += `  ❌ ${violation}\n`;
       });
       report += `\n`;
@@ -186,7 +189,8 @@ class PerformanceMonitor {
     report += `Metrics:\n`;
     Object.entries(stats.average).forEach(([key, value]) => {
       if (value !== undefined) {
-        const threshold = this.config.thresholds[key as keyof typeof this.config.thresholds];
+        const threshold =
+          this.config.thresholds[key as keyof typeof this.config.thresholds];
         const status = threshold && value > threshold ? '❌' : '✅';
         report += `  ${status} ${key}: ${value.toFixed(2)} (threshold: ${threshold})\n`;
       }
@@ -278,23 +282,23 @@ export const memoize = <T extends (...args: any[]) => any>(
   keyGenerator?: (...args: Parameters<T>) => string
 ): T => {
   const cache = new Map<string, ReturnType<T>>();
-  
+
   return ((...args: Parameters<T>) => {
     const key = keyGenerator ? keyGenerator(...args) : JSON.stringify(args);
-    
+
     if (cache.has(key)) {
       return cache.get(key);
     }
-    
+
     const result = func(...args);
     cache.set(key, result);
-    
+
     // Limit cache size
     if (cache.size > 100) {
       const firstKey = cache.keys().next().value;
       cache.delete(firstKey);
     }
-    
+
     return result;
   }) as T;
 };

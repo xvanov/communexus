@@ -2,7 +2,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { aiService } from './aiService';
 
-export const aiActionExtraction = onCall(async (request) => {
+export const aiActionExtraction = onCall(async request => {
   try {
     const { threadId, messages } = request.data;
 

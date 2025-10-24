@@ -31,14 +31,15 @@ export default function ContactPicker({
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    contact.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredContacts = contacts.filter(
+    contact =>
+      contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      contact.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectContact = (contact: Contact) => {
     const isSelected = selectedContacts.some(c => c.id === contact.id);
-    
+
     if (isSelected) {
       onDeselectContact(contact);
     } else {
@@ -339,4 +340,3 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
-

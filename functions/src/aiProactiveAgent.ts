@@ -2,7 +2,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { aiService } from './aiService';
 
-export const aiProactiveAgent = onCall(async (request) => {
+export const aiProactiveAgent = onCall(async request => {
   try {
     const { threadId, context } = request.data;
 
@@ -14,7 +14,10 @@ export const aiProactiveAgent = onCall(async (request) => {
       throw new Error('Context data is required');
     }
 
-    const suggestions = await aiService.getProactiveSuggestions(threadId, context);
+    const suggestions = await aiService.getProactiveSuggestions(
+      threadId,
+      context
+    );
 
     return {
       success: true,

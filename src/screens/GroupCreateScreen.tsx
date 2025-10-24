@@ -271,12 +271,12 @@ export default function GroupCreateScreen({ navigation }: any) {
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>How it works:</Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.bold}>Group Chat:</Text> Select multiple contacts
-            and create a group for project discussions
+            • <Text style={styles.bold}>Group Chat:</Text> Select multiple
+            contacts and create a group for project discussions
           </Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.bold}>1-on-1 Chat:</Text> Select one contact to
-            start a private conversation
+            • <Text style={styles.bold}>1-on-1 Chat:</Text> Select one contact
+            to start a private conversation
           </Text>
           <Text style={styles.infoText}>
             • Participants will be notified when added to the conversation

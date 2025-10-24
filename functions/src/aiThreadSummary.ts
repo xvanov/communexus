@@ -2,7 +2,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { aiService } from './aiService';
 
-export const aiThreadSummary = onCall(async (request) => {
+export const aiThreadSummary = onCall(async request => {
   try {
     const { threadId, messages } = request.data;
 
@@ -15,11 +15,11 @@ export const aiThreadSummary = onCall(async (request) => {
     }
 
     const summary = await aiService.generateThreadSummary(threadId, messages);
-    
+
     if (!summary) {
-      return { 
-        success: false, 
-        error: 'Unable to generate summary for empty thread' 
+      return {
+        success: false,
+        error: 'Unable to generate summary for empty thread',
       };
     }
 

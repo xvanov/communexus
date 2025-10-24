@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
 
 interface ConnectionStatusProps {
@@ -9,7 +15,7 @@ interface ConnectionStatusProps {
 
 export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
   onRetryAll,
-  onSync
+  onSync,
 }) => {
   const {
     isOnline,
@@ -20,7 +26,7 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
     error,
     retryAllFailed,
     triggerSync,
-    clearError
+    clearError,
   } = useOfflineQueue();
 
   const handleRetryAll = async () => {
@@ -70,11 +76,22 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.statusRow}>
-        <View style={[styles.statusIndicator, { backgroundColor: getStatusColor() }]} />
-        <Text style={styles.statusText}>{getStatusIcon()} {getStatusText()}</Text>
-        
+        <View
+          style={[
+            styles.statusIndicator,
+            { backgroundColor: getStatusColor() },
+          ]}
+        />
+        <Text style={styles.statusText}>
+          {getStatusIcon()} {getStatusText()}
+        </Text>
+
         {isSyncing && (
-          <ActivityIndicator size="small" color="#007AFF" style={styles.spinner} />
+          <ActivityIndicator
+            size="small"
+            color="#007AFF"
+            style={styles.spinner}
+          />
         )}
       </View>
 
@@ -100,18 +117,18 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
       {(failedMessages.length > 0 || !isOnline) && (
         <View style={styles.actionsRow}>
           {failedMessages.length > 0 && (
-            <TouchableOpacity 
-              onPress={handleRetryAll} 
+            <TouchableOpacity
+              onPress={handleRetryAll}
               style={[styles.actionButton, styles.retryButton]}
               disabled={isSyncing}
             >
               <Text style={styles.actionButtonText}>Retry All</Text>
             </TouchableOpacity>
           )}
-          
+
           {!isOnline && (
-            <TouchableOpacity 
-              onPress={handleSync} 
+            <TouchableOpacity
+              onPress={handleSync}
               style={[styles.actionButton, styles.syncButton]}
               disabled={isSyncing}
             >
@@ -133,89 +150,89 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
 };
 
 const styles = StyleSheet.create({
+  actionButton: {
+    alignItems: 'center',
+    borderRadius: 6,
+    minWidth: 80,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
   container: {
     backgroundColor: '#F2F2F7',
     borderRadius: 8,
-    padding: 12,
     marginHorizontal: 16,
     marginVertical: 8,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  statusIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#000000',
-    flex: 1,
-  },
-  spinner: {
-    marginLeft: 8,
+    padding: 12,
   },
   detailsRow: {
     marginBottom: 4,
   },
   detailsText: {
-    fontSize: 12,
     color: '#666666',
-    marginLeft: 16,
-  },
-  errorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  errorText: {
     fontSize: 12,
-    color: '#FF3B30',
-    flex: 1,
     marginLeft: 16,
   },
   dismissButton: {
     padding: 4,
   },
   dismissText: {
-    fontSize: 12,
     color: '#FF3B30',
+    fontSize: 12,
     fontWeight: '600',
   },
-  actionsRow: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 8,
-  },
-  actionButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    minWidth: 80,
+  errorRow: {
     alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  errorText: {
+    color: '#FF3B30',
+    flex: 1,
+    fontSize: 12,
+    marginLeft: 16,
   },
   retryButton: {
     backgroundColor: '#FF9500',
   },
+  spinner: {
+    marginLeft: 8,
+  },
+  statusIndicator: {
+    borderRadius: 4,
+    height: 8,
+    marginRight: 8,
+    width: 8,
+  },
+  statusRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  statusText: {
+    color: '#000000',
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '500',
+  },
   syncButton: {
     backgroundColor: '#007AFF',
-  },
-  actionButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
   syncInfoRow: {
     marginTop: 4,
   },
   syncInfoText: {
-    fontSize: 10,
     color: '#8E8E93',
+    fontSize: 10,
     marginLeft: 16,
   },
 });
