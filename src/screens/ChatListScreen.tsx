@@ -1,5 +1,5 @@
 // ChatListScreen.tsx - Thread list with unread counts and last message preview
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -19,10 +19,12 @@ import { Thread } from '../types/Thread';
 import { useAuth } from '../hooks/useAuth';
 import { ThreadItem } from '../components/thread/ThreadItem';
 import { initializeFirebase } from '../services/firebase';
+import { SmartSearchModal } from '../components/ai/SmartSearchModal';
 
 export default function ChatListScreen({ navigation }: any) {
   const { threads, loading, error } = useThreads();
   const { user } = useAuth();
+  const [showSearch, setShowSearch] = useState(false);
 
   // Automatically update badge count when threads change
   useUnreadCount(threads);
@@ -148,6 +150,13 @@ export default function ChatListScreen({ navigation }: any) {
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => setShowSearch(true)}
+            testID="search-button"
+          >
+            <Text style={styles.searchButtonText}>🔍</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.contactsButton}
             onPress={handleContacts}
             testID="contacts-button"
@@ -206,6 +215,19 @@ export default function ChatListScreen({ navigation }: any) {
           testID="thread-list"
         />
       )}
+
+      <SmartSearchModal
+        visible={showSearch}
+        onClose={() => setShowSearch(false)}
+        onResultPress={(result) => {
+          console.log('Search result pressed:', result);
+          // Navigate to the thread containing this message
+          const thread = threads.find(t => t.id === result.threadId);
+          if (thread) {
+            handleThreadPress(thread);
+          }
+        }}
+      />
     </View>
   );
 }
@@ -327,6 +349,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  searchButton: {
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
+  },
+  searchButtonText: {
+    fontSize: 18,
   },
   settingsButton: {
     alignItems: 'center',

@@ -19,6 +19,9 @@ import { sendMessage, createOptimisticMessage } from '../services/messaging';
 import { MessageBubble } from '../components/chat/MessageBubble';
 import { ChatInput } from '../components/chat/ChatInput';
 import { SummaryModal } from '../components/ai/SummaryModal';
+import { ActionItemModal } from '../components/ai/ActionItemModal';
+import { ProactiveSuggestions } from '../components/ai/ProactiveSuggestions';
+import { AIActionItem, ProactiveSuggestion } from '../types/AIFeatures';
 
 export default function ChatScreen({ route, navigation }: any) {
   const { threadId, thread, contact } = route.params as {
@@ -30,6 +33,11 @@ export default function ChatScreen({ route, navigation }: any) {
   const { user } = useAuth();
   const flatListRef = useRef<FlatList>(null);
   const [showAISummary, setShowAISummary] = useState(false);
+  const [showActionItems, setShowActionItems] = useState(false);
+  const [actionItems, setActionItems] = useState<AIActionItem[]>([]);
+  const [loadingActions, setLoadingActions] = useState(false);
+  const [suggestions, setSuggestions] = useState<ProactiveSuggestion[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   // Don't show notifications for messages in this thread (user is viewing it)
   useInAppNotifications(threadId);
@@ -71,20 +79,137 @@ export default function ChatScreen({ route, navigation }: any) {
     ? safeThread.groupName || `${otherParticipants.length + 1} participants`
     : otherParticipants[0]?.name || 'Unknown';
 
+  const extractActionItems = async () => {
+    if (messages.length === 0) {
+      return;
+    }
+
+    try {
+      setLoadingActions(true);
+      const url = __DEV__
+        ? 'http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction'
+        : 'https://us-central1-communexus.cloudfunctions.net/aiActionExtraction';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            threadId,
+            messages: messages.map((m) => ({
+              text: m.text,
+              sender: m.senderName,
+            })),
+          },
+        }),
+      });
+
+      const result = await response.json();
+      console.log('✅ Action items result:', result);
+
+      const data = result.result || result.data;
+      if (data.success && data.actionItems) {
+        setActionItems(data.actionItems);
+        setShowActionItems(true);
+      } else {
+        console.error('No action items found');
+      }
+    } catch (err: any) {
+      console.error('❌ Error extracting action items:', err);
+    } finally {
+      setLoadingActions(false);
+    }
+  };
+
+  const fetchProactiveSuggestions = async () => {
+    if (messages.length === 0) {
+      return;
+    }
+
+    try {
+      setLoadingSuggestions(true);
+      const url = __DEV__
+        ? 'http://127.0.0.1:5001/communexus/us-central1/aiProactiveAgent'
+        : 'https://us-central1-communexus.cloudfunctions.net/aiProactiveAgent';
+
+      // Get last 10 messages for context
+      const recentMessages = messages.slice(-10);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            recentMessages: recentMessages.map((m) => ({
+              text: m.text,
+              sender: m.senderName,
+            })),
+            userContext: `User ${user?.displayName || 'unknown'} in thread ${threadId}`,
+            threadContext: `Conversation with ${safeThread.participantDetails.length} participants`,
+          },
+        }),
+      });
+
+      const result = await response.json();
+      console.log('✅ Proactive suggestions result:', result);
+
+      const data = result.result || result.data;
+      if (data.success && data.suggestions) {
+        setSuggestions(data.suggestions);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (err: any) {
+      console.error('❌ Error fetching suggestions:', err);
+      setSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  // Auto-fetch suggestions when messages change (with debounce)
+  useEffect(() => {
+    if (messages.length >= 3) {
+      const timer = setTimeout(() => {
+        fetchProactiveSuggestions();
+      }, 5000); // Wait 5 seconds after last message
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length]);
+
   useEffect(() => {
     navigation.setOptions({
       title: displayName,
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => setShowAISummary(true)}
-          style={styles.aiButton}
-          testID="ai-summary-button"
-        >
-          <Text style={styles.aiButtonText}>✨ AI</Text>
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            onPress={extractActionItems}
+            style={styles.actionButton}
+            testID="action-items-button"
+            disabled={loadingActions}
+          >
+            {loadingActions ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.actionButtonText}>📋 Actions</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowAISummary(true)}
+            style={styles.aiButton}
+            testID="ai-summary-button"
+          >
+            <Text style={styles.aiButtonText}>✨ AI</Text>
+          </TouchableOpacity>
+        </View>
       ),
     });
-  }, [displayName, navigation]);
+  }, [displayName, navigation, loadingActions]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -167,17 +292,50 @@ export default function ChatScreen({ route, navigation }: any) {
 
       <ChatInput onSendMessage={handleSendMessage} disabled={!user} />
 
+      {/* Proactive AI Suggestions - Show at bottom if available */}
+      {suggestions.length > 0 && !loadingSuggestions && (
+        <ProactiveSuggestions
+          suggestions={suggestions}
+          onDismiss={(suggestion) => {
+            // Remove the dismissed suggestion
+            setSuggestions(suggestions.filter(s => s !== suggestion));
+          }}
+        />
+      )}
+
       <SummaryModal
         visible={showAISummary}
         onClose={() => setShowAISummary(false)}
         threadId={threadId}
         messages={messages}
       />
+
+      <ActionItemModal
+        visible={showActionItems}
+        onClose={() => setShowActionItems(false)}
+        actionItems={actionItems}
+        onActionItemPress={(item) => {
+          console.log('Action item pressed:', item);
+          // Could navigate to message or mark complete
+        }}
+      />
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  actionButton: {
+    backgroundColor: '#34C759',
+    borderRadius: 16,
+    marginRight: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
   aiButton: {
     backgroundColor: '#007AFF',
     borderRadius: 16,
@@ -212,6 +370,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  headerButtons: {
+    flexDirection: 'row',
   },
   loadingText: {
     color: '#8E8E93',

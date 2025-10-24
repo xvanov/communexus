@@ -2,6 +2,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Message } from '../../types/Message';
+import { PriorityBadge } from '../common/PriorityBadge';
+import { PriorityLevel } from '../../types/AIFeatures';
 
 interface MessageBubbleProps {
   message: Message;
@@ -31,6 +33,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   };
 
+  // Get priority from message metadata (if AI has analyzed it)
+  const priority = (message as any).priority as PriorityLevel | undefined;
+
   return (
     <View
       style={[styles.messageContainer, isOwn && styles.ownMessageContainer]}
@@ -39,6 +44,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         style={[styles.messageBubble, isOwn && styles.ownMessageBubble]}
         testID="message-bubble"
       >
+        {/* Priority Badge - show at top for high priority messages */}
+        {priority && priority !== 'low' && (
+          <View style={styles.priorityContainer}>
+            <PriorityBadge priority={priority} size="small" />
+          </View>
+        )}
         <Text
           style={[styles.messageText, isOwn && styles.ownMessageText]}
           testID="message-text"
@@ -105,6 +116,9 @@ const styles = StyleSheet.create({
   ownMessageTime: {
     color: '#FFFFFF',
     opacity: 0.8,
+  },
+  priorityContainer: {
+    marginBottom: 6,
   },
   statusIcon: {
     color: '#FFFFFF',
