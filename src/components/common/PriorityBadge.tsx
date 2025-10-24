@@ -1,17 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { PriorityLevel } from '../../types/AIFeatures';
 
 interface PriorityBadgeProps {
-  priority: 'high' | 'medium' | 'low';
+  priority: PriorityLevel;
   size?: 'small' | 'medium' | 'large';
+  showLabel?: boolean;
 }
 
 export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   priority,
   size = 'medium',
+  showLabel = true,
 }) => {
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
+  const getPriorityColor = (): string => {
+    switch (priority) {
       case 'high':
         return '#FF3B30';
       case 'medium':
@@ -23,39 +26,46 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
     }
   };
 
+  const getPriorityIcon = (): string => {
+    switch (priority) {
+      case 'high':
+        return '🔴';
+      case 'medium':
+        return '🟡';
+      case 'low':
+        return '🟢';
+      default:
+        return '⚪';
+    }
+  };
+
   const getSizeStyles = () => {
     switch (size) {
       case 'small':
         return {
           paddingHorizontal: 6,
           paddingVertical: 2,
-          borderRadius: 8,
-          minWidth: 40,
         };
       case 'large':
         return {
           paddingHorizontal: 12,
           paddingVertical: 6,
-          borderRadius: 16,
-          minWidth: 80,
         };
-      default: // medium
+      default:
         return {
           paddingHorizontal: 8,
           paddingVertical: 4,
-          borderRadius: 12,
-          minWidth: 60,
         };
     }
   };
 
-  const getTextSize = () => {
+  const getTextSize = (): number => {
     switch (size) {
       case 'small':
         return 10;
       case 'large':
         return 14;
-      default: // medium
+      default:
         return 12;
     }
   };
@@ -63,26 +73,28 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   return (
     <View
       style={[
-        styles.badge,
-        { backgroundColor: getPriorityColor(priority) },
+        styles.container,
+        { backgroundColor: getPriorityColor() },
         getSizeStyles(),
       ]}
     >
       <Text style={[styles.text, { fontSize: getTextSize() }]}>
-        {priority.toUpperCase()}
+        {showLabel
+          ? `${getPriorityIcon()} ${priority.toUpperCase()}`
+          : getPriorityIcon()}
       </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  badge: {
+  container: {
     alignItems: 'center',
+    borderRadius: 12,
     justifyContent: 'center',
   },
   text: {
     color: '#FFFFFF',
     fontWeight: '600',
-    textTransform: 'uppercase',
   },
 });

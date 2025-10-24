@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { AIFeatures } from '../../types/AIFeatures';
+import { AIDecision } from '../../types/AIFeatures';
 
 interface DecisionCardProps {
-  decision: AIFeatures.Decision;
-  onPress?: (decision: AIFeatures.Decision) => void;
+  decision: AIDecision;
+  onPress?: (decision: AIDecision) => void;
 }
 
 export const DecisionCard: React.FC<DecisionCardProps> = ({
@@ -27,34 +27,25 @@ export const DecisionCard: React.FC<DecisionCardProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>{decision.title}</Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>{decision.status}</Text>
-        </View>
+        <Text style={styles.title} numberOfLines={2}>
+          {decision.decision}
+        </Text>
       </View>
 
-      <Text style={styles.description}>{decision.description}</Text>
+      <Text style={styles.description}>{decision.context}</Text>
 
       <View style={styles.footer}>
-        <Text style={styles.dateText}>
-          Decided: {formatDate(decision.decidedAt)}
-        </Text>
-        {decision.decidedBy && (
-          <Text style={styles.deciderText}>by {decision.decidedBy}</Text>
+        <Text style={styles.dateText}>📅 {formatDate(decision.decidedAt)}</Text>
+        {decision.markedBy && (
+          <Text style={styles.deciderText}>by {decision.markedBy}</Text>
         )}
       </View>
 
-      {decision.context && (
-        <View style={styles.contextContainer}>
-          <Text style={styles.contextLabel}>Context:</Text>
-          <Text style={styles.contextText}>{decision.context}</Text>
-        </View>
-      )}
-
-      {decision.impact && (
-        <View style={styles.impactContainer}>
-          <Text style={styles.impactLabel}>Impact:</Text>
-          <Text style={styles.impactText}>{decision.impact}</Text>
+      {decision.participants && decision.participants.length > 0 && (
+        <View style={styles.participantsContainer}>
+          <Text style={styles.participantsLabel}>
+            👥 Participants: {decision.participants.join(', ')}
+          </Text>
         </View>
       )}
     </TouchableOpacity>
@@ -78,20 +69,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  contextContainer: {
-    marginBottom: 8,
-  },
-  contextLabel: {
-    color: '#666666',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  contextText: {
-    color: '#333333',
-    fontSize: 13,
-    lineHeight: 18,
-  },
   dateText: {
     color: '#666666',
     fontSize: 12,
@@ -114,42 +91,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   header: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 8,
   },
-  impactContainer: {
-    marginBottom: 8,
+  participantsContainer: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 8,
+    marginTop: 8,
+    padding: 8,
   },
-  impactLabel: {
+  participantsLabel: {
     color: '#666666',
     fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  impactText: {
-    color: '#333333',
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  statusBadge: {
-    backgroundColor: '#34C759',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
   },
   title: {
     color: '#000000',
-    flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    marginRight: 8,
   },
 });

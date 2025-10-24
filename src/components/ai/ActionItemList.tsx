@@ -6,55 +6,38 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { AIFeatures } from '../../types/AIFeatures';
+import { AIActionItem, PriorityLevel } from '../../types/AIFeatures';
+import { PriorityBadge } from '../common/PriorityBadge';
 
 interface ActionItemListProps {
-  actionItems: AIFeatures.ActionItem[];
-  onActionItemPress?: (actionItem: AIFeatures.ActionItem) => void;
+  actionItems: AIActionItem[];
+  onActionItemPress?: (actionItem: AIActionItem) => void;
 }
 
 export const ActionItemList: React.FC<ActionItemListProps> = ({
   actionItems,
   onActionItemPress,
 }) => {
-  const renderActionItem = ({ item }: { item: AIFeatures.ActionItem }) => (
+  const renderActionItem = ({ item }: { item: AIActionItem }) => (
     <TouchableOpacity
       style={styles.actionItemContainer}
       onPress={() => onActionItemPress?.(item)}
       activeOpacity={0.7}
     >
       <View style={styles.actionItemHeader}>
-        <Text style={styles.actionItemText}>{item.text}</Text>
-        <View
-          style={[
-            styles.priorityBadge,
-            { backgroundColor: getPriorityColor(item.priority) },
-          ]}
-        >
-          <Text style={styles.priorityText}>{item.priority}</Text>
-        </View>
+        <Text style={styles.actionItemText}>{item.task}</Text>
+        <PriorityBadge priority={item.priority} size="small" />
       </View>
-      {item.assignee && (
-        <Text style={styles.assigneeText}>Assigned to: {item.assignee}</Text>
+      {item.assignedTo && (
+        <Text style={styles.assigneeText}>👤 {item.assignedTo}</Text>
       )}
-      {item.dueDate && (
-        <Text style={styles.dueDateText}>Due: {item.dueDate}</Text>
+      {item.status && (
+        <Text style={styles.statusText}>
+          {item.status === 'completed' ? '✅ Completed' : '⏳ Pending'}
+        </Text>
       )}
     </TouchableOpacity>
   );
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return '#FF3B30';
-      case 'medium':
-        return '#FF9500';
-      case 'low':
-        return '#34C759';
-      default:
-        return '#8E8E93';
-    }
-  };
 
   if (actionItems.length === 0) {
     return (
@@ -108,10 +91,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  dueDateText: {
-    color: '#666666',
-    fontSize: 14,
-  },
   emptyContainer: {
     alignItems: 'center',
     flex: 1,
@@ -126,18 +105,9 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 16,
   },
-  priorityBadge: {
-    alignItems: 'center',
-    borderRadius: 12,
-    minWidth: 60,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  priorityText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+  statusText: {
+    color: '#666666',
+    fontSize: 14,
   },
   title: {
     color: '#000000',
