@@ -13,7 +13,8 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 
 **Critical Path**: AI Features → Offline Support → Deployment → Deliverables → Performance → Technical Excellence
 
-**Parallel Opportunities**: 
+**Parallel Opportunities**:
+
 - AI features can be implemented in parallel
 - Offline support can be implemented alongside AI features
 - Deployment can be prepared while features are being implemented
@@ -24,6 +25,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 ## Phase 1: Setup (Project Initialization)
 
 ### T001 Create project structure per implementation plan
+
 - [ ] T001 Create specs/003-rubric-maximization/ directory structure
 - [ ] T001 Create deliverables/ directory for demo video, persona document, and social post
 - [ ] T001 Create src/components/ai/ directory for AI feature components
@@ -34,6 +36,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 - [ ] T001 Create tests/ai/ directory for AI feature tests
 
 ### T002 Configure environment variables and API keys
+
 - [ ] T002 Add OpenAI API key to Firebase Cloud Functions environment
 - [ ] T002 Configure LangChain environment variables
 - [ ] T002 Set up AI feature configuration system
@@ -44,6 +47,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 - [ ] T002 Add persona document template configuration
 
 ### T003 Setup testing infrastructure for AI features
+
 - [ ] T003 Create AI feature test suite in tests/ai/
 - [ ] T003 Set up OpenAI API mocking for tests
 - [ ] T003 Create LangChain test utilities
@@ -56,6 +60,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 ### T004 [P] Implement OpenAI API integration in Cloud Functions
+
 - [ ] T004 [P] Set up OpenAI API client in functions/src/aiService.ts
 - [ ] T004 [P] Implement API key security and rate limiting
 - [ ] T004 [P] Add AI response caching and error handling
@@ -66,6 +71,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 - [ ] T004 [P] Create AI service testing utilities
 
 ### T005 [P] Implement offline support infrastructure
+
 - [ ] T005 [P] Enhance Expo SQLite for local storage in src/services/offline.ts
 - [ ] T005 [P] Create offline message queue with retry logic
 - [ ] T005 [P] Build data synchronization logic with conflict resolution
@@ -76,6 +82,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 - [ ] T005 [P] Implement offline test scenarios
 
 ### T006 [P] Setup deployment infrastructure
+
 - [ ] T006 [P] Configure EAS Build for production deployment
 - [ ] T006 [P] Set up TestFlight distribution pipeline
 - [ ] T006 [P] Configure Expo Go distribution
@@ -324,6 +331,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 ## Phase 11: Polish & Cross-Cutting Concerns
 
 ### T147 Final integration testing and validation
+
 - [ ] T147 Run comprehensive test suite to verify all features work together
 - [ ] T147 Validate rubric scoring against all requirements
 - [ ] T147 Test on real devices with all scenarios
@@ -336,6 +344,7 @@ Maximize MessageAI rubric scoring from current 47/100 points (Grade F) to 90+ po
 - [ ] T147 Test technical excellence features
 
 ### T148 Documentation and final preparation
+
 - [ ] T148 Update README with all new features
 - [ ] T148 Create comprehensive user documentation
 - [ ] T148 Update technical documentation

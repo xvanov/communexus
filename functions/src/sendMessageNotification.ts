@@ -24,7 +24,7 @@ export const sendMessageNotification = onDocumentCreated(
       threadId: event.params.threadId,
       messageId: event.params.messageId,
     });
-    
+
     const snapshot = event.data;
     if (!snapshot) {
       console.log('❌ No data in snapshot');
@@ -57,12 +57,12 @@ export const sendMessageNotification = onDocumentCreated(
 
       const threadData = threadDoc.data();
       const participants = threadData?.participants || [];
-      
+
       console.log('👥 Thread participants:', participants);
 
       // Get push tokens for all participants except the sender
       const recipientIds = participants.filter((id: string) => id !== senderId);
-      
+
       console.log('📤 Recipients to notify:', recipientIds);
 
       if (recipientIds.length === 0) {
@@ -84,8 +84,13 @@ export const sendMessageNotification = onDocumentCreated(
 
         const userData = userDoc.data();
         const pushToken = userData?.expoPushToken;
-        
-        console.log('👤 User:', userDoc.id, 'Push token:', pushToken ? '✅' : '❌');
+
+        console.log(
+          '👤 User:',
+          userDoc.id,
+          'Push token:',
+          pushToken ? '✅' : '❌'
+        );
 
         if (pushToken) {
           // Check notification preferences
@@ -132,33 +137,44 @@ export const sendMessageNotification = onDocumentCreated(
       }));
 
       try {
-        const response = await globalThis.fetch('https://exp.host/--/api/v2/push/send', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Accept-encoding': 'gzip, deflate',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(messages),
-        });
+        const response = await globalThis.fetch(
+          'https://exp.host/--/api/v2/push/send',
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Accept-encoding': 'gzip, deflate',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(messages),
+          }
+        );
 
-        const result = await response.json() as {
+        const result = (await response.json()) as {
           data?: Array<{ status: string }>;
         };
         console.log('Expo push notification result:', result);
 
         if (result.data) {
-          const successCount = result.data.filter((receipt: { status: string }) => receipt.status === 'ok').length;
-          const failureCount = result.data.filter((receipt: { status: string }) => receipt.status !== 'ok').length;
-          
-          console.log(`Notifications sent: ${successCount} success, ${failureCount} failures`);
+          const successCount = result.data.filter(
+            (receipt: { status: string }) => receipt.status === 'ok'
+          ).length;
+          const failureCount = result.data.filter(
+            (receipt: { status: string }) => receipt.status !== 'ok'
+          ).length;
+
+          console.log(
+            `Notifications sent: ${successCount} success, ${failureCount} failures`
+          );
 
           if (failureCount > 0) {
-            result.data.forEach((receipt: { status: string }, index: number) => {
-              if (receipt.status !== 'ok') {
-                console.error(`Failed to send to ${tokens[index]}:`, receipt);
+            result.data.forEach(
+              (receipt: { status: string }, index: number) => {
+                if (receipt.status !== 'ok') {
+                  console.error(`Failed to send to ${tokens[index]}:`, receipt);
+                }
               }
-            });
+            );
           }
         }
       } catch (error) {

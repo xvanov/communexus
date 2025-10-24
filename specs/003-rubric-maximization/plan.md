@@ -530,14 +530,14 @@ _Fill ONLY if Constitution Check has violations that must be justified_
 
 ## Risk Mitigation
 
-| Risk                        | Impact             | Mitigation                                     |
-| --------------------------- | ------------------ | ---------------------------------------------- |
+| Risk                       | Impact             | Mitigation                                    |
+| -------------------------- | ------------------ | --------------------------------------------- |
 | AI features implementation | Missing 30 points  | Start with basic implementation, iterate      |
-| Offline support complexity  | Missing 6 points   | Implement basic offline first, then optimize  |
-| Deployment issues           | Missing 2 points   | Use multiple deployment strategies            |
-| Missing deliverables        | -30 points penalty | Create deliverables early, validate early     |
-| Performance issues          | Missing points     | Profile early, optimize incrementally         |
-| Technical complexity        | Missing points     | Implement basic features first, then advanced |
+| Offline support complexity | Missing 6 points   | Implement basic offline first, then optimize  |
+| Deployment issues          | Missing 2 points   | Use multiple deployment strategies            |
+| Missing deliverables       | -30 points penalty | Create deliverables early, validate early     |
+| Performance issues         | Missing points     | Profile early, optimize incrementally         |
+| Technical complexity       | Missing points     | Implement basic features first, then advanced |
 
 ## Success Metrics
 

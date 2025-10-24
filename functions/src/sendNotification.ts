@@ -43,6 +43,9 @@ export const sendNotification = onCall<SendPayload>(async request => {
     }
     return { success: false, error: 'No token(s) provided' };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : String(err) };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 });
