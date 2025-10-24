@@ -180,12 +180,12 @@ export const subscribeToUserThreads = (
         isGroup: data.isGroup || false,
         groupName: data.groupName,
         groupPhotoUrl: data.groupPhotoUrl,
-      lastMessage: data.lastMessage
-        ? {
-            ...data.lastMessage,
-            timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
-          }
-        : undefined,
+        lastMessage: data.lastMessage
+          ? {
+              ...data.lastMessage,
+              timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+            }
+          : undefined,
         unreadCount: data.unreadCount || {},
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),

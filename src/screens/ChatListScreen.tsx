@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { signOut } from 'firebase/auth';
+import { signOut, getAuth } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 import { usePresence } from '../hooks/usePresence';

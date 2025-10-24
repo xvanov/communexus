@@ -3,15 +3,7 @@ import { useState, useEffect } from 'react';
 import { Thread } from '../types/Thread';
 import { subscribeToUserThreads } from '../services/threads';
 import { useAuth } from './useAuth';
-import { getDb } from '../services/firebase';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  or,
-} from 'firebase/firestore';
+// Removed unused imports
 
 export const useThreads = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -31,15 +23,17 @@ export const useThreads = () => {
     setError(null);
 
     // Use the existing subscribeToUserThreads function which is simpler and more reliable
-    const unsubscribe = subscribeToUserThreads(user.uid, (updatedThreads) => {
+    const unsubscribe = subscribeToUserThreads(user.uid, updatedThreads => {
       console.log('📱 Threads updated:', updatedThreads.length, 'threads');
       updatedThreads.forEach(thread => {
         console.log(`Thread ${thread.id}:`, {
-          lastMessage: thread.lastMessage ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text?.substring(0, 20)}...` : 'No message',
-          updatedAt: thread.updatedAt.toLocaleTimeString()
+          lastMessage: thread.lastMessage
+            ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text?.substring(0, 20)}...`
+            : 'No message',
+          updatedAt: thread.updatedAt.toLocaleTimeString(),
         });
       });
-      
+
       setThreads(updatedThreads);
       setLoading(false);
       setError(null);

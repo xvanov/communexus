@@ -49,10 +49,12 @@ export const requestNotificationPermission = async (): Promise<
   string | null
 > => {
   console.log('🔔 Starting notification permission request...');
-  
+
   if (!deviceSupportsPush()) {
     console.log('❌ Device does not support push notifications');
-    console.log('📱 This is expected in Expo Go - push notifications are not supported');
+    console.log(
+      '📱 This is expected in Expo Go - push notifications are not supported'
+    );
     console.log('📱 Local notifications will still work for testing');
     return null;
   }

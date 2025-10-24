@@ -54,9 +54,9 @@ export const sendMessage = async (message: Message): Promise<string> => {
       threadId: message.threadId,
       senderName: message.senderName,
       text: message.text.substring(0, 30) + '...',
-      timestamp: message.createdAt.toLocaleTimeString()
+      timestamp: message.createdAt.toLocaleTimeString(),
     });
-    
+
     const docRef = await addDoc(col, {
       threadId: message.threadId,
       senderId: message.senderId,
@@ -78,7 +78,7 @@ export const sendMessage = async (message: Message): Promise<string> => {
       }),
       ...(message.deleted !== undefined && { deleted: message.deleted }),
     });
-    
+
     console.log('✅ Message saved with ID:', docRef.id);
     console.log('🔥 Message saved - Cloud Function should trigger now');
 
@@ -91,7 +91,9 @@ export const sendMessage = async (message: Message): Promise<string> => {
     });
 
     console.log('✅ Thread last message updated successfully');
-    console.log('🔥 All updates complete - Cloud Function should have triggered');
+    console.log(
+      '🔥 All updates complete - Cloud Function should have triggered'
+    );
 
     return docRef.id;
   } catch (error) {
@@ -229,7 +231,7 @@ const updateThreadLastMessage = async (
     threadId,
     senderName: lastMessage.senderName,
     text: lastMessage.text.substring(0, 30) + '...',
-    timestamp: lastMessage.timestamp.toLocaleTimeString()
+    timestamp: lastMessage.timestamp.toLocaleTimeString(),
   });
 
   await updateDoc(threadRef, {

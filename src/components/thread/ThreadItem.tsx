@@ -48,7 +48,9 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
             {displayName}
           </Text>
           <Text style={styles.threadTime}>
-            {thread.lastMessage ? formatTime(thread.lastMessage.timestamp) : 'No messages'}
+            {thread.lastMessage
+              ? formatTime(thread.lastMessage.timestamp)
+              : 'No messages'}
           </Text>
         </View>
         <View style={styles.threadPreview}>

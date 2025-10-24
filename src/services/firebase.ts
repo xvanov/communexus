@@ -87,16 +87,18 @@ export const initializeFirebase = (
       }
 
       const useEmulator =
-        config?.useEmulator ?? 
-        (isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)); // Use production on real devices
-      
+        config?.useEmulator ??
+        (isRealDevice()
+          ? false
+          : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)); // Use production on real devices
+
       console.log('🔥 Firebase config:', {
         platform: Platform.OS,
         isRealDevice: isRealDevice(),
         useEmulator,
-        host: getEmulatorHost()
+        host: getEmulatorHost(),
       });
-      
+
       if (useEmulator) {
         const host = getEmulatorHost();
         try {
@@ -124,7 +126,9 @@ export const initializeFirebase = (
 };
 
 export const getDb = (
-  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice()
+    ? false
+    : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): Firestore => {
   if (!app) initializeFirebase({ useEmulator });
   if (!db) {
@@ -139,7 +143,9 @@ export const getDb = (
 };
 
 export const getBucket = (
-  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice()
+    ? false
+    : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): FirebaseStorage => {
   if (!app) initializeFirebase({ useEmulator });
   if (!storage) {
@@ -154,7 +160,9 @@ export const getBucket = (
 };
 
 export const getFunctionsClient = (
-  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice()
+    ? false
+    : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): Functions => {
   if (!app) initializeFirebase({ useEmulator });
   if (!functionsClient) {

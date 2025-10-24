@@ -83,7 +83,7 @@ export const subscribeToContacts = (
 
   const unsubscribeContacts = onSnapshot(contactsRef, snapshot => {
     console.log('📞 Contacts updated:', snapshot.docs.length, 'contacts');
-    
+
     // Clean up previous user listeners
     userUnsubscribes.forEach(unsub => unsub());
     userUnsubscribes.length = 0;
@@ -103,39 +103,45 @@ export const subscribeToContacts = (
 
       // Set up real-time listener for this user's online status
       const userRef = doc(db, 'users', contactId);
-      const unsubscribeUser = onSnapshot(userRef, userSnapshot => {
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          
-          const contact: Contact = {
-            id: contactId,
-            name: contactData.name,
-            email: contactData.email,
-            photoUrl: contactData.photoUrl,
-            online: Boolean(userData?.online),
-            lastSeen: userData?.lastSeen?.toDate() || new Date(),
-          };
+      const unsubscribeUser = onSnapshot(
+        userRef,
+        userSnapshot => {
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
 
-          console.log(`👤 Contact ${contact.name}:`, {
-            online: contact.online,
-            lastSeen: contact.lastSeen.toLocaleTimeString()
-          });
+            const contact: Contact = {
+              id: contactId,
+              name: contactData.name,
+              email: contactData.email,
+              photoUrl: contactData.photoUrl,
+              online: Boolean(userData?.online),
+              lastSeen: userData?.lastSeen?.toDate() || new Date(),
+            };
 
-          // Update the contacts array and notify callback
-          const existingIndex = contacts.findIndex(c => c.id === contactId);
-          if (existingIndex >= 0) {
-            contacts[existingIndex] = contact;
-          } else {
-            contacts.push(contact);
+            console.log(`👤 Contact ${contact.name}:`, {
+              online: contact.online,
+              lastSeen: contact.lastSeen.toLocaleTimeString(),
+            });
+
+            // Update the contacts array and notify callback
+            const existingIndex = contacts.findIndex(c => c.id === contactId);
+            if (existingIndex >= 0) {
+              contacts[existingIndex] = contact;
+            } else {
+              contacts.push(contact);
+            }
+
+            // Sort contacts and notify callback
+            const sortedContacts = [...contacts].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            );
+            callback(sortedContacts);
           }
-
-          // Sort contacts and notify callback
-          const sortedContacts = [...contacts].sort((a, b) => a.name.localeCompare(b.name));
-          callback(sortedContacts);
+        },
+        error => {
+          console.error(`Error listening to user ${contactId}:`, error);
         }
-      }, error => {
-        console.error(`Error listening to user ${contactId}:`, error);
-      });
+      );
 
       userUnsubscribes.push(unsubscribeUser);
     });
@@ -317,11 +323,11 @@ export const initializeTestUserContacts = async (
   usersSnapshot.forEach(doc => {
     const userData = doc.data();
     console.log(`Checking user: ${userData.email || 'NO EMAIL'} (${doc.id})`);
-    console.log(`User data:`, { 
-      email: userData.email, 
-      name: userData.name, 
+    console.log(`User data:`, {
+      email: userData.email,
+      name: userData.name,
       hasEmail: !!userData.email,
-      hasName: !!userData.name 
+      hasName: !!userData.name,
     });
 
     if (demoEmails.includes(userData.email)) {
@@ -334,9 +340,13 @@ export const initializeTestUserContacts = async (
         lastSeen: userData.lastSeen?.toDate() || new Date(),
       };
       demoUsers.push(contact);
-      console.log(`✅ Added to demo users list: ${contact.name} (${contact.id})`);
+      console.log(
+        `✅ Added to demo users list: ${contact.name} (${contact.id})`
+      );
     } else {
-      console.log(`❌ Skipped user ${doc.id}: email ${userData.email} not in demo list`);
+      console.log(
+        `❌ Skipped user ${doc.id}: email ${userData.email} not in demo list`
+      );
     }
   });
 
@@ -365,30 +375,34 @@ export const initializeTestUserContacts = async (
 };
 
 // Ensure the current user has a proper Firestore document
-const ensureCurrentUserDocument = async (currentUserId: string): Promise<void> => {
+const ensureCurrentUserDocument = async (
+  currentUserId: string
+): Promise<void> => {
   console.log('🔧 Ensuring current user document exists...');
-  
+
   const db = getDb();
   const userDocRef = doc(db, 'users', currentUserId);
   const userDoc = await getDoc(userDocRef);
-  
+
   if (!userDoc.exists()) {
-    console.log(`❌ No Firestore document found for current user: ${currentUserId}`);
+    console.log(
+      `❌ No Firestore document found for current user: ${currentUserId}`
+    );
     return;
   }
-  
+
   const userData = userDoc.data();
   console.log(`Current user document data:`, userData);
-  
+
   // Check if the document has the required fields
   if (!userData.email || !userData.name) {
     console.log(`🔧 Current user document is incomplete, updating...`);
-    
+
     // We need to get the email from Firebase Auth since we can't query by email
     const { initializeFirebase } = await import('./firebase');
     const { auth } = initializeFirebase();
     const currentUser = auth.currentUser;
-    
+
     if (currentUser && currentUser.email) {
       // Map email to name
       const emailToName: Record<string, string> = {
@@ -396,23 +410,32 @@ const ensureCurrentUserDocument = async (currentUserId: string): Promise<void> =
         'bob@demo.com': 'Bob Smith',
         'charlie@demo.com': 'Charlie Davis',
       };
-      
-      const name = emailToName[currentUser.email] || currentUser.displayName || currentUser.email;
-      
-      console.log(`🔧 Updating current user document with email: ${currentUser.email}, name: ${name}`);
-      
+
+      const name =
+        emailToName[currentUser.email] ||
+        currentUser.displayName ||
+        currentUser.email;
+
+      console.log(
+        `🔧 Updating current user document with email: ${currentUser.email}, name: ${name}`
+      );
+
       // Update the document with proper fields
-      await setDoc(userDocRef, {
-        id: currentUserId,
-        email: currentUser.email,
-        name: name,
-        online: userData.online || true,
-        lastSeen: userData.lastSeen || new Date(),
-        role: userData.role || 'contractor',
-        createdAt: userData.createdAt || new Date(),
-        updatedAt: new Date(),
-      }, { merge: true });
-      
+      await setDoc(
+        userDocRef,
+        {
+          id: currentUserId,
+          email: currentUser.email,
+          name: name,
+          online: userData.online || true,
+          lastSeen: userData.lastSeen || new Date(),
+          role: userData.role || 'contractor',
+          createdAt: userData.createdAt || new Date(),
+          updatedAt: new Date(),
+        },
+        { merge: true }
+      );
+
       console.log(`✅ Updated current user document`);
     } else {
       console.log(`❌ Could not get current user email from Auth`);
@@ -421,4 +444,3 @@ const ensureCurrentUserDocument = async (currentUserId: string): Promise<void> =
     console.log(`✅ Current user document already complete`);
   }
 };
-

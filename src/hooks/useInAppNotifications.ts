@@ -41,11 +41,13 @@ export const useInAppNotifications = (currentThreadId?: string) => {
       }
 
       // Check if there's a new message with valid content
-      if (thread.lastMessage && 
-          thread.lastMessage.text && 
-          thread.lastMessage.text.trim() !== '' &&
-          thread.lastMessage.senderId && 
-          thread.lastMessage.senderName) {
+      if (
+        thread.lastMessage &&
+        thread.lastMessage.text &&
+        thread.lastMessage.text.trim() !== '' &&
+        thread.lastMessage.senderId &&
+        thread.lastMessage.senderName
+      ) {
         const lastTimestamp = lastMessageTimestamps.current[thread.id] || 0;
         const currentTimestamp = thread.lastMessage.timestamp.getTime();
 
