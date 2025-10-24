@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 export const testPushNotificationFlow = async (): Promise<void> => {
   console.log('🧪 PUSH TEST: Testing push notification flow...');
 
-  const db = getDb();
+  const db = await getDb();
 
   // Simulate a push token (what would be generated on a real device)
   const simulatedToken = 'ExponentPushToken[TEST_TOKEN_FOR_SIMULATOR]';

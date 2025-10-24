@@ -45,7 +45,7 @@ export default function AuthScreen({
 
     setLoading(true);
     try {
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
 
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(
@@ -186,7 +186,7 @@ export default function AuthScreen({
   const signInAsDemoUser = async (email: string) => {
     setLoading(true);
     try {
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
 
       // Auto-create test users first
       console.log('Creating test users before sign in...');

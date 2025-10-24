@@ -3,7 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import { getFunctionsClient } from './firebase';
 
 export async function callHelloWorld(): Promise<any> {
-  const fn = httpsCallable(getFunctionsClient(), 'helloWorld');
+  const fn = httpsCallable(await getFunctionsClient(), 'helloWorld');
   const res = await fn({});
   return res.data;
 }

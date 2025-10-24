@@ -12,8 +12,8 @@ import { User } from '../types/User';
 export async function upsertCurrentUser(
   partial: Partial<User> & { name: string; email?: string }
 ): Promise<User> {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const current = auth.currentUser;
   if (!current) throw new Error('Not authenticated');
   const userId = current.uid;
@@ -55,7 +55,7 @@ export async function upsertCurrentUser(
 }
 
 export async function getUser(userId: string): Promise<User | null> {
-  const db = getDb(true);
+  const db = await getDb();
   const ref = doc(db as any, 'users', userId);
   const snap = await getDoc(ref);
   if (!snap.exists()) return null;
@@ -63,8 +63,8 @@ export async function getUser(userId: string): Promise<User | null> {
 }
 
 export async function updateCurrentUser(partial: Partial<User>): Promise<void> {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const current = auth.currentUser;
   if (!current) throw new Error('Not authenticated');
   const ref = doc(db as any, 'users', current.uid);

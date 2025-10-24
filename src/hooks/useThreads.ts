@@ -22,26 +22,40 @@ export const useThreads = () => {
     setLoading(true);
     setError(null);
 
-    // Use the existing subscribeToUserThreads function which is simpler and more reliable
-    const unsubscribe = subscribeToUserThreads(user.uid, updatedThreads => {
-      console.log('📱 Threads updated:', updatedThreads.length, 'threads');
-      updatedThreads.forEach(thread => {
-        console.log(`Thread ${thread.id}:`, {
-          lastMessage: thread.lastMessage
-            ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text?.substring(0, 20)}...`
-            : 'No message',
-          updatedAt: thread.updatedAt.toLocaleTimeString(),
-        });
-      });
+    let unsubscribe: (() => void) | null = null;
 
-      setThreads(updatedThreads);
-      setLoading(false);
-      setError(null);
-    });
+    // Use the existing subscribeToUserThreads function which is simpler and more reliable
+    const setupSubscription = async () => {
+      try {
+        unsubscribe = await subscribeToUserThreads(user.uid, updatedThreads => {
+          console.log('📱 Threads updated:', updatedThreads.length, 'threads');
+          updatedThreads.forEach(thread => {
+            console.log(`Thread ${thread.id}:`, {
+              lastMessage: thread.lastMessage
+                ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text?.substring(0, 20)}...`
+                : 'No message',
+              updatedAt: thread.updatedAt.toLocaleTimeString(),
+            });
+          });
+
+          setThreads(updatedThreads);
+          setLoading(false);
+          setError(null);
+        });
+      } catch (error) {
+        console.error('Failed to setup thread subscription:', error);
+        setError('Failed to load threads');
+        setLoading(false);
+      }
+    };
+
+    setupSubscription();
 
     return () => {
       console.log('🔄 Cleaning up thread listener');
-      unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [user?.uid]);
 

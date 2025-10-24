@@ -52,7 +52,7 @@ export default function ChatListScreen({ navigation }: any) {
   const performLogout = async () => {
     try {
       console.log('Starting logout process...');
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
       console.log('Current user before logout:', auth.currentUser?.email);
       await signOut(auth);
       console.log('Logout successful');
@@ -72,7 +72,7 @@ export default function ChatListScreen({ navigation }: any) {
     console.log('Logout button pressed');
 
     // Check if running in Firebase emulator/demo project (indicates test/dev environment)
-    const { auth, app } = initializeFirebase();
+    const { auth, app } = await initializeFirebase();
     const isDemoProject = app.options.projectId === 'demo-communexus';
     const isTestEnv = __DEV__ && isDemoProject;
 

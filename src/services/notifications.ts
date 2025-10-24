@@ -96,8 +96,8 @@ export const requestNotificationPermission = async (): Promise<
 export const storePushTokenForCurrentUser = async (
   expoPushToken: string
 ): Promise<void> => {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const userId = auth.currentUser?.uid;
 
   if (!userId) throw new Error('Not authenticated');
@@ -136,8 +136,8 @@ export const initializeNotifications = async (): Promise<void> => {
  */
 export const getNotificationPreferences =
   async (): Promise<NotificationPreferences> => {
-    const { auth } = initializeFirebase();
-    const db = getDb(true);
+    const { auth } = await initializeFirebase();
+    const db = await getDb();
     const userId = auth.currentUser?.uid;
 
     if (!userId) return DEFAULT_PREFERENCES;
@@ -164,8 +164,8 @@ export const getNotificationPreferences =
 export const updateNotificationPreferences = async (
   preferences: Partial<NotificationPreferences>
 ): Promise<void> => {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const userId = auth.currentUser?.uid;
 
   if (!userId) throw new Error('Not authenticated');

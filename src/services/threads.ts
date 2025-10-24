@@ -23,7 +23,7 @@ export const createThread = async (
   groupName?: string,
   groupPhotoUrl?: string
 ): Promise<string> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, 'threads');
 
   // For one-on-one chats, check if thread already exists
@@ -63,7 +63,7 @@ const findExistingOneOnOneThread = async (
   userId1: string,
   userId2: string
 ): Promise<string | null> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, 'threads');
 
   // Check if thread already exists between these two users
@@ -91,7 +91,7 @@ const findExistingOneOnOneThread = async (
 
 // Get a single thread
 export const getThread = async (threadId: string): Promise<Thread | null> => {
-  const db = getDb();
+  const db = await getDb();
   const threadRef = doc(db, 'threads', threadId);
   const snapshot = await getDoc(threadRef);
 
@@ -121,7 +121,7 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
 
 // List threads for a user
 export const listThreadsForUser = async (userId: string): Promise<Thread[]> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, 'threads');
   const q = query(
     col,
@@ -157,11 +157,11 @@ export const listThreadsForUser = async (userId: string): Promise<Thread[]> => {
 };
 
 // Subscribe to user's threads
-export const subscribeToUserThreads = (
+export const subscribeToUserThreads = async (
   userId: string,
   callback: (threads: Thread[]) => void
-): (() => void) => {
-  const db = getDb();
+): Promise<(() => void)> => {
+  const db = await getDb();
   const col = collection(db, 'threads');
   const q = query(
     col,
@@ -200,7 +200,7 @@ export const updateThread = async (
   threadId: string,
   updates: Partial<Thread>
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const threadRef = doc(db, 'threads', threadId);
 
   const updateData = {
@@ -294,7 +294,7 @@ export const findOrCreateOneOnOneThread = async (
   user1Details: { id: string; name: string; photoUrl?: string },
   user2Details: { id: string; name: string; photoUrl?: string }
 ): Promise<string> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, 'threads');
 
   // Check if thread already exists

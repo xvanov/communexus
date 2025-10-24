@@ -46,7 +46,7 @@ export const createOptimisticMessage = (
 
 // Send message with optimistic updates
 export const sendMessage = async (message: Message): Promise<string> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, `threads/${message.threadId}/messages`);
 
   try {
@@ -109,7 +109,7 @@ export const updateMessageStatus = async (
   status: MessageStatus,
   userId?: string
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const messageRef = doc(db, `threads/${threadId}/messages`, messageId);
 
   const updateData: any = { status };
@@ -126,12 +126,12 @@ export const updateMessageStatus = async (
 };
 
 // Subscribe to messages with real-time updates
-export const subscribeToMessages = (
+export const subscribeToMessages = async (
   threadId: string,
   callback: (messages: Message[]) => void,
   limitCount: number = 50
-): (() => void) => {
-  const db = getDb();
+): Promise<(() => void)> => {
+  const db = await getDb();
   const col = collection(db, `threads/${threadId}/messages`);
   const q = query(col, orderBy('createdAt', 'desc'), limit(limitCount));
 
@@ -176,11 +176,11 @@ export const subscribeToMessages = (
 };
 
 // Subscribe to thread updates
-export const subscribeToThread = (
+export const subscribeToThread = async (
   threadId: string,
   callback: (thread: Thread | null) => void
-): (() => void) => {
-  const db = getDb();
+): Promise<(() => void)> => {
+  const db = await getDb();
   const threadRef = doc(db, 'threads', threadId);
 
   return onSnapshot(threadRef, snapshot => {
@@ -224,7 +224,7 @@ const updateThreadLastMessage = async (
     timestamp: Date;
   }
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const threadRef = doc(db, 'threads', threadId);
 
   console.log('🔄 Updating thread last message:', {
@@ -251,7 +251,7 @@ export const markMessagesAsRead = async (
   userId: string,
   messageIds: string[]
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const batch = [];
 
   for (const messageId of messageIds) {
@@ -274,7 +274,7 @@ export const searchMessages = async (
   searchText: string,
   limitCount: number = 20
 ): Promise<Message[]> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, `threads/${threadId}/messages`);
 
   // Note: This is a basic text search. For semantic search, we'll use AI features later
@@ -321,7 +321,7 @@ export const deleteMessage = async (
   threadId: string,
   messageId: string
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const messageRef = doc(db, `threads/${threadId}/messages`, messageId);
 
   await updateDoc(messageRef, {

@@ -27,7 +27,7 @@ export const addContact = async (
   userId: string,
   contact: Contact
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const contactRef = doc(db, 'users', userId, 'contacts', contact.id);
 
   // Build contact data without undefined values
@@ -49,7 +49,7 @@ export const addContact = async (
 
 // Get all contacts for a user
 export const getUserContacts = async (userId: string): Promise<Contact[]> => {
-  const db = getDb();
+  const db = await getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
   const snapshot = await getDocs(contactsRef);
 
@@ -70,11 +70,11 @@ export const getUserContacts = async (userId: string): Promise<Contact[]> => {
 };
 
 // Subscribe to contacts with real-time updates
-export const subscribeToContacts = (
+export const subscribeToContacts = async (
   userId: string,
   callback: (contacts: Contact[]) => void
-): (() => void) => {
-  const db = getDb();
+): Promise<(() => void)> => {
+  const db = await getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
   // Store unsubscribe functions for user listeners
@@ -159,7 +159,7 @@ export const updateUserOnlineStatus = async (
   userId: string,
   online: boolean
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const userRef = doc(db, 'users', userId);
 
   try {
@@ -303,7 +303,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
 export const initializeTestUserContacts = async (
   currentUserId: string
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
 
   console.log(`Initializing contacts for user: ${currentUserId}`);
 
@@ -380,7 +380,7 @@ const ensureCurrentUserDocument = async (
 ): Promise<void> => {
   console.log('🔧 Ensuring current user document exists...');
 
-  const db = getDb();
+  const db = await getDb();
   const userDocRef = doc(db, 'users', currentUserId);
   const userDoc = await getDoc(userDocRef);
 
@@ -400,7 +400,7 @@ const ensureCurrentUserDocument = async (
 
     // We need to get the email from Firebase Auth since we can't query by email
     const { initializeFirebase } = await import('./firebase');
-    const { auth } = initializeFirebase();
+    const { auth } = await initializeFirebase();
     const currentUser = auth.currentUser;
 
     if (currentUser && currentUser.email) {

@@ -10,13 +10,13 @@ export const signInWithEmail = async (
   email: string,
   password: string
 ): Promise<UserCredential['user']> => {
-  const { auth } = initializeFirebase();
+  const { auth } = await initializeFirebase();
   const cred = await signInWithEmailAndPassword(auth, email, password);
   return cred.user;
 };
 
 export const signOutUser = async (): Promise<void> => {
-  const { auth } = initializeFirebase();
+  const { auth } = await initializeFirebase();
   await signOut(auth);
 };
 
