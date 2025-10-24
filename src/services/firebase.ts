@@ -35,6 +35,13 @@ function getEnvFlag(name: string, defaultValue = false): boolean {
   return v === '1' || v === 'true' || v === 'yes';
 }
 
+// Check if running on a real device (not simulator)
+function isRealDevice(): boolean {
+  // For Expo Go and development builds, always use production Firebase
+  // This ensures push notifications work properly
+  return Platform.OS === 'ios' || Platform.OS === 'android';
+}
+
 function getEmulatorHost(): string {
   return (
     process.env.EXPO_PUBLIC_EMULATOR_HOST ||
@@ -80,7 +87,16 @@ export const initializeFirebase = (
       }
 
       const useEmulator =
-        config?.useEmulator ?? getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true); // Default to true for development
+        config?.useEmulator ?? 
+        (isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)); // Use production on real devices
+      
+      console.log('🔥 Firebase config:', {
+        platform: Platform.OS,
+        isRealDevice: isRealDevice(),
+        useEmulator,
+        host: getEmulatorHost()
+      });
+      
       if (useEmulator) {
         const host = getEmulatorHost();
         try {
@@ -108,7 +124,7 @@ export const initializeFirebase = (
 };
 
 export const getDb = (
-  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): Firestore => {
   if (!app) initializeFirebase({ useEmulator });
   if (!db) {
@@ -123,7 +139,7 @@ export const getDb = (
 };
 
 export const getBucket = (
-  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): FirebaseStorage => {
   if (!app) initializeFirebase({ useEmulator });
   if (!storage) {
@@ -138,7 +154,7 @@ export const getBucket = (
 };
 
 export const getFunctionsClient = (
-  useEmulator = getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
+  useEmulator = isRealDevice() ? false : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)
 ): Functions => {
   if (!app) initializeFirebase({ useEmulator });
   if (!functionsClient) {

@@ -33,9 +33,25 @@ export async function upsertCurrentUser(
     createdAt: partial.createdAt ?? now,
     updatedAt: now,
   };
+  
+  console.log('📝 Upserting user document:', {
+    userId,
+    email: payload.email,
+    name: payload.name,
+    payload: payload
+  });
+  
   await setDoc(ref, payload, { merge: true });
   const snap = await getDoc(ref);
-  return { id: userId, ...(snap.data() as any) } as User;
+  const result = { id: userId, ...(snap.data() as any) } as User;
+  
+  console.log('✅ User document upserted successfully:', {
+    id: result.id,
+    email: result.email,
+    name: result.name
+  });
+  
+  return result;
 }
 
 export async function getUser(userId: string): Promise<User | null> {

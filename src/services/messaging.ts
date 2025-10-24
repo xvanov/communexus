@@ -50,6 +50,13 @@ export const sendMessage = async (message: Message): Promise<string> => {
   const col = collection(db, `threads/${message.threadId}/messages`);
 
   try {
+    console.log('💾 Saving message to Firestore:', {
+      threadId: message.threadId,
+      senderName: message.senderName,
+      text: message.text.substring(0, 30) + '...',
+      timestamp: message.createdAt.toLocaleTimeString()
+    });
+    
     const docRef = await addDoc(col, {
       threadId: message.threadId,
       senderId: message.senderId,
@@ -71,6 +78,9 @@ export const sendMessage = async (message: Message): Promise<string> => {
       }),
       ...(message.deleted !== undefined && { deleted: message.deleted }),
     });
+    
+    console.log('✅ Message saved with ID:', docRef.id);
+    console.log('🔥 Message saved - Cloud Function should trigger now');
 
     // Update thread's last message
     await updateThreadLastMessage(message.threadId, {
@@ -79,6 +89,9 @@ export const sendMessage = async (message: Message): Promise<string> => {
       senderName: message.senderName,
       timestamp: new Date(),
     });
+
+    console.log('✅ Thread last message updated successfully');
+    console.log('🔥 All updates complete - Cloud Function should have triggered');
 
     return docRef.id;
   } catch (error) {
@@ -212,6 +225,13 @@ const updateThreadLastMessage = async (
   const db = getDb();
   const threadRef = doc(db, 'threads', threadId);
 
+  console.log('🔄 Updating thread last message:', {
+    threadId,
+    senderName: lastMessage.senderName,
+    text: lastMessage.text.substring(0, 30) + '...',
+    timestamp: lastMessage.timestamp.toLocaleTimeString()
+  });
+
   await updateDoc(threadRef, {
     lastMessage: {
       ...lastMessage,
@@ -219,6 +239,8 @@ const updateThreadLastMessage = async (
     },
     updatedAt: serverTimestamp(),
   });
+
+  console.log('✅ Thread last message updated successfully');
 };
 
 // Mark messages as read

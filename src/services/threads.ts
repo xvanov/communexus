@@ -112,12 +112,7 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
           ...data.lastMessage,
           timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
         }
-      : {
-          text: '',
-          senderId: '',
-          senderName: '',
-          timestamp: new Date(),
-        },
+      : undefined,
     unreadCount: data.unreadCount || {},
     createdAt: data.createdAt?.toDate() || new Date(),
     updatedAt: data.updatedAt?.toDate() || new Date(),
@@ -151,12 +146,7 @@ export const listThreadsForUser = async (userId: string): Promise<Thread[]> => {
             ...data.lastMessage,
             timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
           }
-        : {
-            text: '',
-            senderId: '',
-            senderName: '',
-            timestamp: new Date(),
-          },
+        : undefined,
       unreadCount: data.unreadCount || {},
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
@@ -190,17 +180,12 @@ export const subscribeToUserThreads = (
         isGroup: data.isGroup || false,
         groupName: data.groupName,
         groupPhotoUrl: data.groupPhotoUrl,
-        lastMessage: data.lastMessage
-          ? {
-              ...data.lastMessage,
-              timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
-            }
-          : {
-              text: '',
-              senderId: '',
-              senderName: '',
-              timestamp: new Date(),
-            },
+      lastMessage: data.lastMessage
+        ? {
+            ...data.lastMessage,
+            timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+          }
+        : undefined,
         unreadCount: data.unreadCount || {},
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
