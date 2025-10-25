@@ -11,6 +11,8 @@ import {
   Platform,
 } from 'react-native';
 import { SearchResult } from '../../types/AIFeatures';
+import { getDb } from '../../services/firebase';
+import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 
 interface SmartSearchProps {
   threadId?: string;
@@ -21,13 +23,13 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   threadId,
   onResultPress,
 }) => {
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const performSearch = async () => {
-    if (!query.trim()) {
+    if (!searchQuery.trim()) {
       setResults([]);
       setError(null);
       return;
@@ -37,8 +39,72 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Starting smart search for:', query);
+      console.log('🔍 Starting smart search for:', searchQuery);
+      console.log('🔍 ThreadId filter:', threadId || 'all threads');
 
+      // Step 1: Fetch messages from Firestore
+      const db = await getDb();
+      const messagesRef = collection(db, 'messages');
+      
+      // Fetch recent messages (limit to 100 for performance)
+      let messagesQuery;
+      if (threadId) {
+        messagesQuery = query(
+          messagesRef,
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
+      } else {
+        messagesQuery = query(
+          messagesRef,
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
+      }
+
+      const snapshot = await getDocs(messagesQuery);
+      console.log('🔍 Fetched', snapshot.size, 'messages from Firestore');
+
+      const allMessages = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          text: data.text || '',
+          sender: data.senderName || 'Unknown',
+          threadId: data.threadId || '',
+          timestamp: data.createdAt?.toDate?.() || new Date(),
+        };
+      });
+
+      // Filter by threadId if specified
+      const messagesToSearch = threadId
+        ? allMessages.filter(m => m.threadId === threadId)
+        : allMessages;
+
+      console.log('🔍 Searching through', messagesToSearch.length, 'messages');
+
+      if (messagesToSearch.length === 0) {
+        setError('No messages found to search');
+        setResults([]);
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Simple keyword filter first (for performance)
+      const keywords = searchQuery.toLowerCase().split(' ');
+      const keywordMatches = messagesToSearch.filter(msg =>
+        keywords.some(keyword => msg.text.toLowerCase().includes(keyword))
+      );
+
+      console.log('🔍 Keyword matches:', keywordMatches.length);
+
+      // If we have keyword matches, use AI to rank them semantically
+      // If no keyword matches, use AI on all messages (slower but more semantic)
+      const messagesToRank = keywordMatches.length > 0 
+        ? keywordMatches.slice(0, 50) // Limit to 50 for AI processing
+        : messagesToSearch.slice(0, 30); // Use fewer if no keyword match
+
+      // Step 3: Send to AI for semantic ranking
       const url = __DEV__
         ? 'http://127.0.0.1:5001/communexus/us-central1/aiSmartSearch'
         : 'https://us-central1-communexus.cloudfunctions.net/aiSmartSearch';
@@ -50,8 +116,14 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         },
         body: JSON.stringify({
           data: {
-            threadId: threadId || '',
-            query,
+            query: searchQuery,
+            messages: messagesToRank.map(m => ({
+              messageId: m.id,
+              text: m.text,
+              sender: m.sender,
+              threadId: m.threadId,
+              timestamp: m.timestamp.toISOString(),
+            })),
           },
         }),
       });
@@ -62,12 +134,12 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       }
 
       const jsonResponse = await response.json();
-      console.log('🔍 Search response:', jsonResponse);
+      console.log('🔍 AI response:', jsonResponse);
       
       const data = jsonResponse.result || jsonResponse.data;
 
       if (data.success && data.results) {
-        console.log('🔍 Found', data.results.length, 'results');
+        console.log('🔍 Found', data.results.length, 'relevant results');
         setResults(data.results);
       } else {
         setError(data.error || 'Failed to perform smart search');
@@ -88,11 +160,18 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       onPress={() => onResultPress?.(item)}
       activeOpacity={0.7}
     >
-      <Text style={styles.resultSender}>{item.sender}</Text>
-      <Text style={styles.resultText}>{item.text}</Text>
+      <View style={styles.resultHeader}>
+        <Text style={styles.resultSender}>{item.sender}</Text>
+        <Text style={styles.resultRelevance}>
+          {Math.round((item.relevance || 0) * 100)}% match
+        </Text>
+      </View>
+      <Text style={styles.resultText} numberOfLines={3}>
+        {item.text}
+      </Text>
       {item.snippet && (
         <Text style={styles.resultSnippet} numberOfLines={2}>
-          "{item.snippet}"
+          💡 "{item.snippet}"
         </Text>
       )}
       <Text style={styles.resultTimestamp}>
@@ -110,10 +189,12 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         <TextInput
           style={styles.searchInput}
           placeholder="Search conversations with AI..."
-          value={query}
-          onChangeText={setQuery}
+          placeholderTextColor="#999"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
           onSubmitEditing={performSearch}
           returnKeyType="search"
+          autoFocus
         />
         <TouchableOpacity
           style={styles.searchButton}
@@ -128,7 +209,11 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         </TouchableOpacity>
       </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
 
       <FlatList
         data={results}
@@ -137,8 +222,13 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         contentContainerStyle={styles.resultsList}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          !loading && !error && query.length > 0 ? (
-            <Text style={styles.emptyText}>No results for "{query}"</Text>
+          !loading && !error && searchQuery.length > 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No results for "{searchQuery}"</Text>
+              <Text style={styles.emptySubtext}>
+                Try different keywords or search terms
+              </Text>
+            </View>
           ) : null
         }
       />
@@ -152,17 +242,38 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  emptyText: {
-    color: '#8E8E93',
-    fontSize: 16,
-    marginTop: 32,
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 48,
+  },
+  emptySubtext: {
+    color: '#999',
+    fontSize: 14,
+    marginTop: 8,
     textAlign: 'center',
+  },
+  emptyText: {
+    color: '#666',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: '#FFE5E5',
+    borderLeftColor: '#FF3B30',
+    borderLeftWidth: 4,
+    borderRadius: 8,
+    marginBottom: 16,
+    padding: 12,
   },
   errorText: {
     color: '#FF3B30',
     fontSize: 14,
-    marginBottom: 16,
-    textAlign: 'center',
+  },
+  resultHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
   resultItem: {
     backgroundColor: '#FFFFFF',
@@ -175,30 +286,47 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
+  resultRelevance: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 12,
+    color: '#4CAF50',
+    fontSize: 11,
+    fontWeight: '600',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
   resultSender: {
-    color: '#8E8E93',
+    color: '#007AFF',
     fontSize: 12,
-    marginBottom: 4,
+    fontWeight: '600',
   },
   resultSnippet: {
-    color: '#333333',
-    fontSize: 14,
+    backgroundColor: '#FFF9E6',
+    borderLeftColor: '#FFB300',
+    borderLeftWidth: 3,
+    borderRadius: 4,
+    color: '#666',
+    fontSize: 13,
     fontStyle: 'italic',
-    marginBottom: 4,
+    marginBottom: 8,
+    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   resultText: {
     color: '#000000',
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 4,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 8,
   },
   resultTimestamp: {
-    color: '#C7C7CC',
-    fontSize: 12,
+    color: '#999',
+    fontSize: 11,
     textAlign: 'right',
   },
   resultsList: {
     flexGrow: 1,
+    paddingBottom: 16,
   },
   searchBar: {
     flexDirection: 'row',

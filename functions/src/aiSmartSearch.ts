@@ -4,13 +4,19 @@ import { aiService } from './aiService';
 
 export const aiSmartSearch = onCall(async request => {
   try {
-    const { query, threadId } = request.data;
+    const { query, messages } = request.data;
 
     if (!query || typeof query !== 'string') {
       throw new Error('Search query is required');
     }
 
-    const results = await aiService.smartSearch(query, threadId);
+    if (!messages || !Array.isArray(messages)) {
+      throw new Error('Messages array is required');
+    }
+
+    console.log(`🔍 Smart search: query="${query}", messages=${messages.length}`);
+
+    const results = await aiService.smartSearch(query, messages);
 
     return {
       success: true,

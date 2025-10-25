@@ -220,13 +220,13 @@ export class AIService {
 
   async smartSearch(
     query: string,
-    threadId?: string
+    messages: any[]
   ): Promise<AIFeatures.SearchResult[]> {
     if (!this.config.features.smartSearch.enabled) {
       throw new Error('Smart search feature is disabled');
     }
 
-    if (!query.trim()) {
+    if (!query.trim() || messages.length === 0) {
       return [];
     }
 
@@ -236,7 +236,7 @@ export class AIService {
     }
 
     // Check cache
-    const cacheKey = `search_${query}_${threadId || 'global'}`;
+    const cacheKey = `search_${query}_${messages.length}`;
     const cached = getCachedResult<AIFeatures.SearchResult[]>(cacheKey);
     if (cached) {
       return cached;
@@ -245,7 +245,29 @@ export class AIService {
     try {
       const startTime = Date.now();
 
-      const prompt = this.buildSearchPrompt(query, threadId);
+      // Build prompt with actual messages
+      const messagesText = messages.map((m, idx) => 
+        `${idx + 1}. [${m.sender}]: ${m.text}`
+      ).join('\n');
+
+      const prompt = `Search Query: "${query}"
+
+Messages to search:
+${messagesText}
+
+Analyze these messages and return the top 10 most relevant results for the query. For each result, provide:
+1. The message number (messageId)
+2. Relevance score (0-1)
+3. A brief snippet explaining why it's relevant
+
+Format as JSON array:
+[
+  {
+    "messageId": "message_id",
+    "relevance": 0.95,
+    "snippet": "explanation"
+  }
+]`;
 
       const response = await getOpenAI().chat.completions.create({
         model: this.config.openai.model,
@@ -253,15 +275,15 @@ export class AIService {
           {
             role: 'system',
             content:
-              'You are an AI assistant that performs semantic search on conversations. Return relevant messages with relevance scores.',
+              'You are an AI assistant that performs semantic search. Analyze messages and return relevance scores based on meaning, not just keywords. Return valid JSON only.',
           },
           {
             role: 'user',
             content: prompt,
           },
         ],
-        temperature: this.config.openai.temperature,
-        max_tokens: this.config.openai.maxTokens,
+        temperature: 0.3, // Lower for more focused results
+        max_tokens: 1000,
       });
 
       const content = response.choices[0]?.message?.content;
@@ -269,13 +291,34 @@ export class AIService {
         throw new Error('No response from OpenAI');
       }
 
-      const results = this.parseSearchResponse(content);
+      // Parse AI response and map back to original messages
+      const aiResults = this.parseSearchResponse(content);
+      const results: AIFeatures.SearchResult[] = aiResults
+        .map(result => {
+          // Find the original message by index (messageId from AI is 1-indexed)
+          const messageIdx = parseInt(result.messageId) - 1;
+          if (messageIdx < 0 || messageIdx >= messages.length) {
+            return null;
+          }
+          
+          const originalMessage = messages[messageIdx];
+          return {
+            messageId: originalMessage.messageId,
+            threadId: originalMessage.threadId,
+            text: originalMessage.text,
+            sender: originalMessage.sender,
+            timestamp: new Date(originalMessage.timestamp),
+            relevance: result.relevance,
+            snippet: result.snippet,
+          };
+        })
+        .filter(r => r !== null) as AIFeatures.SearchResult[];
 
       // Cache the result
       setCachedResult(cacheKey, results, this.config);
 
       const responseTime = Date.now() - startTime;
-      console.log(`Smart search completed in ${responseTime}ms`);
+      console.log(`Smart search completed in ${responseTime}ms, found ${results.length} results`);
 
       return results;
     } catch (error) {
@@ -420,20 +463,6 @@ Consider factors like:
 - Impact on project success
 
 Return only the priority level: high, medium, or low`;
-  }
-
-  private buildSearchPrompt(query: string, threadId?: string): string {
-    return `Perform a semantic search for: "${query}"
-
-${threadId ? `Focus on thread: ${threadId}` : 'Search across all conversations'}
-
-Return relevant messages with:
-1. Message ID
-2. Relevance score (0-1)
-3. Snippet of relevant text
-4. Context about why it's relevant
-
-Format the results as a structured list.`;
   }
 
   private buildProactivePrompt(context: any): string {
