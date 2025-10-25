@@ -257,7 +257,13 @@ export default function ChatScreen({ route, navigation }: any) {
 
   const renderMessage = ({ item }: { item: Message }) => {
     const isOwn = item.senderId === user?.uid;
-    return <MessageBubble message={item} isOwn={isOwn} />;
+    return (
+      <MessageBubble 
+        message={item} 
+        isOwn={isOwn} 
+        isGroup={safeThread.isGroup}
+      />
+    );
   };
 
   if (loading) {

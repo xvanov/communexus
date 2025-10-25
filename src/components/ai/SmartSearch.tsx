@@ -4,246 +4,236 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SearchResult } from '../../types/AIFeatures';
 
 interface SmartSearchProps {
-  onSearch: (query: string) => Promise<SearchResult[]>;
+  threadId?: string;
   onResultPress?: (result: SearchResult) => void;
-  placeholder?: string;
 }
 
 export const SmartSearch: React.FC<SmartSearchProps> = ({
-  onSearch,
+  threadId,
   onResultPress,
-  placeholder = 'Search messages with AI...',
 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async () => {
+  const performSearch = async () => {
     if (!query.trim()) {
+      setResults([]);
+      setError(null);
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      const searchResults = await onSearch(query);
-      setResults(searchResults);
-    } catch (err) {
-      setError('Failed to search. Please try again.');
-      console.error('Search error:', err);
+
+      console.log('🔍 Starting smart search for:', query);
+
+      const url = __DEV__
+        ? 'http://127.0.0.1:5001/communexus/us-central1/aiSmartSearch'
+        : 'https://us-central1-communexus.cloudfunctions.net/aiSmartSearch';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            threadId: threadId || '',
+            query,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const jsonResponse = await response.json();
+      console.log('🔍 Search response:', jsonResponse);
+      
+      const data = jsonResponse.result || jsonResponse.data;
+
+      if (data.success && data.results) {
+        console.log('🔍 Found', data.results.length, 'results');
+        setResults(data.results);
+      } else {
+        setError(data.error || 'Failed to perform smart search');
+        setResults([]);
+      }
+    } catch (err: any) {
+      console.error('❌ Error performing smart search:', err);
+      setError(`Error: ${err.message || 'Unknown error'}`);
+      setResults([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (date: Date | string) => {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const renderResult = ({ item }: { item: SearchResult }) => (
+  const renderResultItem = ({ item }: { item: SearchResult }) => (
     <TouchableOpacity
-      style={styles.resultCard}
+      style={styles.resultItem}
       onPress={() => onResultPress?.(item)}
       activeOpacity={0.7}
     >
-      <View style={styles.resultHeader}>
-        <Text style={styles.senderText}>{item.sender}</Text>
-        <View style={styles.relevanceBadge}>
-          <Text style={styles.relevanceText}>
-            {Math.round(item.relevance * 100)}% match
-          </Text>
-        </View>
-      </View>
-      <Text style={styles.messageText} numberOfLines={3}>
-        {item.snippet || item.text}
+      <Text style={styles.resultSender}>{item.sender}</Text>
+      <Text style={styles.resultText}>{item.text}</Text>
+      {item.snippet && (
+        <Text style={styles.resultSnippet} numberOfLines={2}>
+          "{item.snippet}"
+        </Text>
+      )}
+      <Text style={styles.resultTimestamp}>
+        {new Date(item.timestamp).toLocaleString()}
       </Text>
-      <Text style={styles.dateText}>📅 {formatDate(item.timestamp)}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.searchBar}>
         <TextInput
           style={styles.searchInput}
+          placeholder="Search conversations with AI..."
           value={query}
           onChangeText={setQuery}
-          placeholder={placeholder}
-          placeholderTextColor="#8E8E93"
-          onSubmitEditing={handleSearch}
+          onSubmitEditing={performSearch}
           returnKeyType="search"
         />
         <TouchableOpacity
           style={styles.searchButton}
-          onPress={handleSearch}
+          onPress={performSearch}
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
+            <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.searchButtonText}>🔍 Search</Text>
+            <Text style={styles.searchButtonText}>🔍</Text>
           )}
         </TouchableOpacity>
       </View>
 
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {results.length > 0 && (
-        <View style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>
-            {results.length} result{results.length !== 1 ? 's' : ''} found
-          </Text>
-          <FlatList
-            data={results}
-            renderItem={renderResult}
-            keyExtractor={(item, index) => `${item.messageId || index}`}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.resultsList}
-          />
-        </View>
-      )}
-
-      {!loading && results.length === 0 && query.trim() && !error && (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
-            No results found. Try a different search term.
-          </Text>
-        </View>
-      )}
-    </View>
+      <FlatList
+        data={results}
+        renderItem={renderResultItem}
+        keyExtractor={(item) => item.messageId}
+        contentContainerStyle={styles.resultsList}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          !loading && !error && query.length > 0 ? (
+            <Text style={styles.emptyText}>No results for "{query}"</Text>
+          ) : null
+        }
+      />
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#F2F2F7',
     flex: 1,
-  },
-  dateText: {
-    color: '#8E8E93',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 32,
-    paddingHorizontal: 32,
+    padding: 16,
   },
   emptyText: {
     color: '#8E8E93',
-    fontSize: 14,
+    fontSize: 16,
+    marginTop: 32,
     textAlign: 'center',
-  },
-  errorContainer: {
-    backgroundColor: '#FFE5E5',
-    borderRadius: 8,
-    marginTop: 8,
-    padding: 12,
   },
   errorText: {
     color: '#FF3B30',
     fontSize: 14,
+    marginBottom: 16,
     textAlign: 'center',
   },
-  messageText: {
-    color: '#333333',
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 4,
-  },
-  relevanceBadge: {
-    backgroundColor: '#34C759',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  relevanceText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  resultCard: {
+  resultItem: {
     backgroundColor: '#FFFFFF',
-    borderLeftColor: '#007AFF',
-    borderLeftWidth: 3,
     borderRadius: 12,
     elevation: 2,
     marginBottom: 12,
     padding: 16,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  resultHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  resultSender: {
+    color: '#8E8E93',
+    fontSize: 12,
+    marginBottom: 4,
   },
-  resultsList: {
-    paddingBottom: 16,
+  resultSnippet: {
+    color: '#333333',
+    fontSize: 14,
+    fontStyle: 'italic',
+    marginBottom: 4,
   },
-  resultsContainer: {
-    flex: 1,
-    marginTop: 16,
-  },
-  resultsTitle: {
+  resultText: {
     color: '#000000',
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  resultTimestamp: {
+    color: '#C7C7CC',
+    fontSize: 12,
+    textAlign: 'right',
+  },
+  resultsList: {
+    flexGrow: 1,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    marginBottom: 16,
   },
   searchButton: {
     alignItems: 'center',
     backgroundColor: '#007AFF',
-    borderRadius: 8,
+    borderRadius: 12,
+    elevation: 3,
     justifyContent: 'center',
-    minWidth: 80,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   searchButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    gap: 8,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   searchInput: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 8,
-    color: '#000000',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    elevation: 2,
     flex: 1,
     fontSize: 16,
+    marginRight: 8,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  senderText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '600',
+    paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
 });

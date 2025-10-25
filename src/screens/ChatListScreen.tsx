@@ -144,7 +144,7 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.usernameText} testID="chat-list-title">
+          <Text style={styles.usernameText} testID="chat-list-title" numberOfLines={1}>
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>
@@ -161,7 +161,7 @@ export default function ChatListScreen({ navigation }: any) {
             onPress={handleContacts}
             testID="contacts-button"
           >
-            <Text style={styles.contactsButtonText}>Contacts</Text>
+            <Text style={styles.contactsButtonText}>👥</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingsButton}
@@ -175,7 +175,7 @@ export default function ChatListScreen({ navigation }: any) {
             onPress={handleLogout}
             testID="logout-button"
           >
-            <Text style={styles.logoutButtonText}>Logout</Text>
+            <Text style={styles.logoutButtonText}>🚪</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.createButton}
@@ -241,15 +241,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   contactsButton: {
+    alignItems: 'center',
     backgroundColor: '#34C759',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
   },
   contactsButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
   },
   container: {
     backgroundColor: '#000000',
@@ -323,11 +323,12 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    marginRight: 8,
   },
   headerRight: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
   },
   headerTitle: {
     color: '#FFFFFF',
@@ -340,15 +341,15 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   logoutButton: {
+    alignItems: 'center',
     backgroundColor: '#FF3B30',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: 18,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
   },
   logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 18,
   },
   searchButton: {
     alignItems: 'center',
@@ -378,8 +379,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   usernameText: {
-    color: '#8E8E93',
-    fontSize: 14,
-    marginTop: 2,
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '600',
   },
 });

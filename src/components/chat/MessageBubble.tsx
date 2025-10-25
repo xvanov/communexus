@@ -8,11 +8,13 @@ import { PriorityLevel } from '../../types/AIFeatures';
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
+  isGroup?: boolean; // Add isGroup to show sender names
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isOwn,
+  isGroup = false,
 }) => {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -40,6 +42,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <View
       style={[styles.messageContainer, isOwn && styles.ownMessageContainer]}
     >
+      {/* Show sender name for group chats (only for other people's messages) */}
+      {isGroup && !isOwn && (
+        <Text style={styles.senderName}>{message.senderName}</Text>
+      )}
       <View
         style={[styles.messageBubble, isOwn && styles.ownMessageBubble]}
         testID="message-bubble"
@@ -119,6 +125,13 @@ const styles = StyleSheet.create({
   },
   priorityContainer: {
     marginBottom: 6,
+  },
+  senderName: {
+    color: '#007AFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 4,
+    marginLeft: 4,
   },
   statusIcon: {
     color: '#FFFFFF',
