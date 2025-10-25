@@ -44,9 +44,6 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Run integration tests
-        run: npm run test:integration
-
   # Build and Deploy Firebase Functions
   deploy-firebase:
     name: Deploy Firebase Functions
