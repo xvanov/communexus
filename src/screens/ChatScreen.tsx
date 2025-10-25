@@ -22,6 +22,7 @@ import { SummaryModal } from '../components/ai/SummaryModal';
 import { ActionItemModal } from '../components/ai/ActionItemModal';
 import { ProactiveSuggestions } from '../components/ai/ProactiveSuggestions';
 import { AIActionItem, ProactiveSuggestion } from '../types/AIFeatures';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
 
 export default function ChatScreen({ route, navigation }: any) {
   const { threadId, thread, contact } = route.params as {
@@ -345,48 +346,48 @@ export default function ChatScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   actionButton: {
-    backgroundColor: '#34C759',
-    borderRadius: 16,
-    marginRight: 8,
-    paddingHorizontal: 12,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    marginRight: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     paddingVertical: 6,
   },
   actionButtonText: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 13,
     fontWeight: '600',
   },
   aiButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-    marginRight: 12,
-    paddingHorizontal: 12,
+    backgroundColor: Colors.accent,
+    borderRadius: BorderRadius.md,
+    marginRight: Spacing.md,
+    paddingHorizontal: Spacing.md,
     paddingVertical: 6,
   },
   aiButtonText: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
   centerContainer: {
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: Colors.background,
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   container: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: Colors.background,
     flex: 1,
   },
   errorSubtext: {
-    color: '#8E8E93',
+    color: Colors.textSecondary,
     fontSize: 14,
-    marginTop: 8,
+    marginTop: Spacing.sm,
     textAlign: 'center',
   },
   errorText: {
-    color: '#FF3B30',
+    color: Colors.error,
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
@@ -395,12 +396,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   loadingText: {
-    color: '#8E8E93',
+    color: Colors.textSecondary,
     fontSize: 16,
-    marginTop: 12,
+    marginTop: Spacing.md,
   },
   messagesContent: {
-    paddingVertical: 16,
+    paddingVertical: Spacing.md,
   },
   messagesList: {
     flex: 1,

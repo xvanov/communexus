@@ -4,11 +4,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Message } from '../../types/Message';
 import { PriorityBadge } from '../common/PriorityBadge';
 import { PriorityLevel } from '../../types/AIFeatures';
+import { Colors, Spacing, BorderRadius, Shadows } from '../../utils/theme';
 
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
-  isGroup?: boolean; // Add isGroup to show sender names
+  isGroup?: boolean;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -35,7 +36,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   };
 
-  // Get priority from message metadata (if AI has analyzed it)
   const priority = (message as any).priority as PriorityLevel | undefined;
 
   return (
@@ -47,7 +47,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <Text style={styles.senderName}>{message.senderName}</Text>
       )}
       <View
-        style={[styles.messageBubble, isOwn && styles.ownMessageBubble]}
+        style={[
+          styles.messageBubble,
+          isOwn ? styles.ownMessageBubble : styles.otherMessageBubble
+        ]}
         testID="message-bubble"
       >
         {/* Priority Badge - show at top for high priority messages */}
@@ -82,60 +85,65 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
 const styles = StyleSheet.create({
   messageBubble: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
-    elevation: 2,
-    maxWidth: '80%',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 8,
+    maxWidth: '75%',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    ...Shadows.small,
   },
   messageContainer: {
     alignItems: 'flex-start',
-    marginHorizontal: 16,
-    marginVertical: 4,
+    marginHorizontal: Spacing.sm,
+    marginVertical: 2,
   },
   messageFooter: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    marginLeft: Spacing.sm,
     marginTop: 4,
   },
   messageText: {
-    color: '#000000',
-    fontSize: 16,
+    color: Colors.textPrimary,
+    fontSize: 15,
     lineHeight: 20,
   },
   messageTime: {
-    color: '#8E8E93',
-    fontSize: 12,
+    color: Colors.textTertiary,
+    fontSize: 11,
+  },
+  otherMessageBubble: {
+    backgroundColor: Colors.bubbleOther,
+    borderBottomLeftRadius: 2,
   },
   ownMessageBubble: {
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.bubbleOwn,
+    borderBottomRightRadius: 2,
   },
   ownMessageContainer: {
     alignItems: 'flex-end',
   },
   ownMessageText: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
   },
   ownMessageTime: {
-    color: '#FFFFFF',
-    opacity: 0.8,
+    color: Colors.textTertiary,
+    opacity: 0.9,
   },
   priorityContainer: {
     marginBottom: 6,
   },
   senderName: {
-    color: '#007AFF',
+    color: Colors.primary,
     fontSize: 12,
     fontWeight: '600',
-    marginBottom: 4,
-    marginLeft: 4,
+    marginBottom: 2,
+    marginLeft: Spacing.xs,
   },
   statusIcon: {
-    color: '#FFFFFF',
+    color: Colors.textTertiary,
     fontSize: 12,
     marginLeft: 4,
+    opacity: 0.9,
   },
 });
