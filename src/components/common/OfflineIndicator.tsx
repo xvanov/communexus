@@ -13,7 +13,8 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 }) => {
   const { isOnline, pendingMessages, failedMessages, isSyncing } =
     useOfflineQueue();
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const fadeAnimRef = React.useRef(new Animated.Value(0));
+  const fadeAnim = fadeAnimRef.current;
 
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
