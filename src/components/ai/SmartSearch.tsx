@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SearchResult } from '../../types/AIFeatures';
 import { getDb } from '../../services/firebase';
-import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collectionGroup, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 
 interface SmartSearchProps {
   threadId?: string;
@@ -42,21 +42,24 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       console.log('🔍 Starting smart search for:', searchQuery);
       console.log('🔍 ThreadId filter:', threadId || 'all threads');
 
-      // Step 1: Fetch messages from Firestore
+      // Step 1: Fetch messages from Firestore using collectionGroup
+      // This queries ALL 'messages' subcollections across all threads
       const db = await getDb();
-      const messagesRef = collection(db, 'messages');
       
       // Fetch recent messages (limit to 100 for performance)
       let messagesQuery;
       if (threadId) {
+        // If threadId specified, filter by it
         messagesQuery = query(
-          messagesRef,
+          collectionGroup(db, 'messages'),
+          where('threadId', '==', threadId),
           orderBy('createdAt', 'desc'),
           limit(100)
         );
       } else {
+        // Search across all threads
         messagesQuery = query(
-          messagesRef,
+          collectionGroup(db, 'messages'),
           orderBy('createdAt', 'desc'),
           limit(100)
         );
