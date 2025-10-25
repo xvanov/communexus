@@ -8,18 +8,36 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { auth } = initializeFirebase();
+    let unsubscribe: (() => void) | null = null;
 
-    const unsubscribe = onAuthStateChanged(auth, firebaseUser => {
-      console.log(
-        'Auth state changed:',
-        firebaseUser ? firebaseUser.email : 'No user'
-      );
-      setUser(firebaseUser);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        // Initialize Firebase first - this ensures all services are ready
+        await initializeFirebase();
 
-    return () => unsubscribe();
+        const { auth } = await initializeFirebase();
+
+        unsubscribe = onAuthStateChanged(auth, firebaseUser => {
+          console.log(
+            'Auth state changed:',
+            firebaseUser ? firebaseUser.email : 'No user'
+          );
+          setUser(firebaseUser);
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error('Failed to initialize Firebase Auth:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   return { user, loading };

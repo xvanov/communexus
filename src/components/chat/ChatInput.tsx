@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Text,
 } from 'react-native';
+import { Colors, Spacing, BorderRadius } from '../../utils/theme';
 
 interface ChatInputProps {
   onSendMessage: (text: string) => Promise<void>;
@@ -19,7 +20,7 @@ interface ChatInputProps {
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   disabled = false,
-  placeholder = 'Type a message...',
+  placeholder = 'Message',
   maxLength = 1000,
 }) => {
   const [inputText, setInputText] = useState('');
@@ -36,7 +37,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       await onSendMessage(text);
     } catch (error) {
       console.error('Failed to send message:', error);
-      setInputText(text); // Restore the text on error
+      setInputText(text);
     } finally {
       setSending(false);
     }
@@ -44,16 +45,19 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   return (
     <View style={styles.inputContainer}>
-      <TextInput
-        style={styles.textInput}
-        value={inputText}
-        onChangeText={setInputText}
-        placeholder={placeholder}
-        multiline
-        maxLength={maxLength}
-        editable={!sending && !disabled}
-        testID="message-input"
-      />
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.textInput}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder={placeholder}
+          placeholderTextColor={Colors.textTertiary}
+          multiline
+          maxLength={maxLength}
+          editable={!sending && !disabled}
+          testID="message-input"
+        />
+      </View>
       <TouchableOpacity
         style={[
           styles.sendButton,
@@ -62,12 +66,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         ]}
         onPress={handleSend}
         disabled={!inputText.trim() || sending || disabled}
+        activeOpacity={0.7}
         testID="send-button"
       >
         {sending ? (
-          <ActivityIndicator size="small" color="#FFFFFF" />
+          <ActivityIndicator size="small" color={Colors.textPrimary} />
         ) : (
-          <Text style={styles.sendButtonText}>Send</Text>
+          <Text style={styles.sendButtonText}>➤</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -77,39 +82,42 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 const styles = StyleSheet.create({
   inputContainer: {
     alignItems: 'flex-end',
-    backgroundColor: '#FFFFFF',
-    borderTopColor: '#E5E5E7',
-    borderTopWidth: 1,
+    backgroundColor: Colors.backgroundSecondary,
+    borderTopColor: Colors.border,
+    borderTopWidth: 0.5,
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  inputWrapper: {
+    backgroundColor: Colors.backgroundTertiary,
+    borderRadius: BorderRadius.xl,
+    flex: 1,
+    marginRight: Spacing.sm,
   },
   sendButton: {
     alignItems: 'center',
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.round,
+    height: 42,
     justifyContent: 'center',
-    minWidth: 60,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    width: 42,
   },
   sendButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: Colors.backgroundTertiary,
+    opacity: 0.5,
   },
   sendButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: Colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
   },
   textInput: {
-    borderColor: '#E5E5E7',
-    borderRadius: 20,
-    borderWidth: 1,
-    flex: 1,
+    color: Colors.textPrimary,
     fontSize: 16,
-    marginRight: 12,
+    lineHeight: 20,
     maxHeight: 100,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
 });

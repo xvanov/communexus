@@ -12,7 +12,6 @@ import {
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signOut,
 } from 'firebase/auth';
 import { initializeFirebase } from '../services/firebase';
 import {
@@ -46,7 +45,7 @@ export default function AuthScreen({
 
     setLoading(true);
     try {
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
 
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(
@@ -75,14 +74,60 @@ export default function AuthScreen({
 
       // Create user document in Firestore if signing up or logging in
       if (auth.currentUser) {
+        console.log(
+          'Creating/updating user document for:',
+          auth.currentUser.email
+        );
+
+        // Map email to proper name for demo users
+        const emailToName: Record<string, string> = {
+          'alice@demo.com': 'Alice Johnson',
+          'bob@demo.com': 'Bob Smith',
+          'charlie@demo.com': 'Charlie Davis',
+        };
+
+        const properName =
+          emailToName[auth.currentUser.email || ''] ||
+          auth.currentUser.displayName ||
+          auth.currentUser.email ||
+          'User';
+
         const { upsertCurrentUser } = await import('../services/users');
-        await upsertCurrentUser({
-          name:
-            auth.currentUser.displayName || auth.currentUser.email || 'User',
-          email: auth.currentUser.email || '',
-        }).catch(error => {
-          console.log('Failed to create user document:', error);
-        });
+        try {
+          await upsertCurrentUser({
+            name: properName,
+            email: auth.currentUser.email || '',
+          });
+          console.log('✅ User document created/updated successfully');
+        } catch (error) {
+          console.error('❌ Failed to create user document:', error);
+        }
+
+        // Test notification functionality first
+        try {
+          console.log('🧪 AUTH: Testing notification functionality...');
+          const { testNotificationPermissions } = await import(
+            '../services/testNotifications'
+          );
+          await testNotificationPermissions();
+        } catch (testError) {
+          console.error('❌ AUTH: Notification test failed:', testError);
+        }
+
+        // Initialize push notifications for the user
+        try {
+          console.log('🔔 AUTH: Starting notification initialization...');
+          const { initializeNotifications } = await import(
+            '../services/notifications'
+          );
+          await initializeNotifications();
+          console.log('✅ AUTH: Push notifications initialized successfully');
+        } catch (notificationError) {
+          console.error(
+            '❌ AUTH: Failed to initialize notifications:',
+            notificationError
+          );
+        }
 
         // Initialize contacts for test users
         try {
@@ -141,7 +186,7 @@ export default function AuthScreen({
   const signInAsDemoUser = async (email: string) => {
     setLoading(true);
     try {
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
 
       // Auto-create test users first
       console.log('Creating test users before sign in...');
@@ -154,6 +199,45 @@ export default function AuthScreen({
       // Initialize contacts for test user
       try {
         if (auth.currentUser) {
+          // Initialize push notifications for demo user
+          try {
+            console.log('🧪 DEMO: Testing notification functionality...');
+            const { testNotificationPermissions } = await import(
+              '../services/testNotifications'
+            );
+            await testNotificationPermissions();
+          } catch (testError) {
+            console.error('❌ DEMO: Notification test failed:', testError);
+          }
+
+          // Test push notification flow
+          try {
+            console.log('🧪 DEMO: Testing push notification flow...');
+            const { testPushNotificationFlow } = await import(
+              '../services/testPushNotifications'
+            );
+            await testPushNotificationFlow();
+          } catch (pushTestError) {
+            console.error(
+              '❌ DEMO: Push notification flow test failed:',
+              pushTestError
+            );
+          }
+
+          try {
+            console.log('🔔 DEMO: Starting notification initialization...');
+            const { initializeNotifications } = await import(
+              '../services/notifications'
+            );
+            await initializeNotifications();
+            console.log('✅ DEMO: Push notifications initialized successfully');
+          } catch (notificationError) {
+            console.error(
+              '❌ DEMO: Failed to initialize notifications:',
+              notificationError
+            );
+          }
+
           await initializeTestUserContacts(auth.currentUser.uid);
         }
       } catch (contactError) {
@@ -174,7 +258,7 @@ export default function AuthScreen({
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Logo size={120} color="#1E3A8A" />
+          <Logo size={120} />
         </View>
 
         <View style={styles.form}>

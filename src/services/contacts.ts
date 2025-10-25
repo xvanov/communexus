@@ -27,7 +27,7 @@ export const addContact = async (
   userId: string,
   contact: Contact
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const contactRef = doc(db, 'users', userId, 'contacts', contact.id);
 
   // Build contact data without undefined values
@@ -49,7 +49,7 @@ export const addContact = async (
 
 // Get all contacts for a user
 export const getUserContacts = async (userId: string): Promise<Contact[]> => {
-  const db = getDb();
+  const db = await getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
   const snapshot = await getDocs(contactsRef);
 
@@ -70,50 +70,88 @@ export const getUserContacts = async (userId: string): Promise<Contact[]> => {
 };
 
 // Subscribe to contacts with real-time updates
-export const subscribeToContacts = (
+export const subscribeToContacts = async (
   userId: string,
   callback: (contacts: Contact[]) => void
-): (() => void) => {
-  const db = getDb();
+): Promise<() => void> => {
+  const db = await getDb();
   const contactsRef = collection(db, 'users', userId, 'contacts');
 
-  return onSnapshot(contactsRef, async snapshot => {
+  // Store unsubscribe functions for user listeners
+  const userUnsubscribes: (() => void)[] = [];
+  let contactsSnapshot: any = null;
+
+  const unsubscribeContacts = onSnapshot(contactsRef, snapshot => {
+    console.log('📞 Contacts updated:', snapshot.docs.length, 'contacts');
+
+    // Clean up previous user listeners
+    userUnsubscribes.forEach(unsub => unsub());
+    userUnsubscribes.length = 0;
+
+    contactsSnapshot = snapshot;
     const contacts: Contact[] = [];
 
-    // For each contact, fetch their current online status from users collection
-    const contactPromises = snapshot.docs.map(async contactDoc => {
+    if (snapshot.docs.length === 0) {
+      callback([]);
+      return;
+    }
+
+    // For each contact, set up a real-time listener for their user document
+    snapshot.docs.forEach(contactDoc => {
       const contactData = contactDoc.data();
+      const contactId = contactDoc.id;
 
-      // Fetch the actual user document to get real-time online status
-      try {
-        const userDoc = await getDoc(doc(db, 'users', contactDoc.id));
-        const userData = userDoc.exists() ? userDoc.data() : {};
+      // Set up real-time listener for this user's online status
+      const userRef = doc(db, 'users', contactId);
+      const unsubscribeUser = onSnapshot(
+        userRef,
+        userSnapshot => {
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
 
-        return {
-          id: contactDoc.id,
-          name: contactData.name,
-          email: contactData.email,
-          photoUrl: contactData.photoUrl,
-          online: Boolean(userData?.online), // Explicitly convert to boolean
-          lastSeen: userData?.lastSeen?.toDate() || new Date(),
-        };
-      } catch (error) {
-        console.error(`Error fetching user data for ${contactDoc.id}:`, error);
-        // Return contact with offline status if user doc fetch fails
-        return {
-          id: contactDoc.id,
-          name: contactData.name,
-          email: contactData.email,
-          photoUrl: contactData.photoUrl,
-          online: false,
-          lastSeen: contactData.lastSeen?.toDate() || new Date(),
-        };
-      }
+            const contact: Contact = {
+              id: contactId,
+              name: contactData.name,
+              email: contactData.email,
+              photoUrl: contactData.photoUrl,
+              online: Boolean(userData?.online),
+              lastSeen: userData?.lastSeen?.toDate() || new Date(),
+            };
+
+            console.log(`👤 Contact ${contact.name}:`, {
+              online: contact.online,
+              lastSeen: contact.lastSeen.toLocaleTimeString(),
+            });
+
+            // Update the contacts array and notify callback
+            const existingIndex = contacts.findIndex(c => c.id === contactId);
+            if (existingIndex >= 0) {
+              contacts[existingIndex] = contact;
+            } else {
+              contacts.push(contact);
+            }
+
+            // Sort contacts and notify callback
+            const sortedContacts = [...contacts].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            );
+            callback(sortedContacts);
+          }
+        },
+        error => {
+          console.error(`Error listening to user ${contactId}:`, error);
+        }
+      );
+
+      userUnsubscribes.push(unsubscribeUser);
     });
-
-    const resolvedContacts = await Promise.all(contactPromises);
-    callback(resolvedContacts);
   });
+
+  // Return cleanup function
+  return () => {
+    unsubscribeContacts();
+    userUnsubscribes.forEach(unsub => unsub());
+  };
 };
 
 // Update user's online status with proper error handling
@@ -121,7 +159,7 @@ export const updateUserOnlineStatus = async (
   userId: string,
   online: boolean
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   const userRef = doc(db, 'users', userId);
 
   try {
@@ -265,9 +303,12 @@ export const autoCreateTestUsers = async (): Promise<void> => {
 export const initializeTestUserContacts = async (
   currentUserId: string
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
 
   console.log(`Initializing contacts for user: ${currentUserId}`);
+
+  // First, ensure the current user has a proper document
+  await ensureCurrentUserDocument(currentUserId);
 
   // Fetch all users from Firestore to get their actual UIDs
   const usersRef = collection(db, 'users');
@@ -281,7 +322,13 @@ export const initializeTestUserContacts = async (
   // Find demo users by email and use their Firebase UIDs
   usersSnapshot.forEach(doc => {
     const userData = doc.data();
-    console.log(`Checking user: ${userData.email} (${doc.id})`);
+    console.log(`Checking user: ${userData.email || 'NO EMAIL'} (${doc.id})`);
+    console.log(`User data:`, {
+      email: userData.email,
+      name: userData.name,
+      hasEmail: !!userData.email,
+      hasName: !!userData.name,
+    });
 
     if (demoEmails.includes(userData.email)) {
       const contact: Contact = {
@@ -293,7 +340,13 @@ export const initializeTestUserContacts = async (
         lastSeen: userData.lastSeen?.toDate() || new Date(),
       };
       demoUsers.push(contact);
-      console.log(`Added to demo users list: ${contact.name} (${contact.id})`);
+      console.log(
+        `✅ Added to demo users list: ${contact.name} (${contact.id})`
+      );
+    } else {
+      console.log(
+        `❌ Skipped user ${doc.id}: email ${userData.email} not in demo list`
+      );
     }
   });
 
@@ -319,4 +372,75 @@ export const initializeTestUserContacts = async (
   console.log(
     `✅ Contact initialization complete: ${addedCount} contacts added`
   );
+};
+
+// Ensure the current user has a proper Firestore document
+const ensureCurrentUserDocument = async (
+  currentUserId: string
+): Promise<void> => {
+  console.log('🔧 Ensuring current user document exists...');
+
+  const db = await getDb();
+  const userDocRef = doc(db, 'users', currentUserId);
+  const userDoc = await getDoc(userDocRef);
+
+  if (!userDoc.exists()) {
+    console.log(
+      `❌ No Firestore document found for current user: ${currentUserId}`
+    );
+    return;
+  }
+
+  const userData = userDoc.data();
+  console.log(`Current user document data:`, userData);
+
+  // Check if the document has the required fields
+  if (!userData.email || !userData.name) {
+    console.log(`🔧 Current user document is incomplete, updating...`);
+
+    // We need to get the email from Firebase Auth since we can't query by email
+    const { initializeFirebase } = await import('./firebase');
+    const { auth } = await initializeFirebase();
+    const currentUser = auth.currentUser;
+
+    if (currentUser && currentUser.email) {
+      // Map email to name
+      const emailToName: Record<string, string> = {
+        'alice@demo.com': 'Alice Johnson',
+        'bob@demo.com': 'Bob Smith',
+        'charlie@demo.com': 'Charlie Davis',
+      };
+
+      const name =
+        emailToName[currentUser.email] ||
+        currentUser.displayName ||
+        currentUser.email;
+
+      console.log(
+        `🔧 Updating current user document with email: ${currentUser.email}, name: ${name}`
+      );
+
+      // Update the document with proper fields
+      await setDoc(
+        userDocRef,
+        {
+          id: currentUserId,
+          email: currentUser.email,
+          name: name,
+          online: userData.online || true,
+          lastSeen: userData.lastSeen || new Date(),
+          role: userData.role || 'contractor',
+          createdAt: userData.createdAt || new Date(),
+          updatedAt: new Date(),
+        },
+        { merge: true }
+      );
+
+      console.log(`✅ Updated current user document`);
+    } else {
+      console.log(`❌ Could not get current user email from Auth`);
+    }
+  } else {
+    console.log(`✅ Current user document already complete`);
+  }
 };

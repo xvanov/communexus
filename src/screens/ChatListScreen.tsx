@@ -1,5 +1,5 @@
 // ChatListScreen.tsx - Thread list with unread counts and last message preview
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { signOut } from 'firebase/auth';
+import { signOut, getAuth } from 'firebase/auth';
 import { useThreads } from '../hooks/useThreads';
 import { useUnreadCount } from '../hooks/useUnreadCount';
 import { usePresence } from '../hooks/usePresence';
@@ -19,10 +19,13 @@ import { Thread } from '../types/Thread';
 import { useAuth } from '../hooks/useAuth';
 import { ThreadItem } from '../components/thread/ThreadItem';
 import { initializeFirebase } from '../services/firebase';
+import { SmartSearchModal } from '../components/ai/SmartSearchModal';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
 
 export default function ChatListScreen({ navigation }: any) {
   const { threads, loading, error } = useThreads();
   const { user } = useAuth();
+  const [showSearch, setShowSearch] = useState(false);
 
   // Automatically update badge count when threads change
   useUnreadCount(threads);
@@ -52,7 +55,7 @@ export default function ChatListScreen({ navigation }: any) {
   const performLogout = async () => {
     try {
       console.log('Starting logout process...');
-      const { auth } = initializeFirebase();
+      const { auth } = await initializeFirebase();
       console.log('Current user before logout:', auth.currentUser?.email);
       await signOut(auth);
       console.log('Logout successful');
@@ -72,7 +75,7 @@ export default function ChatListScreen({ navigation }: any) {
     console.log('Logout button pressed');
 
     // Check if running in Firebase emulator/demo project (indicates test/dev environment)
-    const { auth, app } = initializeFirebase();
+    const { auth, app } = await initializeFirebase();
     const isDemoProject = app.options.projectId === 'demo-communexus';
     const isTestEnv = __DEV__ && isDemoProject;
 
@@ -142,17 +145,28 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.usernameText} testID="chat-list-title">
+          <Text
+            style={styles.usernameText}
+            testID="chat-list-title"
+            numberOfLines={1}
+          >
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => setShowSearch(true)}
+            testID="search-button"
+          >
+            <Text style={styles.searchButtonText}>🔍</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.contactsButton}
             onPress={handleContacts}
             testID="contacts-button"
           >
-            <Text style={styles.contactsButtonText}>Contacts</Text>
+            <Text style={styles.contactsButtonText}>👥</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingsButton}
@@ -166,7 +180,7 @@ export default function ChatListScreen({ navigation }: any) {
             onPress={handleLogout}
             testID="logout-button"
           >
-            <Text style={styles.logoutButtonText}>Logout</Text>
+            <Text style={styles.logoutButtonText}>🚪</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.createButton}
@@ -206,6 +220,19 @@ export default function ChatListScreen({ navigation }: any) {
           testID="thread-list"
         />
       )}
+
+      <SmartSearchModal
+        visible={showSearch}
+        onClose={() => setShowSearch(false)}
+        onResultPress={result => {
+          console.log('Search result pressed:', result);
+          // Navigate to the thread containing this message
+          const thread = threads.find(t => t.id === result.threadId);
+          if (thread) {
+            handleThreadPress(thread);
+          }
+        }}
+      />
     </View>
   );
 }
@@ -213,140 +240,153 @@ export default function ChatListScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   centerContainer: {
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: Colors.background,
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   contactsButton: {
-    backgroundColor: '#34C759',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundTertiary,
+    borderRadius: BorderRadius.xl,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
   },
   contactsButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
   },
   container: {
-    backgroundColor: '#000000',
+    backgroundColor: Colors.background,
     flex: 1,
   },
   createButton: {
     alignItems: 'center',
-    backgroundColor: '#1E3A8A',
-    borderRadius: 18,
-    height: 36,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.xl,
+    height: 40,
     justifyContent: 'center',
-    width: 36,
+    width: 40,
   },
   createButtonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    fontSize: 22,
+    fontWeight: '500',
   },
   emptyButton: {
-    backgroundColor: '#1E3A8A',
-    borderRadius: 25,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
   emptyButtonText: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
   emptyContainer: {
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: Colors.background,
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: Spacing.xl,
   },
   emptySubtitle: {
-    color: '#8E8E93',
-    fontSize: 16,
-    marginBottom: 24,
+    color: Colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: Spacing.xl,
     textAlign: 'center',
   },
   emptyTitle: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
   },
   errorSubtext: {
-    color: '#8E8E93',
+    color: Colors.textSecondary,
     fontSize: 14,
-    marginTop: 8,
+    marginTop: Spacing.sm,
     textAlign: 'center',
   },
   errorText: {
-    color: '#FF3B30',
+    color: Colors.error,
     fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },
   header: {
     alignItems: 'center',
-    backgroundColor: '#1E3A8A',
-    borderBottomColor: '#1E40AF',
-    borderBottomWidth: 1,
+    backgroundColor: Colors.backgroundSecondary,
+    borderBottomColor: Colors.border,
+    borderBottomWidth: 0.5,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.md,
     paddingTop: 50,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   headerLeft: {
     flex: 1,
+    marginRight: Spacing.md,
   },
   headerRight: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 28,
     fontWeight: 'bold',
   },
   loadingText: {
-    color: '#8E8E93',
+    color: Colors.textSecondary,
     fontSize: 16,
-    marginTop: 12,
+    marginTop: Spacing.md,
   },
   logoutButton: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundTertiary,
+    borderRadius: BorderRadius.xl,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
   },
   logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 18,
+  },
+  searchButton: {
+    alignItems: 'center',
+    backgroundColor: Colors.primaryDark,
+    borderRadius: BorderRadius.xl,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  searchButtonText: {
+    fontSize: 18,
   },
   settingsButton: {
     alignItems: 'center',
-    backgroundColor: '#64748B',
-    borderRadius: 18,
-    height: 36,
+    backgroundColor: Colors.backgroundTertiary,
+    borderRadius: BorderRadius.xl,
+    height: 40,
     justifyContent: 'center',
-    marginLeft: 8,
-    width: 36,
+    width: 40,
   },
   settingsButtonText: {
     fontSize: 18,
   },
   threadList: {
-    backgroundColor: '#000000',
+    backgroundColor: Colors.background,
     flex: 1,
   },
   usernameText: {
-    color: '#8E8E93',
-    fontSize: 14,
-    marginTop: 2,
+    color: Colors.textPrimary,
+    fontSize: 22,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
 });

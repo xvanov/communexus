@@ -5,7 +5,6 @@ import {
   initializeApp as initializeAdminApp,
   getApps as getAdminApps,
 } from 'firebase-admin/app';
-import { getMessaging } from 'firebase-admin/messaging';
 import { getFirestore } from 'firebase-admin/firestore';
 
 setGlobalOptions({ region: 'us-central1' });
@@ -21,9 +20,14 @@ if (getAdminApps().length === 0) {
 export const sendMessageNotification = onDocumentCreated(
   'threads/{threadId}/messages/{messageId}',
   async event => {
+    console.log('🔥 sendMessageNotification triggered!', {
+      threadId: event.params.threadId,
+      messageId: event.params.messageId,
+    });
+
     const snapshot = event.data;
     if (!snapshot) {
-      console.log('No data in snapshot');
+      console.log('❌ No data in snapshot');
       return;
     }
 
@@ -33,9 +37,13 @@ export const sendMessageNotification = onDocumentCreated(
     const senderName = messageData.senderName;
     const messageText = messageData.text;
 
-    console.log(
-      `New message in thread ${threadId} from ${senderName}: ${messageText}`
-    );
+    console.log('📨 Message data:', {
+      threadId,
+      senderId,
+      senderName,
+      messageText: messageText?.substring(0, 50) + '...',
+      messageId: snapshot.id,
+    });
 
     try {
       // Get thread to find participants
@@ -43,18 +51,22 @@ export const sendMessageNotification = onDocumentCreated(
       const threadDoc = await db.doc(`threads/${threadId}`).get();
 
       if (!threadDoc.exists) {
-        console.log('Thread not found');
+        console.log('❌ Thread not found:', threadId);
         return;
       }
 
       const threadData = threadDoc.data();
       const participants = threadData?.participants || [];
 
+      console.log('👥 Thread participants:', participants);
+
       // Get push tokens for all participants except the sender
       const recipientIds = participants.filter((id: string) => id !== senderId);
 
+      console.log('📤 Recipients to notify:', recipientIds);
+
       if (recipientIds.length === 0) {
-        console.log('No recipients to notify');
+        console.log('❌ No recipients to notify');
         return;
       }
 
@@ -65,10 +77,20 @@ export const sendMessageNotification = onDocumentCreated(
 
       const tokens: string[] = [];
       for (const userDoc of userDocs) {
-        if (!userDoc.exists) continue;
+        if (!userDoc.exists) {
+          console.log('❌ User document not found:', userDoc.id);
+          continue;
+        }
 
         const userData = userDoc.data();
         const pushToken = userData?.expoPushToken;
+
+        console.log(
+          '👤 User:',
+          userDoc.id,
+          'Push token:',
+          pushToken ? '✅' : '❌'
+        );
 
         if (pushToken) {
           // Check notification preferences
@@ -77,12 +99,17 @@ export const sendMessageNotification = onDocumentCreated(
             .get();
           const prefs = prefsDoc.exists ? prefsDoc.data() : {};
 
+          console.log('🔔 User preferences:', userDoc.id, prefs);
+
           // Only send if notifications are enabled
           if (
             prefs?.enabled !== false &&
             prefs?.messageNotifications !== false
           ) {
             tokens.push(pushToken);
+            console.log('✅ Added token for user:', userDoc.id);
+          } else {
+            console.log('❌ Notifications disabled for user:', userDoc.id);
           }
         }
       }
@@ -92,56 +119,66 @@ export const sendMessageNotification = onDocumentCreated(
         return;
       }
 
-      // Send notification to all recipients
-      const messaging = getMessaging();
-      const notification = {
-        title: senderName,
-        body: messageText.substring(0, 100), // Limit message length
-      };
-
-      const data = {
-        threadId,
-        senderId,
-        messageId: snapshot.id,
-        type: 'new_message',
-      };
-
+      // Send notification to all recipients using Expo Push API
       console.log(`Sending notification to ${tokens.length} recipients`);
 
-      const result = await messaging.sendEachForMulticast({
-        tokens,
-        notification,
-        data,
-        apns: {
-          payload: {
-            aps: {
-              sound: 'default',
-              badge: 1,
+      const messages = tokens.map(token => ({
+        to: token,
+        sound: 'default',
+        title: senderName,
+        body: messageText.substring(0, 100), // Limit message length
+        data: {
+          threadId,
+          senderId,
+          messageId: snapshot.id,
+          type: 'new_message',
+        },
+        badge: 1,
+      }));
+
+      try {
+        const response = await globalThis.fetch(
+          'https://exp.host/--/api/v2/push/send',
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Accept-encoding': 'gzip, deflate',
+              'Content-Type': 'application/json',
             },
-          },
-        },
-        android: {
-          priority: 'high',
-          notification: {
-            sound: 'default',
-            channelId: 'default',
-          },
-        },
-      });
+            body: JSON.stringify(messages),
+          }
+        );
 
-      console.log(
-        `Notifications sent: ${result.successCount} success, ${result.failureCount} failures`
-      );
+        const result = (await response.json()) as {
+          data?: Array<{ status: string }>;
+        };
+        console.log('Expo push notification result:', result);
 
-      if (result.failureCount > 0) {
-        result.responses.forEach((response, index) => {
-          if (!response.success) {
-            console.error(
-              `Failed to send to ${tokens[index]}:`,
-              response.error
+        if (result.data) {
+          const successCount = result.data.filter(
+            (receipt: { status: string }) => receipt.status === 'ok'
+          ).length;
+          const failureCount = result.data.filter(
+            (receipt: { status: string }) => receipt.status !== 'ok'
+          ).length;
+
+          console.log(
+            `Notifications sent: ${successCount} success, ${failureCount} failures`
+          );
+
+          if (failureCount > 0) {
+            result.data.forEach(
+              (receipt: { status: string }, index: number) => {
+                if (receipt.status !== 'ok') {
+                  console.error(`Failed to send to ${tokens[index]}:`, receipt);
+                }
+              }
             );
           }
-        });
+        }
+      } catch (error) {
+        console.error('Error sending Expo push notifications:', error);
       }
     } catch (error) {
       console.error('Error sending message notification:', error);

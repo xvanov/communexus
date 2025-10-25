@@ -48,26 +48,43 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 export const requestNotificationPermission = async (): Promise<
   string | null
 > => {
-  if (!deviceSupportsPush()) return null;
+  console.log('🔔 Starting notification permission request...');
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') {
-    console.log('Notification permissions not granted');
+  if (!deviceSupportsPush()) {
+    console.log('❌ Device does not support push notifications');
+    console.log(
+      '📱 This is expected in Expo Go - push notifications are not supported'
+    );
+    console.log('📱 Local notifications will still work for testing');
     return null;
   }
 
+  console.log('📋 Checking existing permissions...');
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  console.log('📋 Current permission status:', existingStatus);
+  let finalStatus = existingStatus;
+
+  if (existingStatus !== 'granted') {
+    console.log('🔔 Requesting new permissions...');
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+    console.log('📋 New permission status:', finalStatus);
+  }
+
+  if (finalStatus !== 'granted') {
+    console.log('❌ Notification permissions not granted');
+    return null;
+  }
+
+  console.log('✅ Notification permissions granted');
+
   try {
+    console.log('🔑 Generating Expo push token...');
     const token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log('📱 Expo push token generated:', token);
     return token ?? null;
   } catch (error) {
-    console.error('Error getting push token:', error);
+    console.error('❌ Error getting push token:', error);
     return null;
   }
 };
@@ -79,8 +96,8 @@ export const requestNotificationPermission = async (): Promise<
 export const storePushTokenForCurrentUser = async (
   expoPushToken: string
 ): Promise<void> => {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const userId = auth.currentUser?.uid;
 
   if (!userId) throw new Error('Not authenticated');
@@ -95,7 +112,7 @@ export const storePushTokenForCurrentUser = async (
     { merge: true }
   );
 
-  console.log('Push token stored successfully');
+  console.log('💾 Push token stored successfully for user:', userId);
 };
 
 /**
@@ -119,8 +136,8 @@ export const initializeNotifications = async (): Promise<void> => {
  */
 export const getNotificationPreferences =
   async (): Promise<NotificationPreferences> => {
-    const { auth } = initializeFirebase();
-    const db = getDb(true);
+    const { auth } = await initializeFirebase();
+    const db = await getDb();
     const userId = auth.currentUser?.uid;
 
     if (!userId) return DEFAULT_PREFERENCES;
@@ -147,8 +164,8 @@ export const getNotificationPreferences =
 export const updateNotificationPreferences = async (
   preferences: Partial<NotificationPreferences>
 ): Promise<void> => {
-  const { auth } = initializeFirebase();
-  const db = getDb(true);
+  const { auth } = await initializeFirebase();
+  const db = await getDb();
   const userId = auth.currentUser?.uid;
 
   if (!userId) throw new Error('Not authenticated');

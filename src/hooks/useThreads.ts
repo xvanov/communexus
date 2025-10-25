@@ -3,15 +3,7 @@ import { useState, useEffect } from 'react';
 import { Thread } from '../types/Thread';
 import { subscribeToUserThreads } from '../services/threads';
 import { useAuth } from './useAuth';
-import { getDb } from '../services/firebase';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  or,
-} from 'firebase/firestore';
+// Removed unused imports
 
 export const useThreads = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -26,153 +18,46 @@ export const useThreads = () => {
       return;
     }
 
+    console.log('🔄 Setting up thread listener for user:', user.uid);
     setLoading(true);
     setError(null);
 
-    // Create a custom subscription that looks for threads where the user's UID OR email is in participants
-    const db = getDb();
-    const col = collection(db, 'threads');
+    let unsubscribe: (() => void) | null = null;
 
-    // Query for threads where user's UID is in participants
-    const q1 = query(
-      col,
-      where('participants', 'array-contains', user.uid),
-      orderBy('updatedAt', 'desc')
-    );
-
-    // Query for threads where user's email is in participants (for test users)
-    const q2 = user.email
-      ? query(
-          col,
-          where('participants', 'array-contains', user.email),
-          orderBy('updatedAt', 'desc')
-        )
-      : null;
-
-    // Subscribe to both queries and merge results
-    const unsubscribe1 = onSnapshot(
-      q1,
-      snapshot => {
-        try {
-          const threadsFromUid: Thread[] = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            threadsFromUid.push({
-              id: doc.id,
-              participants: data.participants || [],
-              participantDetails: data.participantDetails || [],
-              isGroup: data.isGroup || false,
-              groupName: data.groupName,
-              groupPhotoUrl: data.groupPhotoUrl,
-              lastMessage: data.lastMessage
-                ? {
-                    ...data.lastMessage,
-                    timestamp:
-                      data.lastMessage.timestamp?.toDate() || new Date(),
-                  }
-                : {
-                    text: '',
-                    senderId: '',
-                    senderName: '',
-                    timestamp: new Date(),
-                  },
-              unreadCount: data.unreadCount || {},
-              createdAt: data.createdAt?.toDate() || new Date(),
-              updatedAt: data.updatedAt?.toDate() || new Date(),
+    // Use the existing subscribeToUserThreads function which is simpler and more reliable
+    const setupSubscription = async () => {
+      try {
+        unsubscribe = await subscribeToUserThreads(user.uid, updatedThreads => {
+          console.log('📱 Threads updated:', updatedThreads.length, 'threads');
+          updatedThreads.forEach(thread => {
+            console.log(`Thread ${thread.id}:`, {
+              lastMessage: thread.lastMessage
+                ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text?.substring(0, 20)}...`
+                : 'No message',
+              updatedAt: thread.updatedAt.toLocaleTimeString(),
             });
           });
 
-          // Merge with existing threads and remove duplicates
-          setThreads(prevThreads => {
-            const allThreads = [...prevThreads, ...threadsFromUid];
-            const uniqueThreads = allThreads.filter(
-              (thread, index, self) =>
-                index === self.findIndex(t => t.id === thread.id)
-            );
-            return uniqueThreads.sort(
-              (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-            );
-          });
+          setThreads(updatedThreads);
           setLoading(false);
           setError(null);
-        } catch (err) {
-          console.error('Error processing threads from UID:', err);
-          setError('Failed to load threads');
-          setLoading(false);
-        }
-      },
-      error => {
-        console.error('Error subscribing to threads:', error);
+        });
+      } catch (error) {
+        console.error('Failed to setup thread subscription:', error);
         setError('Failed to load threads');
         setLoading(false);
       }
-    );
+    };
 
-    const unsubscribe2 = q2
-      ? onSnapshot(
-          q2,
-          snapshot => {
-            try {
-              const threadsFromEmail: Thread[] = [];
-              snapshot.forEach(doc => {
-                const data = doc.data();
-                threadsFromEmail.push({
-                  id: doc.id,
-                  participants: data.participants || [],
-                  participantDetails: data.participantDetails || [],
-                  isGroup: data.isGroup || false,
-                  groupName: data.groupName,
-                  groupPhotoUrl: data.groupPhotoUrl,
-                  lastMessage: data.lastMessage
-                    ? {
-                        ...data.lastMessage,
-                        timestamp:
-                          data.lastMessage.timestamp?.toDate() || new Date(),
-                      }
-                    : {
-                        text: '',
-                        senderId: '',
-                        senderName: '',
-                        timestamp: new Date(),
-                      },
-                  unreadCount: data.unreadCount || {},
-                  createdAt: data.createdAt?.toDate() || new Date(),
-                  updatedAt: data.updatedAt?.toDate() || new Date(),
-                });
-              });
-
-              // Merge with existing threads and remove duplicates
-              setThreads(prevThreads => {
-                const allThreads = [...prevThreads, ...threadsFromEmail];
-                const uniqueThreads = allThreads.filter(
-                  (thread, index, self) =>
-                    index === self.findIndex(t => t.id === thread.id)
-                );
-                return uniqueThreads.sort(
-                  (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-                );
-              });
-              setLoading(false);
-              setError(null);
-            } catch (err) {
-              console.error('Error processing threads from email:', err);
-              setError('Failed to load threads');
-              setLoading(false);
-            }
-          },
-          error => {
-            console.error('Error subscribing to threads by email:', error);
-            setError('Failed to load threads');
-            setLoading(false);
-          }
-        )
-      : null;
+    setupSubscription();
 
     return () => {
-      unsubscribe1();
-      if (unsubscribe2) unsubscribe2();
+      console.log('🔄 Cleaning up thread listener');
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
-  }, [user?.uid, user?.email]);
+  }, [user?.uid]);
 
   return { threads, loading, error };
 };

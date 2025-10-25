@@ -64,7 +64,7 @@ export default function SettingsScreen() {
     try {
       await scheduleLocalNotification(
         'Test Notification',
-        'This is a test notification from Communexus',
+        'This is a test notification',
         { test: true }
       );
       Alert.alert('Success', 'Test notification sent!');
@@ -232,8 +232,10 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Communexus v1.0.0</Text>
-        <Text style={styles.footerSubtext}>© 2024 Communexus Team</Text>
+        <Text style={styles.footerText}>Version 1.0.0</Text>
+        <Text style={styles.footerSubtext}>
+          Built with React Native & Firebase
+        </Text>
       </View>
     </ScrollView>
   );

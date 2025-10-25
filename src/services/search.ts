@@ -17,7 +17,7 @@ export const searchMessages = async (
   searchText: string,
   limitCount: number = 20
 ): Promise<Message[]> => {
-  const db = getDb();
+  const db = await getDb();
 
   // Get all threads for the user first
   const threadsCol = collection(db, 'threads');
@@ -89,7 +89,7 @@ export const searchMessagesInThread = async (
   searchText: string,
   limitCount: number = 20
 ): Promise<Message[]> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, `threads/${threadId}/messages`);
 
   const q = query(
@@ -136,7 +136,7 @@ export const searchThreads = async (
   searchText: string,
   limitCount: number = 10
 ): Promise<Thread[]> => {
-  const db = getDb();
+  const db = await getDb();
   const col = collection(db, 'threads');
 
   // Search by group name
@@ -197,7 +197,7 @@ export const getSearchSuggestions = async (
   userId: string,
   limitCount: number = 5
 ): Promise<string[]> => {
-  const db = getDb();
+  const db = await getDb();
 
   // Get recent messages to extract common words
   const threadsCol = collection(db, 'threads');

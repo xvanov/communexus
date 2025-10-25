@@ -1,5 +1,5 @@
 // GroupCreateScreen.tsx - Create group chat and manage participants
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,21 +12,45 @@ import {
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import { createThread, findOrCreateOneOnOneThread } from '../services/threads';
-import { getAuth, fetchSignInMethodsForEmail } from 'firebase/auth';
-import { initializeFirebase } from '../services/firebase';
+import { getUserContacts, Contact } from '../services/contacts';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
+import ContactPicker from '../components/common/ContactPicker';
 
 export default function GroupCreateScreen({ navigation }: any) {
   const { user } = useAuth();
   const [groupName, setGroupName] = useState('');
-  const [participantEmails, setParticipantEmails] = useState('');
+  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]);
   const [creating, setCreating] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(true);
 
-  // Get the actual Firebase Auth UID for test users
-  const getUserIdForEmail = async (email: string): Promise<string> => {
-    // For now, we'll use a simple approach: if it's a test user email,
-    // we'll use the email as the ID since that's what we're using in the auth system
-    // In a real app, you'd look up the actual Firebase Auth UID
-    return email;
+  useEffect(() => {
+    loadContacts();
+  }, [user?.uid]);
+
+  const loadContacts = async () => {
+    if (!user?.uid) {
+      setLoadingContacts(false);
+      return;
+    }
+
+    try {
+      const userContacts = await getUserContacts(user.uid);
+      setContacts(userContacts);
+    } catch (error) {
+      console.error('Error loading contacts:', error);
+      Alert.alert('Error', 'Failed to load contacts');
+    } finally {
+      setLoadingContacts(false);
+    }
+  };
+
+  const handleSelectContact = (contact: Contact) => {
+    setSelectedContacts([...selectedContacts, contact]);
+  };
+
+  const handleDeselectContact = (contact: Contact) => {
+    setSelectedContacts(selectedContacts.filter(c => c.id !== contact.id));
   };
 
   const handleCreateGroup = async () => {
@@ -40,51 +64,32 @@ export default function GroupCreateScreen({ navigation }: any) {
       return;
     }
 
-    const emails = participantEmails
-      .split(',')
-      .map(email => email.trim())
-      .filter(email => email.length > 0);
-
-    if (emails.length === 0) {
-      Alert.alert('Error', 'Please add at least one participant');
+    if (selectedContacts.length === 0) {
+      Alert.alert('Error', 'Please select at least one participant');
       return;
     }
 
     setCreating(true);
 
     try {
-      // Create participant details (simplified - in real app, you'd fetch user details)
+      // Create participant details
       const participantDetails = [
         {
           id: user.uid,
           name: user.displayName || user.email || 'You',
           ...(user.photoURL && { photoUrl: user.photoURL }),
         },
-        ...emails.map(email => ({
-          id:
-            email === 'a@test.com'
-              ? 'a@test.com'
-              : email === 'b@test.com'
-                ? 'b@test.com'
-                : email === 'demo@communexus.com'
-                  ? 'demo@communexus.com'
-                  : `temp_${email}`,
-          name: email,
+        ...selectedContacts.map(contact => ({
+          id: contact.id,
+          name: contact.name,
+          ...(contact.photoUrl && { photoUrl: contact.photoUrl }),
         })),
       ];
 
-      // Create participant IDs (simplified for group chats)
+      // Create participant IDs
       const participantIds = [
         user.uid,
-        ...emails.map(email =>
-          email === 'a@test.com'
-            ? 'a@test.com'
-            : email === 'b@test.com'
-              ? 'b@test.com'
-              : email === 'demo@communexus.com'
-                ? 'demo@communexus.com'
-                : `temp_${email}`
-        ),
+        ...selectedContacts.map(contact => contact.id),
       ];
 
       // Create the thread
@@ -135,81 +140,42 @@ export default function GroupCreateScreen({ navigation }: any) {
       return;
     }
 
-    const email = participantEmails.trim();
-    if (!email) {
-      Alert.alert('Error', 'Please enter an email address');
+    if (selectedContacts.length === 0) {
+      Alert.alert('Error', 'Please select a contact');
+      return;
+    }
+
+    if (selectedContacts.length > 1) {
+      Alert.alert('Error', 'Please select only one contact for a 1-on-1 chat');
       return;
     }
 
     setCreating(true);
 
     try {
-      // For test users, use their actual email as the ID
-      // This ensures both users can see the thread
-      const otherUserId =
-        email === 'a@test.com'
-          ? 'a@test.com'
-          : email === 'b@test.com'
-            ? 'b@test.com'
-            : email === 'demo@communexus.com'
-              ? 'demo@communexus.com'
-              : `temp_${email}`;
+      const contact = selectedContacts[0];
 
       // For one-on-one chats, use the proper function to prevent duplicates
       const threadId = await findOrCreateOneOnOneThread(
         user.uid,
-        otherUserId,
+        contact.id,
         {
           id: user.uid,
           name: user.displayName || user.email || 'You',
           ...(user.photoURL && { photoUrl: user.photoURL }),
         },
         {
-          id: otherUserId,
-          name: email,
+          id: contact.id,
+          name: contact.name,
+          ...(contact.photoUrl && { photoUrl: contact.photoUrl }),
         }
       );
 
-      // Define participants for navigation
-      const directChatParticipantIds = [user.uid, otherUserId];
-      const directChatParticipantDetails = [
-        {
-          id: user.uid,
-          name: user.displayName || user.email || 'You',
-          email: user.email || '',
-        },
-        {
-          id: otherUserId,
-          name: email,
-          email,
-        },
-      ];
-
-      Alert.alert('Success', 'Conversation started!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate('Chat', {
-              threadId,
-              thread: {
-                id: threadId,
-                participants: directChatParticipantIds,
-                participantDetails: directChatParticipantDetails,
-                isGroup: false,
-                lastMessage: {
-                  text: '',
-                  senderId: '',
-                  senderName: '',
-                  timestamp: new Date(),
-                },
-                unreadCount: {},
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
-            });
-          },
-        },
-      ]);
+      // Navigate to the chat
+      navigation.navigate('Chat', {
+        threadId,
+        contact,
+      });
     } catch (error) {
       console.error('Error creating conversation:', error);
       Alert.alert('Error', 'Failed to start conversation. Please try again.');
@@ -217,6 +183,32 @@ export default function GroupCreateScreen({ navigation }: any) {
       setCreating(false);
     }
   };
+
+  if (loadingContacts) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Loading contacts...</Text>
+      </View>
+    );
+  }
+
+  if (contacts.length === 0) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.emptyTitle}>No Contacts</Text>
+        <Text style={styles.emptyText}>
+          You don't have any contacts yet. Add some friends to start chatting!
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.buttonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -234,31 +226,28 @@ export default function GroupCreateScreen({ navigation }: any) {
             value={groupName}
             onChangeText={setGroupName}
             placeholder="Enter group name (optional)"
+            placeholderTextColor="#8E8E93"
             editable={!creating}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Participants</Text>
-          <TextInput
-            style={[styles.textInput, styles.multilineInput]}
-            value={participantEmails}
-            onChangeText={setParticipantEmails}
-            placeholder="Enter email addresses separated by commas"
-            multiline
-            editable={!creating}
+          <Text style={styles.sectionTitle}>Select Participants</Text>
+          <ContactPicker
+            contacts={contacts}
+            selectedContacts={selectedContacts}
+            onSelectContact={handleSelectContact}
+            onDeselectContact={handleDeselectContact}
+            multiSelect={true}
+            placeholder="Select contacts..."
           />
-          <Text style={styles.helpText}>
-            Enter email addresses separated by commas. For example:
-            john@example.com, jane@example.com
-          </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, styles.groupButton]}
             onPress={handleCreateGroup}
-            disabled={creating}
+            disabled={creating || selectedContacts.length === 0}
           >
             {creating ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
@@ -270,7 +259,7 @@ export default function GroupCreateScreen({ navigation }: any) {
           <TouchableOpacity
             style={[styles.button, styles.oneOnOneButton]}
             onPress={handleCreateOneOnOne}
-            disabled={creating}
+            disabled={creating || selectedContacts.length !== 1}
           >
             {creating ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
@@ -283,12 +272,12 @@ export default function GroupCreateScreen({ navigation }: any) {
         <View style={styles.infoSection}>
           <Text style={styles.infoTitle}>How it works:</Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.bold}>Group Chat:</Text> Create a group with
-            multiple participants for project discussions
+            • <Text style={styles.bold}>Group Chat:</Text> Select multiple
+            contacts and create a group for project discussions
           </Text>
           <Text style={styles.infoText}>
-            • <Text style={styles.bold}>1-on-1 Chat:</Text> Start a private
-            conversation with a single person
+            • <Text style={styles.bold}>1-on-1 Chat:</Text> Select one contact
+            to start a private conversation
           </Text>
           <Text style={styles.infoText}>
             • Participants will be notified when added to the conversation
@@ -318,12 +307,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  centerContainer: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
   container: {
     backgroundColor: '#FFFFFF',
     flex: 1,
   },
   content: {
     padding: 16,
+  },
+  emptyText: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  emptyTitle: {
+    color: '#000000',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   groupButton: {
     backgroundColor: '#007AFF',
@@ -338,11 +346,6 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 24,
     fontWeight: 'bold',
-  },
-  helpText: {
-    color: '#8E8E93',
-    fontSize: 12,
-    marginTop: 4,
   },
   infoSection: {
     backgroundColor: '#F2F2F7',
@@ -361,12 +364,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
   },
-  multilineInput: {
-    height: 80,
-    textAlignVertical: 'top',
+  loadingText: {
+    color: '#8E8E93',
+    fontSize: 16,
+    marginTop: 10,
   },
   oneOnOneButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.primary, // Blue theme
   },
   section: {
     marginBottom: 24,

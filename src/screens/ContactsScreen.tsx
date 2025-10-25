@@ -16,6 +16,7 @@ import {
   initializeTestUserContacts,
 } from '../services/contacts';
 import { useAuth } from '../hooks/useAuth';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
 import { findOrCreateOneOnOneThread } from '../services/threads';
 
 interface ContactsScreenProps {
@@ -41,13 +42,26 @@ export default function ContactsScreen({ navigation }: ContactsScreenProps) {
       console.log('Failed to update online status on mount:', error);
     });
 
-    const unsubscribe = subscribeToContacts(user.uid, updatedContacts => {
-      setContacts(updatedContacts);
-      setLoading(false);
-    });
+    let unsubscribe: (() => void) | null = null;
+
+    const setupSubscription = async () => {
+      try {
+        unsubscribe = await subscribeToContacts(user.uid, updatedContacts => {
+          setContacts(updatedContacts);
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error('Failed to setup contacts subscription:', error);
+        setLoading(false);
+      }
+    };
+
+    setupSubscription();
 
     return () => {
-      unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
       // Set user as offline when they leave
       updateUserOnlineStatus(user.uid, false).catch(error => {
         console.log('Failed to update online status on unmount:', error);
@@ -281,6 +295,6 @@ const styles = StyleSheet.create({
     width: 8,
   },
   onlineIndicatorActive: {
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.primary, // Blue for online
   },
 });

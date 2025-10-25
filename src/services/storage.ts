@@ -15,7 +15,7 @@ export const uploadImage = async (
   userId: string,
   fileName?: string
 ): Promise<{ url: string; mediaId: string }> => {
-  const storage = getBucket();
+  const storage = await getBucket();
   const timestamp = Date.now();
   const fileExtension = imageUri.split('.').pop() || 'jpg';
   const mediaId = `media_${timestamp}_${Math.random().toString(36).substr(2, 9)}`;
@@ -54,7 +54,7 @@ export const uploadDocument = async (
   userId: string,
   fileName?: string
 ): Promise<{ url: string; mediaId: string }> => {
-  const storage = getBucket();
+  const storage = await getBucket();
   const timestamp = Date.now();
   const fileExtension = documentUri.split('.').pop() || 'pdf';
   const mediaId = `media_${timestamp}_${Math.random().toString(36).substr(2, 9)}`;
@@ -88,7 +88,7 @@ export const uploadDocument = async (
 
 // Delete media from Firebase Storage
 export const deleteMedia = async (mediaUrl: string): Promise<void> => {
-  const storage = getBucket();
+  const storage = await getBucket();
 
   try {
     // Extract the path from the URL

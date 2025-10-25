@@ -11,7 +11,7 @@ export interface Thread {
   isGroup: boolean;
   groupName?: string;
   groupPhotoUrl?: string;
-  lastMessage: {
+  lastMessage?: {
     text: string;
     senderId: string;
     senderName: string;

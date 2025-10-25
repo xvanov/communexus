@@ -108,7 +108,7 @@ export default function App() {
         <Stack.Screen
           name="ChatList"
           component={ChatListScreen}
-          options={{ title: 'Communexus' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Chat"

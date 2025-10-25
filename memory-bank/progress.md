@@ -1,7 +1,7 @@
 # Progress: Communexus Implementation Status
 
 **Last Updated**: October 23, 2025 (Evening)  
-**Branch**: `001-notifications-system` (18 commits)  
+**Branch**: `001-notifications-system` (21 commits)  
 **Phase**: 3.5.3 - Notification System & UI Polish
 
 ## ✅ What Works
@@ -18,15 +18,15 @@
 - ✅ **Cross-Platform**: Works on iOS, Android, and Web
 - ✅ **Demo Users**: Alice Johnson, Bob Smith, Charlie Davis
 
-### Notification System (Phase 3.5.3) - Partially Working
+### Notification System (Phase 3.5.3) - ✅ COMPLETE
 
 - ✅ **Settings UI**: Complete notification preferences screen
 - ✅ **Manual Notifications**: Test notification button works
 - ✅ **Badge Management**: iOS badge syncs with unread counts
 - ✅ **Deep Linking**: Tap notification → Opens correct chat
 - ✅ **Preferences**: User settings persisted in Firestore
-- ❌ **Automatic Notifications**: Not triggering when messages sent (BLOCKED)
-- ❌ **In-App Notifications**: Hook created but messages appear empty (BLOCKED)
+- ✅ **Automatic Notifications**: Cloud Function now properly exported and active
+- ✅ **In-App Notifications**: Hook fixed - no more empty messages
 
 ### Contacts System (Phase 3.5.3) - Mostly Working
 
@@ -67,10 +67,10 @@
 
 ## 🔄 What's Left to Build
 
-### Phase 3.5.3: Notification System (20% Remaining)
+### Phase 3.5.3: Notification System ✅ COMPLETE
 
 - [x] **T061**: Implement real-time push notifications with FCM ✅
-- [x] **T062**: Add in-app notification handling ⚠️ (infrastructure done, triggering broken)
+- [x] **T062**: Add in-app notification handling ✅ (fixed empty messages)
 - [x] **T063**: Create notification preferences and settings UI ✅
 - [x] **T064**: Implement notification actions and deep linking ✅
 - [x] **T065**: Add notification history and management ✅
@@ -78,11 +78,12 @@
 - [x] **T067**: Add notification badges and unread counts ✅
 - [x] **T068**: Create notification testing and validation ✅
 
-**Blockers**:
+**Fixes Applied**:
 
-- ❌ Cloud Function trigger not firing when messages created
-- ❌ In-app local notifications show empty messages
-- Need to debug trigger configuration and message data flow
+- ✅ Cloud Function `sendMessageNotification` now properly exported and active
+- ✅ Fixed in-app notifications to prevent empty message notifications
+- ✅ Updated Thread type to make `lastMessage` optional
+- ✅ Added comprehensive logging for debugging notification flow
 
 ### Phase 3.5.4: Thread Management & Duplication Prevention (Not Started)
 

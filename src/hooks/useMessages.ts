@@ -29,16 +29,30 @@ export const useMessages = (threadId: string) => {
       }
     }, 10000); // 10 second timeout
 
-    const unsubscribe = subscribeToMessages(threadId, updatedMessages => {
-      clearTimeout(timeoutId);
-      setMessages(updatedMessages);
-      setLoading(false);
-      setError(null);
-    });
+    let unsubscribe: (() => void) | null = null;
+
+    const setupSubscription = async () => {
+      try {
+        unsubscribe = await subscribeToMessages(threadId, updatedMessages => {
+          clearTimeout(timeoutId);
+          setMessages(updatedMessages);
+          setLoading(false);
+          setError(null);
+        });
+      } catch (error) {
+        console.error('Failed to setup message subscription:', error);
+        setError('Failed to load messages');
+        setLoading(false);
+      }
+    };
+
+    setupSubscription();
 
     return () => {
       clearTimeout(timeoutId);
-      unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [threadId]);
 

@@ -8,5 +8,4 @@ export { aiSmartSearch } from './aiSmartSearch';
 export { aiProactiveAgent } from './aiProactiveAgent';
 export { sendNotification } from './sendNotification';
 
-// Temporarily disabled: Waiting for Eventarc permissions (5-10 min setup time)
-// export { sendMessageNotification } from './sendMessageNotification';
+export { sendMessageNotification } from './sendMessageNotification';
