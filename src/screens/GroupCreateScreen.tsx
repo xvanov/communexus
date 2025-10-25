@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { createThread, findOrCreateOneOnOneThread } from '../services/threads';
 import { getUserContacts, Contact } from '../services/contacts';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
 import ContactPicker from '../components/common/ContactPicker';
 
 export default function GroupCreateScreen({ navigation }: any) {
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   oneOnOneButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.primary, // Blue theme
   },
   section: {
     marginBottom: 24,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PriorityLevel } from '../../types/AIFeatures';
+import { Colors } from '../../utils/theme';
 
 interface PriorityBadgeProps {
   priority: PriorityLevel;
@@ -16,13 +17,13 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
   const getPriorityColor = (): string => {
     switch (priority) {
       case 'high':
-        return '#FF3B30';
+        return Colors.error; // Red
       case 'medium':
-        return '#FF9500';
+        return Colors.warning; // Orange
       case 'low':
-        return '#34C759';
+        return Colors.primary; // Blue (changed from green)
       default:
-        return '#8E8E93';
+        return Colors.textSecondary; // Gray
     }
   };
 
@@ -33,7 +34,7 @@ export const PriorityBadge: React.FC<PriorityBadgeProps> = ({
       case 'medium':
         return '🟡';
       case 'low':
-        return '🟢';
+        return '🔵'; // Blue circle (changed from green)
       default:
         return '⚪';
     }

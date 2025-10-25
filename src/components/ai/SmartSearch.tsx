@@ -12,7 +12,14 @@ import {
 } from 'react-native';
 import { SearchResult } from '../../types/AIFeatures';
 import { getDb } from '../../services/firebase';
-import { collectionGroup, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
+import {
+  collectionGroup,
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  where,
+} from 'firebase/firestore';
 
 interface SmartSearchProps {
   threadId?: string;
@@ -45,7 +52,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       // Step 1: Fetch messages from Firestore using collectionGroup
       // This queries ALL 'messages' subcollections across all threads
       const db = await getDb();
-      
+
       // Fetch recent messages (limit to 100 for performance)
       let messagesQuery;
       if (threadId) {
@@ -103,9 +110,10 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
       // If we have keyword matches, use AI to rank them semantically
       // If no keyword matches, use AI on all messages (slower but more semantic)
-      const messagesToRank = keywordMatches.length > 0 
-        ? keywordMatches.slice(0, 50) // Limit to 50 for AI processing
-        : messagesToSearch.slice(0, 30); // Use fewer if no keyword match
+      const messagesToRank =
+        keywordMatches.length > 0
+          ? keywordMatches.slice(0, 50) // Limit to 50 for AI processing
+          : messagesToSearch.slice(0, 30); // Use fewer if no keyword match
 
       // Step 3: Send to AI for semantic ranking
       const url = __DEV__
@@ -138,12 +146,12 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
       const jsonResponse = await response.json();
       console.log('🔍 AI response:', jsonResponse);
-      
+
       const data = jsonResponse.result || jsonResponse.data;
 
       if (data.success && data.results) {
         console.log('🔍 Found', data.results.length, 'relevant results');
-        
+
         // Ensure all results have required fields with fallbacks
         const validResults = data.results
           .filter((r: any) => r && r.text) // Must have text at minimum
@@ -156,7 +164,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             timestamp: r.timestamp ? new Date(r.timestamp) : new Date(),
             relevance: r.relevance || 0.5,
           }));
-        
+
         console.log('🔍 Valid results:', validResults.length);
         setResults(validResults);
       } else {
@@ -244,7 +252,9 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         ListEmptyComponent={
           !loading && !error && searchQuery.length > 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No results for "{searchQuery}"</Text>
+              <Text style={styles.emptyText}>
+                No results for "{searchQuery}"
+              </Text>
               <Text style={styles.emptySubtext}>
                 Try different keywords or search terms
               </Text>

@@ -38,7 +38,7 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
   };
 
   // Show preview of last message
-  const lastMessagePreview = thread.lastMessage?.text 
+  const lastMessagePreview = thread.lastMessage?.text
     ? `${thread.lastMessage.senderName}: ${thread.lastMessage.text}`
     : 'No messages yet';
 
@@ -56,33 +56,33 @@ export const ThreadItem: React.FC<ThreadItemProps> = ({
           </Text>
         </View>
       </View>
-      
+
       <View style={styles.threadContent}>
         <View style={styles.threadHeader}>
-          <Text 
+          <Text
             style={[
               styles.threadName,
-              unreadCount > 0 && styles.threadNameUnread
-            ]} 
+              unreadCount > 0 && styles.threadNameUnread,
+            ]}
             numberOfLines={1}
             testID="thread-name"
           >
             {displayName}
           </Text>
-          <Text style={[
-            styles.threadTime,
-            unreadCount > 0 && styles.threadTimeUnread
-          ]}>
-            {thread.lastMessage
-              ? formatTime(thread.lastMessage.timestamp)
-              : ''}
+          <Text
+            style={[
+              styles.threadTime,
+              unreadCount > 0 && styles.threadTimeUnread,
+            ]}
+          >
+            {thread.lastMessage ? formatTime(thread.lastMessage.timestamp) : ''}
           </Text>
         </View>
         <View style={styles.threadPreview}>
-          <Text 
+          <Text
             style={[
               styles.threadMessage,
-              unreadCount > 0 && styles.threadMessageUnread
+              unreadCount > 0 && styles.threadMessageUnread,
             ]}
             numberOfLines={1}
           >

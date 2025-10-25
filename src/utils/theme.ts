@@ -1,45 +1,45 @@
-// Modern WhatsApp-inspired dark theme colors
+// Modern dark theme colors with blue accent (Messenger-inspired)
 export const Colors = {
   // Background colors
   background: '#0B141A', // Main background (very dark blue-gray)
   backgroundSecondary: '#1F2C34', // Cards, headers (dark gray-blue)
   backgroundTertiary: '#2A3942', // Subtle elements
-  
-  // Primary colors
-  primary: '#00A884', // WhatsApp green for main actions
-  primaryDark: '#005C4B', // Darker green for pressed states
-  primaryLight: '#06CF9C', // Lighter green for highlights
-  
-  // Blue accent (Messenger-inspired)
+
+  // Primary colors - BLUE THEME
+  primary: '#0084FF', // Messenger blue for main actions
+  primaryDark: '#0066CC', // Darker blue for pressed states
+  primaryLight: '#4A9EFF', // Lighter blue for highlights
+
+  // Accent colors
   accent: '#0084FF', // Bright blue for links, icons
   accentDark: '#0066CC', // Darker blue
   accentLight: '#4A9EFF', // Lighter blue
-  
+
   // Text colors
   textPrimary: '#FFFFFF', // Main text
   textSecondary: '#8696A0', // Secondary text (gray)
   textTertiary: '#667781', // Tertiary text (darker gray)
   textDisabled: '#3B4A54', // Disabled text
-  
+
   // Message bubbles
-  bubbleOwn: '#005C4B', // Your messages (dark teal)
+  bubbleOwn: '#0084FF', // Your messages (blue)
   bubbleOther: '#1F2C34', // Others' messages (dark gray)
-  
+
   // Status colors
-  success: '#00A884',
+  success: '#0084FF', // Blue for success
   error: '#F15C6D', // Softer red
   warning: '#F5A623',
   info: '#0084FF',
-  
+
   // Borders
   border: '#2A3942',
   borderLight: '#3B4A54',
-  
+
   // Special
-  online: '#06CF9C',
+  online: '#0084FF', // Blue for online status
   offline: '#667781',
-  unread: '#06CF9C',
-  
+  unread: '#0084FF', // Blue for unread badge
+
   // Overlays
   overlay: 'rgba(11, 20, 26, 0.9)',
   overlayLight: 'rgba(31, 44, 52, 0.95)',
@@ -119,9 +119,8 @@ export const Shadows = {
   large: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
   },
 };
-

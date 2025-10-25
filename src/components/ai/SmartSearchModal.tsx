@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SmartSearch } from './SmartSearch';
 import { SearchResult } from '../../types/AIFeatures';
 
@@ -32,14 +26,18 @@ export const SmartSearchModal: React.FC<SmartSearchModalProps> = ({
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>🔍 Smart Search</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="close-search">
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+            testID="close-search"
+          >
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
         </View>
 
         <SmartSearch
           threadId={threadId || ''}
-          onResultPress={(result) => {
+          onResultPress={result => {
             onResultPress?.(result);
             onClose(); // Close modal after selecting result
           }}
@@ -77,4 +75,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

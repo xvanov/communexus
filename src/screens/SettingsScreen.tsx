@@ -233,7 +233,9 @@ export default function SettingsScreen() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Version 1.0.0</Text>
-        <Text style={styles.footerSubtext}>Built with React Native & Firebase</Text>
+        <Text style={styles.footerSubtext}>
+          Built with React Native & Firebase
+        </Text>
       </View>
     </ScrollView>
   );

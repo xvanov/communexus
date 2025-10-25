@@ -49,7 +49,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       <View
         style={[
           styles.messageBubble,
-          isOwn ? styles.ownMessageBubble : styles.otherMessageBubble
+          isOwn ? styles.ownMessageBubble : styles.otherMessageBubble,
         ]}
         testID="message-bubble"
       >

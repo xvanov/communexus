@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
+import { Colors } from '../../utils/theme';
 
 interface ConnectionStatusProps {
   onRetryAll?: () => void;
@@ -48,11 +49,11 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
   };
 
   const getStatusColor = () => {
-    if (error) return '#FF3B30';
-    if (failedMessages.length > 0) return '#FF9500';
-    if (pendingMessages.length > 0) return '#007AFF';
-    if (isOnline) return '#34C759';
-    return '#8E8E93';
+    if (error) return Colors.error;
+    if (failedMessages.length > 0) return Colors.warning;
+    if (pendingMessages.length > 0) return Colors.primary;
+    if (isOnline) return Colors.success; // Blue for online
+    return Colors.textSecondary;
   };
 
   const getStatusText = () => {

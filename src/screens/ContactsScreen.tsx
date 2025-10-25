@@ -16,6 +16,7 @@ import {
   initializeTestUserContacts,
 } from '../services/contacts';
 import { useAuth } from '../hooks/useAuth';
+import { Colors, Spacing, BorderRadius } from '../utils/theme';
 import { findOrCreateOneOnOneThread } from '../services/threads';
 
 interface ContactsScreenProps {
@@ -294,6 +295,6 @@ const styles = StyleSheet.create({
     width: 8,
   },
   onlineIndicatorActive: {
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.primary, // Blue for online
   },
 });

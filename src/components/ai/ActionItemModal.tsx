@@ -33,7 +33,11 @@ export const ActionItemModal: React.FC<ActionItemModalProps> = ({
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>📋 Action Items</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="close-action-items">
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+            testID="close-action-items"
+          >
             <Text style={styles.closeText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -106,4 +110,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

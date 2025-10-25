@@ -6,4 +6,3 @@ export { DecisionCard } from './DecisionCard';
 export { SmartSearch } from './SmartSearch';
 export { SmartSearchModal } from './SmartSearchModal';
 export { ProactiveSuggestions } from './ProactiveSuggestions';
-

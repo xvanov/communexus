@@ -83,7 +83,7 @@ export default function ChatScreen({ route, navigation }: any) {
   const extractActionItems = async () => {
     console.log('📋 Extract Action Items called');
     console.log('📋 Messages count:', messages.length);
-    
+
     if (messages.length === 0) {
       console.log('📋 No messages to process');
       return;
@@ -92,7 +92,7 @@ export default function ChatScreen({ route, navigation }: any) {
     try {
       setLoadingActions(true);
       console.log('📋 Starting action item extraction...');
-      
+
       const url = __DEV__
         ? 'http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction'
         : 'https://us-central1-communexus.cloudfunctions.net/aiActionExtraction';
@@ -107,7 +107,7 @@ export default function ChatScreen({ route, navigation }: any) {
         body: JSON.stringify({
           data: {
             threadId,
-            messages: messages.map((m) => ({
+            messages: messages.map(m => ({
               text: m.text,
               sender: m.senderName,
             })),
@@ -157,7 +157,7 @@ export default function ChatScreen({ route, navigation }: any) {
         body: JSON.stringify({
           data: {
             threadId: threadId, // FIXED: Added threadId
-            recentMessages: recentMessages.map((m) => ({
+            recentMessages: recentMessages.map(m => ({
               text: m.text,
               sender: m.senderName,
             })),
@@ -265,9 +265,9 @@ export default function ChatScreen({ route, navigation }: any) {
   const renderMessage = ({ item }: { item: Message }) => {
     const isOwn = item.senderId === user?.uid;
     return (
-      <MessageBubble 
-        message={item} 
-        isOwn={isOwn} 
+      <MessageBubble
+        message={item}
+        isOwn={isOwn}
         isGroup={safeThread.isGroup}
       />
     );
@@ -323,7 +323,7 @@ export default function ChatScreen({ route, navigation }: any) {
       {suggestions.length > 0 && !loadingSuggestions && (
         <ProactiveSuggestions
           suggestions={suggestions}
-          onDismiss={(suggestion) => {
+          onDismiss={suggestion => {
             // Remove the dismissed suggestion
             setSuggestions(suggestions.filter(s => s !== suggestion));
           }}
@@ -341,7 +341,7 @@ export default function ChatScreen({ route, navigation }: any) {
         visible={showActionItems}
         onClose={() => setShowActionItems(false)}
         actionItems={actionItems}
-        onActionItemPress={(item) => {
+        onActionItemPress={item => {
           console.log('Action item pressed:', item);
           // Could navigate to message or mark complete
         }}

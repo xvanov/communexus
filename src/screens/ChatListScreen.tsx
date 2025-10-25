@@ -145,7 +145,11 @@ export default function ChatListScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.usernameText} testID="chat-list-title" numberOfLines={1}>
+          <Text
+            style={styles.usernameText}
+            testID="chat-list-title"
+            numberOfLines={1}
+          >
             {user?.displayName || user?.email || 'User'}
           </Text>
         </View>
@@ -220,7 +224,7 @@ export default function ChatListScreen({ navigation }: any) {
       <SmartSearchModal
         visible={showSearch}
         onClose={() => setShowSearch(false)}
-        onResultPress={(result) => {
+        onResultPress={result => {
           console.log('Search result pressed:', result);
           // Navigate to the thread containing this message
           const thread = threads.find(t => t.id === result.threadId);
