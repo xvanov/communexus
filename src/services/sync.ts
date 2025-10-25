@@ -4,6 +4,7 @@ import {
   OfflineMessage,
   OfflineThread,
   OfflineUser,
+  ConflictResolution as OfflineConflictResolution,
 } from './offline';
 import { Message, Thread, User } from '../types';
 
@@ -16,7 +17,7 @@ export interface SyncResult {
   errors: string[];
 }
 
-export interface ConflictResolution {
+export interface SyncConflictResolution {
   entityType: 'message' | 'thread' | 'user';
   entityId: string;
   localData: any;
@@ -466,6 +467,3 @@ class SyncService {
 
 // Export singleton instance
 export const syncService = new SyncService();
-
-// Export types
-export type { ConflictResolution };

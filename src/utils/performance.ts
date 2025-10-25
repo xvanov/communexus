@@ -296,7 +296,9 @@ export const memoize = <T extends (...args: any[]) => any>(
     // Limit cache size
     if (cache.size > 100) {
       const firstKey = cache.keys().next().value;
-      cache.delete(firstKey);
+      if (firstKey !== undefined) {
+        cache.delete(firstKey);
+      }
     }
 
     return result;

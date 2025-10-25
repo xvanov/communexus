@@ -46,7 +46,7 @@ export const ActionItemModal: React.FC<ActionItemModalProps> = ({
           {actionItems.length > 0 ? (
             <ActionItemList
               actionItems={actionItems}
-              onActionItemPress={onActionItemPress}
+              {...(onActionItemPress && { onActionItemPress })}
             />
           ) : (
             <View style={styles.emptyContainer}>

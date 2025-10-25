@@ -285,7 +285,7 @@ export const useAIStore = create<AIState & AIActions>((set, get) => ({
     set(state => {
       const currentSuggestions = state.proactiveSuggestions[threadId] || [];
       const filteredSuggestions = currentSuggestions.filter(
-        s => s.id !== suggestionId
+        s => s.message !== suggestionId // Use message as identifier since there's no id field
       );
       return {
         proactiveSuggestions: {

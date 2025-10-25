@@ -9,7 +9,17 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import type { Contact } from '../services/contacts';
+
+// Temporary type definition to avoid importing from contacts
+interface Contact {
+  id: string;
+  name: string;
+  email?: string;
+  photoUrl?: string;
+  phone?: string;
+  online?: boolean;
+  lastSeen?: Date;
+}
 
 interface ContactPickerProps {
   contacts: Contact[];
@@ -34,7 +44,8 @@ export default function ContactPicker({
   const filteredContacts = contacts.filter(
     contact =>
       contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (contact.email &&
+        contact.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSelectContact = (contact: Contact) => {
@@ -59,7 +70,7 @@ export default function ContactPicker({
       return placeholder;
     }
     if (selectedContacts.length === 1) {
-      return selectedContacts[0].name;
+      return selectedContacts[0]?.name || 'Selected';
     }
     return `${selectedContacts.length} contacts selected`;
   };

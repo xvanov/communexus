@@ -193,6 +193,7 @@ export default function ChatScreen({ route, navigation }: any) {
 
       return () => clearTimeout(timer);
     }
+    return undefined; // Explicit return for useEffect
   }, [messages.length]);
 
   useEffect(() => {
