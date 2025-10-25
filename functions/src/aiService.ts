@@ -246,9 +246,9 @@ export class AIService {
       const startTime = Date.now();
 
       // Build prompt with actual messages
-      const messagesText = messages.map((m, idx) => 
-        `${idx + 1}. [${m.sender}]: ${m.text}`
-      ).join('\n');
+      const messagesText = messages
+        .map((m, idx) => `${idx + 1}. [${m.sender}]: ${m.text}`)
+        .join('\n');
 
       const prompt = `Search Query: "${query}"
 
@@ -307,7 +307,7 @@ Return ONLY valid JSON array, no markdown, no extra text. If no relevant message
           if (messageIdx < 0 || messageIdx >= messages.length) {
             return null;
           }
-          
+
           const originalMessage = messages[messageIdx];
           return {
             messageId: originalMessage.messageId,
@@ -325,7 +325,9 @@ Return ONLY valid JSON array, no markdown, no extra text. If no relevant message
       setCachedResult(cacheKey, results, this.config);
 
       const responseTime = Date.now() - startTime;
-      console.log(`Smart search completed in ${responseTime}ms, found ${results.length} results`);
+      console.log(
+        `Smart search completed in ${responseTime}ms, found ${results.length} results`
+      );
 
       return results;
     } catch (error) {
@@ -425,7 +427,10 @@ Return ONLY valid JSON array, no markdown, no extra text. If no relevant message
   // Private helper methods for building prompts
   private buildSummaryPrompt(messages: any[]): string {
     const messageTexts = messages
-      .map((msg, index) => `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`)
+      .map(
+        (msg, index) =>
+          `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`
+      )
       .join('\n');
 
     return `Analyze this construction/contractor conversation and provide a JSON response with this EXACT format:
@@ -443,7 +448,10 @@ Return ONLY valid JSON, no markdown, no extra text.`;
 
   private buildActionExtractionPrompt(messages: any[]): string {
     const messageTexts = messages
-      .map((msg, index) => `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`)
+      .map(
+        (msg, index) =>
+          `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`
+      )
       .join('\n');
 
     return `Extract all action items, tasks, and commitments from this construction/contractor conversation.
@@ -508,23 +516,28 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
-      
+
       // Try to parse as JSON
       const parsed = JSON.parse(cleanContent);
-      
+
       return {
         summary: parsed.summary || 'No summary available',
         keyPoints: Array.isArray(parsed.keyPoints) ? parsed.keyPoints : [],
-        actionItems: Array.isArray(parsed.actionItems) ? parsed.actionItems : [],
+        actionItems: Array.isArray(parsed.actionItems)
+          ? parsed.actionItems
+          : [],
         generatedAt: new Date().toISOString(),
       };
     } catch (error) {
       console.error('Failed to parse summary response as JSON:', error);
       console.log('Raw content:', content);
-      
+
       // Fallback: Extract what we can from plain text
-      const lines = content.split('\n').map(l => l.trim()).filter(l => l);
-      
+      const lines = content
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l);
+
       return {
         summary: lines[0] || 'Summary unavailable',
         keyPoints: lines.slice(1, 4),
@@ -541,15 +554,15 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
-      
+
       // Try to parse as JSON array
       const parsed = JSON.parse(cleanContent);
-      
+
       if (!Array.isArray(parsed)) {
         console.error('Expected array, got:', typeof parsed);
         return [];
       }
-      
+
       // Map to our ActionItem format
       return parsed.map((item, index) => ({
         id: `action_${Date.now()}_${index}`,
@@ -566,21 +579,24 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
     } catch (error) {
       console.error('Failed to parse action items response as JSON:', error);
       console.log('Raw content:', content);
-      
+
       // Fallback: Try to extract action items from plain text
-      const lines = content.split('\n')
+      const lines = content
+        .split('\n')
         .map(l => l.trim())
-        .filter(l => l && (
-          l.toLowerCase().includes('action') ||
-          l.toLowerCase().includes('task') ||
-          l.toLowerCase().includes('need') ||
-          l.toLowerCase().includes('must') ||
-          l.toLowerCase().includes('should') ||
-          l.startsWith('-') ||
-          l.startsWith('•') ||
-          l.match(/^\d+\./)
-        ));
-      
+        .filter(
+          l =>
+            l &&
+            (l.toLowerCase().includes('action') ||
+              l.toLowerCase().includes('task') ||
+              l.toLowerCase().includes('need') ||
+              l.toLowerCase().includes('must') ||
+              l.toLowerCase().includes('should') ||
+              l.startsWith('-') ||
+              l.startsWith('•') ||
+              l.match(/^\d+\./))
+        );
+
       return lines.slice(0, 10).map((line, index) => ({
         id: `action_${Date.now()}_${index}`,
         threadId: '',
@@ -609,15 +625,15 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
-      
+
       // Try to parse as JSON array
       const parsed = JSON.parse(cleanContent);
-      
+
       if (!Array.isArray(parsed)) {
         console.error('Expected array, got:', typeof parsed);
         return [];
       }
-      
+
       // Return array of { messageId, relevance, snippet }
       return parsed.map(item => ({
         messageId: String(item.messageId || item.index || '0'),
@@ -650,7 +666,6 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
 
     return suggestions;
   }
-
 }
 
 // Export singleton instance

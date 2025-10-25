@@ -14,7 +14,9 @@ export const aiSmartSearch = onCall(async request => {
       throw new Error('Messages array is required');
     }
 
-    console.log(`🔍 Smart search: query="${query}", messages=${messages.length}`);
+    console.log(
+      `🔍 Smart search: query="${query}", messages=${messages.length}`
+    );
 
     const results = await aiService.smartSearch(query, messages);
 

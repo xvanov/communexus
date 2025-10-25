@@ -1,4 +1,5 @@
 # Communexus Persona Document
+
 ## AI-Powered Communication Platform for Service Business Operators
 
 ---
@@ -18,6 +19,7 @@ Marcus manages 4-6 active renovation projects simultaneously, coordinating with 
 ### Daily Reality
 
 Marcus juggles 40-60 messages daily across SMS, email, phone calls, and WhatsApp. A typical day involves:
+
 - Client inquiries: "Can you start the kitchen renovation next Monday?"
 - Vendor updates: "Cabinets delayed until Friday due to shipping"
 - Subcontractor coordination: "What time should I arrive for the plumbing rough-in?"
@@ -43,6 +45,7 @@ Marcus juggles 40-60 messages daily across SMS, email, phone calls, and WhatsApp
 **Pain Point:** Critical tasks get lost in long message threads. A client mentions "don't forget to match the paint to the sample I gave you" buried in a 40-message conversation about scheduling. Marcus discovers the oversight only when the client complains about the wrong paint color.
 
 **AI Solution:** **Action Item Extraction** automatically scans all threads and creates a checklist:
+
 ```
 □ Match paint to client's sample (mentioned 10/18)
 □ Schedule final inspection for Thursday
@@ -61,6 +64,7 @@ Marcus juggles 40-60 messages daily across SMS, email, phone calls, and WhatsApp
 **AI Solution:** **Decision Tracking** + **Thread Summarization** work together. The AI automatically detects agreement phrases ("let's go with," "approved," "sounds good") and logs decisions. Long threads get condensed into:
 
 **Key Decisions:**
+
 - Quartz countertops approved (10/12) – brand: Silestone, color: Arctic White
 - Start date confirmed: Monday, November 4th
 - Budget increase approved: $2,800 for upgraded fixtures
@@ -74,6 +78,7 @@ Marcus juggles 40-60 messages daily across SMS, email, phone calls, and WhatsApp
 **Pain Point:** While on a job site, Marcus misses a text from another client: "URGENT: Water leak under kitchen sink!" It gets buried among 15 other notifications about material deliveries and scheduling questions. Client calls upset 3 hours later.
 
 **AI Solution:** **Priority Message Detection** automatically flags urgent messages with 🔥 badges and elevated push notifications. The AI recognizes:
+
 - Emergency keywords: "leak," "broken," "emergency," "ASAP"
 - Client frustration: negative sentiment analysis
 - Payment urgency: "overdue," "invoice due today"
@@ -106,7 +111,8 @@ The assistant learns Marcus's communication style and drafts contextual messages
 
 **Decision:** Firebase Firestore for real-time messaging + OpenAI GPT-4 for AI features via Cloud Functions
 
-**Rationale:** 
+**Rationale:**
+
 - Firebase provides <200ms message delivery without building WebSocket infrastructure
 - Cloud Functions secure API keys from mobile app exposure
 - GPT-4's natural language understanding handles contractor-specific terminology (e.g., "rough-in," "punch list")
@@ -121,6 +127,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 **Decision:** LangChain + GPT-4 with function calling for the advanced AI feature
 
 **Rationale:**
+
 - Memory across conversations enables learning Marcus's communication style
 - Function calling allows assistant to actually perform actions (set reminders, draft messages, check calendar)
 - RAG (Retrieval Augmented Generation) retrieves relevant conversation history without sending entire message database
@@ -135,6 +142,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 **Decision:** React Native with Expo instead of native iOS/Android
 
 **Rationale:**
+
 - 70% code sharing between iOS and Android reduces development time by 6 weeks
 - Marcus's subcontractors use both iPhone and Android – need platform parity
 - Expo's over-the-air updates enable instant AI prompt improvements without app store approval
@@ -149,6 +157,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 **Decision:** Expo SQLite for local caching + Firestore for cloud sync
 
 **Rationale:**
+
 - Construction sites often have dead zones (basements, metal-framed buildings)
 - Offline message queue prevents "message failed to send" frustrations
 - SQLite persistence survives app force-quits common on dusty job sites
@@ -163,6 +172,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 **Decision:** Messages appear instantly in UI before server confirmation
 
 **Rationale:**
+
 - Perceived instant messaging (<50ms) critical for natural conversation flow
 - Firestore listeners detect server confirmation within 200ms and update status
 - If send fails (rare), message shows "failed" badge with retry button
@@ -175,6 +185,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 ## Success Metrics
 
 **Quantifiable Impact:**
+
 - **Time Savings:** 8-10 hours/week recovered from search and organization
 - **Revenue Impact:** 25% quote conversion increase from timely follow-ups
 - **Client Satisfaction:** Zero missed emergencies, 50% faster urgent response
@@ -182,6 +193,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 - **Cash Flow:** Average invoice payment time reduced from 18 days to 12 days
 
 **Marcus's Testimonial (Hypothetical):**
+
 > "Before Communexus, I spent half my evening searching through texts trying to remember what clients decided. Now the AI tells me instantly. The Proactive Assistant is like having a personal secretary who never forgets to follow up. I've closed 3 extra jobs this month just from the automatic quote reminders."
 
 ---
@@ -189,6 +201,7 @@ The assistant learns Marcus's communication style and drafts contextual messages
 ## Competitive Differentiation
 
 Unlike generic messaging apps (WhatsApp, Slack):
+
 - **Contractor-Specific:** Understands construction terminology, decision patterns, and urgency signals unique to service businesses
 - **Proactive Intelligence:** Doesn't wait for Marcus to ask – actively monitors for missed follow-ups
 - **Cross-Stakeholder:** Handles client, vendor, and crew communications in unified threads with proper context
@@ -200,7 +213,6 @@ Unlike generic messaging apps (WhatsApp, Slack):
 
 ---
 
-*Document Version: 1.0*  
-*Created: October 25, 2025*  
-*Project: Communexus AI-Powered Messaging Platform*
-
+_Document Version: 1.0_  
+_Created: October 25, 2025_  
+_Project: Communexus AI-Powered Messaging Platform_

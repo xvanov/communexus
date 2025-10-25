@@ -9,12 +9,15 @@
 ## 🎯 Testing Strategy
 
 ### Phase 1: Component Testing ✅ (Current)
+
 Test the only integrated feature (Thread Summarization) thoroughly with real conversations.
 
 ### Phase 2: Backend Testing
+
 Test all Cloud Functions directly via curl/Postman to verify they work.
 
 ### Phase 3: Integration Testing
+
 After integrating remaining features, test end-to-end flows.
 
 ---
@@ -31,7 +34,9 @@ After integrating remaining features, test end-to-end flows.
 #### Test Cases
 
 ##### TC1.1: Short Conversation (2-3 messages) ⏳ TO TEST
+
 **Steps**:
+
 1. Open existing conversation with Bob
 2. Send 2-3 simple messages:
    - "Hey Bob, how's the project going?"
@@ -41,6 +46,7 @@ After integrating remaining features, test end-to-end flows.
 4. Wait for summary to load
 
 **Expected**:
+
 - Loading indicator appears
 - Summary generated within 2-3 seconds
 - Summary contains: Main topic, key points
@@ -51,7 +57,9 @@ After integrating remaining features, test end-to-end flows.
 ---
 
 ##### TC1.2: Conversation with Action Items ⏳ TO TEST
+
 **Steps**:
+
 1. Send messages containing action items:
    - "Please send the report by Friday"
    - "Can you review the PR by EOD?"
@@ -59,6 +67,7 @@ After integrating remaining features, test end-to-end flows.
 2. Click ✨ AI button
 
 **Expected**:
+
 - Summary identifies the action items
 - Action items listed separately
 - Clear description of each action
@@ -68,7 +77,9 @@ After integrating remaining features, test end-to-end flows.
 ---
 
 ##### TC1.3: Conversation with Decisions ⏳ TO TEST
+
 **Steps**:
+
 1. Send messages about decisions:
    - "I think we should go with option B"
    - "Agreed, option B is the best choice"
@@ -76,6 +87,7 @@ After integrating remaining features, test end-to-end flows.
 2. Click ✨ AI button
 
 **Expected**:
+
 - Summary captures the decision made
 - Identifies decision-makers
 - Shows outcome
@@ -85,7 +97,9 @@ After integrating remaining features, test end-to-end flows.
 ---
 
 ##### TC1.4: Long Conversation (15+ messages) ⏳ TO TEST
+
 **Steps**:
+
 1. Create conversation with 15+ messages covering:
    - Initial question
    - Discussion/back-and-forth
@@ -95,6 +109,7 @@ After integrating remaining features, test end-to-end flows.
 2. Click ✨ AI button
 
 **Expected**:
+
 - Handles long conversation gracefully
 - Summary is concise (not just repeating everything)
 - Key points highlighted
@@ -106,12 +121,15 @@ After integrating remaining features, test end-to-end flows.
 ---
 
 ##### TC1.5: Error Handling ⏳ TO TEST
+
 **Steps**:
+
 1. Stop Firebase emulator
 2. Click ✨ AI button
 3. Observe error
 
 **Expected**:
+
 - Error message displays clearly
 - "Retry" button appears
 - No app crash
@@ -122,11 +140,14 @@ After integrating remaining features, test end-to-end flows.
 ---
 
 ##### TC1.6: Empty/No Messages ⏳ TO TEST
+
 **Steps**:
+
 1. Open new conversation (no messages)
 2. Click ✨ AI button
 
 **Expected**:
+
 - Shows "No messages to summarize"
 - Or disabled state
 - No error
@@ -142,7 +163,9 @@ After integrating remaining features, test end-to-end flows.
 **Test Method**: Direct API call via curl
 
 #### TC2.1: Extract Action Items via curl
+
 **Command**:
+
 ```bash
 curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction \
   -H "Content-Type: application/json" \
@@ -159,6 +182,7 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction \
 ```
 
 **Expected Response**:
+
 ```json
 {
   "result": {
@@ -189,7 +213,9 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction \
 **Cloud Function**: aiPriorityDetection
 
 #### TC3.1: Detect High Priority
+
 **Command**:
+
 ```bash
 curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiPriorityDetection \
   -H "Content-Type: application/json" \
@@ -205,7 +231,9 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiPriorityDetection \
 ---
 
 #### TC3.2: Detect Low Priority
+
 **Command**:
+
 ```bash
 curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiPriorityDetection \
   -H "Content-Type: application/json" \
@@ -226,7 +254,9 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiPriorityDetection \
 **Cloud Function**: aiSmartSearch
 
 #### TC4.1: Search for Topic
+
 **Command**:
+
 ```bash
 curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiSmartSearch \
   -H "Content-Type: application/json" \
@@ -253,7 +283,9 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiSmartSearch \
 **Cloud Function**: aiProactiveAgent
 
 #### TC5.1: Get Suggestions
+
 **Command**:
+
 ```bash
 curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiProactiveAgent \
   -H "Content-Type: application/json" \
@@ -278,21 +310,25 @@ curl -X POST http://127.0.0.1:5001/communexus/us-central1/aiProactiveAgent \
 ### Setup (Before Testing)
 
 1. **Start Firebase Emulators**:
+
 ```bash
 cd /Users/kalin.ivanov/rep/communexus/main
 npx firebase emulators:start
 ```
 
 2. **Verify Emulator Status**:
+
 - Check logs show: `✔ All emulators ready!`
 - Verify: `OpenAI API key is required` warning is gone (should show in logs but not block execution)
 
 3. **Start Expo App**:
+
 ```bash
 npx expo run:ios --device "iPhone 15"
 ```
 
 4. **Sign in as Demo User**:
+
 - Use Alice or Bob
 - Create/open conversation
 
@@ -301,6 +337,7 @@ npx expo run:ios --device "iPhone 15"
 ### During Testing
 
 **For Each Test Case**:
+
 1. ✍️ Write down what you're testing
 2. 📸 Take screenshot if relevant
 3. ⏱️ Note response time
@@ -308,6 +345,7 @@ npx expo run:ios --device "iPhone 15"
 5. 📝 Document any issues
 
 **What to Look For**:
+
 - ✅ **Correctness**: Is the AI response accurate?
 - ⚡ **Performance**: Response time < 5 seconds?
 - 🎨 **UI**: Clean layout, no overlaps?
@@ -319,12 +357,14 @@ npx expo run:ios --device "iPhone 15"
 ### After Testing
 
 **Document Results**:
+
 1. Update this file with actual results
 2. Create list of issues found
 3. Prioritize fixes (P0, P1, P2)
 4. Create GitHub issues if needed
 
 **Success Criteria**:
+
 - ✅ Thread Summarization works with 5+ message conversations
 - ✅ Response time < 5 seconds
 - ✅ Error handling works (retry, close)
@@ -338,6 +378,7 @@ npx expo run:ios --device "iPhone 15"
 ## 📊 Test Results Summary
 
 ### Overview
+
 - **Total Tests**: 11
 - **Passed**: 0 ⏳
 - **Failed**: 0 ⏳
@@ -345,28 +386,33 @@ npx expo run:ios --device "iPhone 15"
 - **Not Run**: 11 ⏳
 
 ### By Feature
-| Feature | Backend Tests | Frontend Tests | Status |
-|---------|---------------|----------------|--------|
-| Thread Summary | - | 0/6 | ⏳ Testing |
-| Action Items | 0/1 | - | ⏳ Backend Only |
-| Priority | 0/2 | - | ⏳ Backend Only |
-| Smart Search | 0/1 | - | ⏳ Backend Only |
-| Proactive | 0/1 | - | ⏳ Backend Only |
+
+| Feature        | Backend Tests | Frontend Tests | Status          |
+| -------------- | ------------- | -------------- | --------------- |
+| Thread Summary | -             | 0/6            | ⏳ Testing      |
+| Action Items   | 0/1           | -              | ⏳ Backend Only |
+| Priority       | 0/2           | -              | ⏳ Backend Only |
+| Smart Search   | 0/1           | -              | ⏳ Backend Only |
+| Proactive      | 0/1           | -              | ⏳ Backend Only |
 
 ---
 
 ## 🐛 Issues Found
 
 ### Critical (P0) - Blocks Release
+
 _[None yet]_
 
 ### High (P1) - Should Fix Before Launch
+
 _[None yet]_
 
 ### Medium (P2) - Nice to Have
+
 _[None yet]_
 
 ### Low (P3) - Future Enhancement
+
 _[None yet]_
 
 ---
@@ -378,6 +424,7 @@ _[None yet]_
 **Tested By**: AI Assistant  
 **Duration**: _[In Progress]_  
 **Environment**:
+
 - Device: iPhone 15 Simulator
 - iOS: Latest
 - Firebase: Emulator
@@ -389,4 +436,3 @@ _[Add observations here during testing]_
 ---
 
 **Next Update**: After completing Test 1 (Thread Summarization)
-

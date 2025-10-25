@@ -36,6 +36,7 @@ His pain? Critical tasks buried in threads, missed urgent messages, lost decisio
 5️⃣ **Proactive Assistant** (the game-changer):
 
 AI monitors conversations and suggests:
+
 - "Quote sent 5 days ago – draft follow-up?"
 - "Invoice overdue – send reminder?"
 - "Client asked about paint colors 3 days ago"
@@ -47,6 +48,7 @@ AI monitors conversations and suggests:
 ## Thread (Reply 4)
 
 **Tech Stack:**
+
 - React Native + Expo (cross-platform)
 - Firebase Firestore (sub-200ms real-time messaging)
 - OpenAI GPT-4 + LangChain agent
@@ -85,7 +87,7 @@ If you prefer one comprehensive post instead of a thread:
 
 ---
 
-🚀 Just shipped Communexus – AI-powered messaging for contractors! 
+🚀 Just shipped Communexus – AI-powered messaging for contractors!
 
 Built for general contractors like Marcus who manage 6 projects, 40+ daily messages across SMS/email/apps. No more buried tasks, missed emergencies, or lost decisions.
 
@@ -128,6 +130,7 @@ Communexus consolidates all project communication with 5 AI-powered features:
 5. **Proactive Assistant** – Monitors conversations, suggests follow-ups, drafts responses
 
 **Real Impact:**
+
 - 10+ hours/week time savings
 - 25% increase in quote conversion through timely follow-ups
 - Zero missed emergencies
@@ -187,11 +190,13 @@ Thanks to @GauntletAI for the rubric framework that pushed technical depth.
 # Hashtag Strategy
 
 ## Primary Hashtags:
+
 - #BuildInPublic (for developer community engagement)
 - #AIMessaging (category positioning)
 - #ContractorTech (niche audience)
 
 ## Secondary Hashtags:
+
 - #ReactNative (tech community)
 - #Firebase (tech stack visibility)
 - #OpenAI (AI community)
@@ -200,6 +205,7 @@ Thanks to @GauntletAI for the rubric framework that pushed technical depth.
 - #B2BSaaS (if positioning as future platform)
 
 ## Engagement Hashtags:
+
 - #WhatWouldYouBuild
 - #TechForGood
 - #ProductHunt (if launching there)
@@ -209,14 +215,17 @@ Thanks to @GauntletAI for the rubric framework that pushed technical depth.
 # Posting Strategy
 
 ## Best Times to Post on X:
+
 - **Weekdays:** 8-10 AM EST, 12-1 PM EST (lunch), 5-6 PM EST (commute)
 - **Avoid:** Late nights, weekends (lower developer engagement)
 
 ## Thread vs Single Post:
+
 - **Thread:** Better for storytelling, higher engagement, more detail
 - **Single Post:** Better for quick shares, easier to retweet
 
 ## Engagement Tips:
+
 1. Post the main tweet first, wait 2-3 minutes for initial engagement
 2. Reply with thread continuation
 3. Pin the thread to your profile for 48 hours
@@ -228,6 +237,7 @@ Thanks to @GauntletAI for the rubric framework that pushed technical depth.
 # GitHub Repo Requirements
 
 Before posting, ensure your GitHub has:
+
 - ✅ Clear README with setup instructions
 - ✅ Demo GIF or video embedded
 - ✅ Screenshots in `/docs/screenshots/`
@@ -242,19 +252,23 @@ Before posting, ensure your GitHub has:
 # Follow-Up Engagement Plan
 
 ## Day 1 (Post Day):
+
 - Respond to all comments within 2 hours
 - Quote retweet interesting questions with answers
 - Thank everyone who shares
 
 ## Day 2:
+
 - Post behind-the-scenes thread: "3 technical challenges I solved"
 - Share code snippet: LangChain agent setup
 
 ## Day 3:
+
 - User testimonial (even if hypothetical from persona)
 - "Marcus says: 'Saved me 10 hours this week'"
 
 ## Day 7:
+
 - Metrics thread: "Week 1 results: X stars, Y forks, Z users tested"
 - Ask: "What feature should I build next?"
 
@@ -265,15 +279,19 @@ Before posting, ensure your GitHub has:
 Choose based on your goal:
 
 **If seeking users:**
+
 > "DM me for early access invite 📩"
 
 **If seeking feedback:**
+
 > "What would you change? Reply with your thoughts 💬"
 
 **If seeking contributors:**
+
 > "Open to contributors! Check 'Good First Issue' labels 🤝"
 
 **If seeking investors/opportunities:**
+
 > "Building this into a platform. Let's chat if you're in the space 📞"
 
 ---
@@ -306,4 +324,3 @@ Built for pros who deserve better than communication chaos.
 ---
 
 **Note:** Replace [ADD_LINK] placeholders with actual URLs before posting!
-
