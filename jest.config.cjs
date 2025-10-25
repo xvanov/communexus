@@ -27,5 +27,5 @@ module.exports = {
     '/tests/ai/',  // Skip AI tests temporarily
     '/tests/computer-use/'
   ],
-  setupFilesAfterEnv: ['<rootDir>/tests/__mocks__/firebase-mock.js'],
+  // setupFilesAfterEnv removed - file doesn't exist
 };

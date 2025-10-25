@@ -13,8 +13,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 }) => {
   const { isOnline, pendingMessages, failedMessages, isSyncing } =
     useOfflineQueue();
-  const fadeAnimRef = React.useRef(new Animated.Value(0));
-  const fadeAnim = fadeAnimRef.current;
+
+  // Use useMemo to create the Animated.Value only once
+  const fadeAnim = React.useMemo(() => new Animated.Value(0), []);
 
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -50,6 +51,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         position === 'top' ? styles.topPosition : styles.bottomPosition,
         { opacity: fadeAnim },
       ]}
+      testID="offline-indicator"
     >
       <View style={styles.content}>
         <View style={styles.iconContainer}>
