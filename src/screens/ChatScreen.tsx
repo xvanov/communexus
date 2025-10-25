@@ -156,6 +156,7 @@ export default function ChatScreen({ route, navigation }: any) {
         },
         body: JSON.stringify({
           data: {
+            threadId: threadId, // FIXED: Added threadId
             recentMessages: recentMessages.map((m) => ({
               text: m.text,
               sender: m.senderName,

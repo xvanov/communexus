@@ -418,36 +418,50 @@ Format as JSON array:
   // Private helper methods for building prompts
   private buildSummaryPrompt(messages: any[]): string {
     const messageTexts = messages
-      .map((msg, index) => `${index + 1}. ${msg.text} (${msg.timestamp})`)
+      .map((msg, index) => `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`)
       .join('\n');
 
-    return `Please summarize the following conversation thread. Focus on:
-1. Key decisions made
-2. Action items and tasks
-3. Important context and background
-4. Unresolved issues
+    return `Analyze this construction/contractor conversation and provide a JSON response with this EXACT format:
+{
+  "summary": "2-3 sentence overview of the conversation",
+  "keyPoints": ["point 1", "point 2", "point 3"],
+  "actionItems": ["action 1", "action 2", "action 3"]
+}
 
 Conversation:
 ${messageTexts}
 
-Provide a structured summary with clear sections for decisions, action items, and context.`;
+Return ONLY valid JSON, no markdown, no extra text.`;
   }
 
   private buildActionExtractionPrompt(messages: any[]): string {
     const messageTexts = messages
-      .map((msg, index) => `${index + 1}. ${msg.text}`)
+      .map((msg, index) => `${index + 1}. [${msg.sender || 'Unknown'}]: ${msg.text}`)
       .join('\n');
 
-    return `Extract all action items from this conversation. For each action item, identify:
-1. The specific task or action
-2. Who is responsible (if mentioned)
-3. Priority level (high/medium/low)
-4. Due date (if mentioned)
+    return `Extract all action items, tasks, and commitments from this construction/contractor conversation.
+
+Return a JSON array of action items with this EXACT format:
+[
+  {
+    "task": "Description of the task",
+    "assignedTo": "Person responsible (or null)",
+    "priority": "high" or "medium" or "low",
+    "dueDate": "Date if mentioned (or null)"
+  }
+]
 
 Conversation:
 ${messageTexts}
 
-Return the action items in a structured format.`;
+Look for:
+- Tasks that need to be done
+- Items needing approval
+- Change orders
+- Follow-ups required
+- Deadlines mentioned
+
+Return ONLY valid JSON array, no markdown, no extra text. If no action items found, return [].`;
   }
 
   private buildPriorityDetectionPrompt(message: any): string {
@@ -481,48 +495,96 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
 
   // Private helper methods for parsing responses
   private parseSummaryResponse(content: string): AIFeatures.ThreadSummary {
-    // Simple parsing - in production, you'd want more robust parsing
-    const lines = content.split('\n');
-    const summary =
-      lines.find(line => line.toLowerCase().includes('summary')) || content;
-
-    return {
-      summary: summary,
-      keyPoints: lines.filter(
-        line => line.startsWith('•') || line.startsWith('-')
-      ),
-      actionItems: [],
-      generatedAt: new Date().toISOString(),
-    };
+    try {
+      // Remove markdown code blocks if present
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      
+      // Try to parse as JSON
+      const parsed = JSON.parse(cleanContent);
+      
+      return {
+        summary: parsed.summary || 'No summary available',
+        keyPoints: Array.isArray(parsed.keyPoints) ? parsed.keyPoints : [],
+        actionItems: Array.isArray(parsed.actionItems) ? parsed.actionItems : [],
+        generatedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('Failed to parse summary response as JSON:', error);
+      console.log('Raw content:', content);
+      
+      // Fallback: Extract what we can from plain text
+      const lines = content.split('\n').map(l => l.trim()).filter(l => l);
+      
+      return {
+        summary: lines[0] || 'Summary unavailable',
+        keyPoints: lines.slice(1, 4),
+        actionItems: [],
+        generatedAt: new Date().toISOString(),
+      };
+    }
   }
 
   private parseActionItemsResponse(content: string): AIFeatures.ActionItem[] {
-    const lines = content.split('\n');
-    const actionItems: AIFeatures.ActionItem[] = [];
-
-    lines.forEach((line, index) => {
-      if (
-        line.trim() &&
-        (line.includes('action') ||
-          line.includes('task') ||
-          line.includes('todo'))
-      ) {
-        actionItems.push({
-          id: `action_${Date.now()}_${index}`,
-          threadId: '',
-          messageId: '',
-          task: line.trim(),
-          text: line.trim(),
-          priority: this.extractPriority(line),
-          assignedTo: this.extractAssignee(line),
-          dueDate: this.extractDueDate(line),
-          status: 'pending',
-          createdAt: new Date(),
-        });
+    try {
+      // Remove markdown code blocks if present
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      
+      // Try to parse as JSON array
+      const parsed = JSON.parse(cleanContent);
+      
+      if (!Array.isArray(parsed)) {
+        console.error('Expected array, got:', typeof parsed);
+        return [];
       }
-    });
-
-    return actionItems;
+      
+      // Map to our ActionItem format
+      return parsed.map((item, index) => ({
+        id: `action_${Date.now()}_${index}`,
+        threadId: '',
+        messageId: '',
+        task: item.task || 'Unknown task',
+        text: item.task || '',
+        assignedTo: item.assignedTo || undefined,
+        dueDate: item.dueDate ? new Date(item.dueDate) : undefined,
+        priority: (item.priority || 'medium') as AIFeatures.PriorityLevel,
+        status: 'pending' as const,
+        createdAt: new Date(),
+      }));
+    } catch (error) {
+      console.error('Failed to parse action items response as JSON:', error);
+      console.log('Raw content:', content);
+      
+      // Fallback: Try to extract action items from plain text
+      const lines = content.split('\n')
+        .map(l => l.trim())
+        .filter(l => l && (
+          l.toLowerCase().includes('action') ||
+          l.toLowerCase().includes('task') ||
+          l.toLowerCase().includes('need') ||
+          l.toLowerCase().includes('must') ||
+          l.toLowerCase().includes('should') ||
+          l.startsWith('-') ||
+          l.startsWith('•') ||
+          l.match(/^\d+\./)
+        ));
+      
+      return lines.slice(0, 10).map((line, index) => ({
+        id: `action_${Date.now()}_${index}`,
+        threadId: '',
+        messageId: '',
+        task: line.replace(/^[-•\d.]\s*/, ''),
+        text: line.replace(/^[-•\d.]\s*/, ''),
+        priority: 'medium' as AIFeatures.PriorityLevel,
+        status: 'pending' as const,
+        createdAt: new Date(),
+      }));
+    }
   }
 
   private parsePriorityResponse(content: string): AIFeatures.PriorityLevel {
@@ -574,32 +636,6 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
     return suggestions;
   }
 
-  private extractPriority(text: string): AIFeatures.PriorityLevel {
-    const lowerText = text.toLowerCase();
-    if (lowerText.includes('urgent') || lowerText.includes('high'))
-      return 'high';
-    if (lowerText.includes('low')) return 'low';
-    return 'medium';
-  }
-
-  private extractAssignee(text: string): string | undefined {
-    // Simple regex to extract assignee - in production, use more sophisticated NLP
-    const match = text.match(/(?:assign|give|send)\s+(?:to\s+)?([A-Za-z\s]+)/i);
-    return match ? match[1].trim() : undefined;
-  }
-
-  private extractDueDate(text: string): Date | undefined {
-    // Simple regex to extract dates - in production, use date parsing library
-    const match = text.match(/(?:by|due|before)\s+([A-Za-z0-9\s,]+)/i);
-    if (match) {
-      try {
-        return new Date(match[1]);
-      } catch {
-        return undefined;
-      }
-    }
-    return undefined;
-  }
 }
 
 // Export singleton instance
