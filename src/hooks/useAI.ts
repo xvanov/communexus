@@ -68,7 +68,7 @@ export const useAI = () => {
         setError(null);
 
         const priority = await aiService.detectPriority(messageId, message);
-        return priority;
+        return priority?.level || null;
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to detect priority';
@@ -90,7 +90,8 @@ export const useAI = () => {
         setLoading(true);
         setError(null);
 
-        const results = await aiService.smartSearch(query, threadId);
+        const threadIds = threadId ? [threadId] : [];
+        const results = await aiService.smartSearch(query, threadIds);
         return results;
       } catch (err) {
         const errorMessage =
@@ -106,23 +107,19 @@ export const useAI = () => {
 
   const trackDecision = useCallback(
     async (
+      threadId: string,
       messageId: string,
-      decision: AIFeatures.Decision
-    ): Promise<AIFeatures.Decision | null> => {
+      decision: string
+    ): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
 
-        const trackedDecision = await aiService.trackDecision(
-          messageId,
-          decision
-        );
-        return trackedDecision;
+        await aiService.trackDecision(threadId, messageId, decision);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to track decision';
         setError(errorMessage);
-        return null;
       } finally {
         setLoading(false);
       }

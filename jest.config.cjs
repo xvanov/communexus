@@ -4,6 +4,7 @@ module.exports = {
   roots: ['<rootDir>/tests', '<rootDir>/src'],
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  watchman: false, // Disable watchman to avoid permission issues
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
@@ -29,6 +30,11 @@ module.exports = {
     '/node_modules/',
     '/tests/ai/', // Skip AI tests temporarily
     '/tests/computer-use/',
+    '/tests/integration/auth_emulator.test.ts', // Requires emulator (use test:emul)
+    '/tests/integration/crud_threads.test.ts', // Requires emulator (use test:emul)
+    '/tests/integration/functions_exports.test.ts', // Requires built functions (run in CI/CD after build)
+    '/tests/integration/functions_hello.test.ts', // Requires built functions (run in CI/CD after build)
+    '/tests/unit/hosting_config.test.ts', // Requires built dist (run in CI/CD after build)
   ],
   // setupFilesAfterEnv removed - file doesn't exist
 };

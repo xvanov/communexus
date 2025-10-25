@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand",
+    "test:all": "jest --runInBand --testPathIgnorePatterns='/node_modules/' '/tests/ai/' '/tests/computer-use/'",
     "test:emul": "firebase emulators:exec --only firestore,auth,storage --project demo-communexus \"jest --runInBand\"",
     "test:e2e": "wdio run tests/e2e/config/wdio.conf.js",
     "test:e2e:ios": "wdio run tests/e2e/config/wdio.ios.conf.js",

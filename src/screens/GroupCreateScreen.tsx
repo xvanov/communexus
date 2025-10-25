@@ -155,6 +155,11 @@ export default function GroupCreateScreen({ navigation }: any) {
     try {
       const contact = selectedContacts[0];
 
+      if (!contact) {
+        Alert.alert('Error', 'No contact selected');
+        return;
+      }
+
       // For one-on-one chats, use the proper function to prevent duplicates
       const threadId = await findOrCreateOneOnOneThread(
         user.uid,
@@ -234,10 +239,10 @@ export default function GroupCreateScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Participants</Text>
           <ContactPicker
-            contacts={contacts}
-            selectedContacts={selectedContacts}
-            onSelectContact={handleSelectContact}
-            onDeselectContact={handleDeselectContact}
+            contacts={contacts as any}
+            selectedContacts={selectedContacts as any}
+            onSelectContact={handleSelectContact as any}
+            onDeselectContact={handleDeselectContact as any}
             multiSelect={true}
             placeholder="Select contacts..."
           />

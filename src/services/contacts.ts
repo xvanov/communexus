@@ -79,7 +79,6 @@ export const subscribeToContacts = async (
 
   // Store unsubscribe functions for user listeners
   const userUnsubscribes: (() => void)[] = [];
-  let contactsSnapshot: any = null;
 
   const unsubscribeContacts = onSnapshot(contactsRef, snapshot => {
     console.log('📞 Contacts updated:', snapshot.docs.length, 'contacts');
@@ -88,7 +87,6 @@ export const subscribeToContacts = async (
     userUnsubscribes.forEach(unsub => unsub());
     userUnsubscribes.length = 0;
 
-    contactsSnapshot = snapshot;
     const contacts: Contact[] = [];
 
     if (snapshot.docs.length === 0) {
@@ -265,7 +263,7 @@ export const autoCreateTestUsers = async (): Promise<void> => {
       // Create Firestore document for NEW users
       if (userId && isNewUser) {
         try {
-          const db = getDb(true);
+          const db = await getDb();
           const { setDoc, doc } = await import('firebase/firestore');
           await setDoc(
             doc(db, 'users', userId),

@@ -11,8 +11,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   position = 'top',
   showDetails = false,
 }) => {
-  const { isOnline, pendingMessages, failedMessages, isSyncing } =
-    useOfflineQueue();
+  const { isOnline, stats, isSyncing } = useOfflineQueue();
 
   // Use useMemo to create the Animated.Value only once
   const fadeAnim = React.useMemo(() => new Animated.Value(0), []);
@@ -30,17 +29,17 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   }
 
   const getMessageCount = () => {
-    const total = pendingMessages.length + failedMessages.length;
+    const total = stats.pendingMessages + stats.failedMessages;
     if (total === 0) return '';
     return ` (${total})`;
   };
 
   const getStatusText = () => {
     if (isSyncing) return 'Syncing...';
-    if (failedMessages.length > 0)
-      return `Offline - ${failedMessages.length} failed${getMessageCount()}`;
-    if (pendingMessages.length > 0)
-      return `Offline - ${pendingMessages.length} pending${getMessageCount()}`;
+    if (stats.failedMessages > 0)
+      return `Offline - ${stats.failedMessages} failed${getMessageCount()}`;
+    if (stats.pendingMessages > 0)
+      return `Offline - ${stats.pendingMessages} pending${getMessageCount()}`;
     return 'Offline';
   };
 
