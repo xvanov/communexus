@@ -143,9 +143,26 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
       if (data.success && data.results) {
         console.log('🔍 Found', data.results.length, 'relevant results');
-        setResults(data.results);
+        
+        // Ensure all results have required fields with fallbacks
+        const validResults = data.results
+          .filter((r: any) => r && r.text) // Must have text at minimum
+          .map((r: any, index: number) => ({
+            messageId: r.messageId || `msg-${Date.now()}-${index}`,
+            threadId: r.threadId || '',
+            text: r.text || '',
+            snippet: r.snippet || '',
+            sender: r.sender || 'Unknown',
+            timestamp: r.timestamp ? new Date(r.timestamp) : new Date(),
+            relevance: r.relevance || 0.5,
+          }));
+        
+        console.log('🔍 Valid results:', validResults.length);
+        setResults(validResults);
       } else {
-        setError(data.error || 'Failed to perform smart search');
+        const errorMsg = data.error || 'Failed to perform smart search';
+        console.log('🔍 Search failed:', errorMsg);
+        setError(errorMsg);
         setResults([]);
       }
     } catch (err: any) {
@@ -221,7 +238,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       <FlatList
         data={results}
         renderItem={renderResultItem}
-        keyExtractor={(item) => item.messageId}
+        keyExtractor={(item, index) => item.messageId || `result-${index}`}
         contentContainerStyle={styles.resultsList}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

@@ -256,18 +256,25 @@ Messages to search:
 ${messagesText}
 
 Analyze these messages and return the top 10 most relevant results for the query. For each result, provide:
-1. The message number (messageId)
-2. Relevance score (0-1)
+1. The message number (from the numbered list above)
+2. Relevance score (0-1, where 1 is perfect match)
 3. A brief snippet explaining why it's relevant
 
-Format as JSON array:
+Return ONLY a JSON array in this EXACT format:
 [
   {
-    "messageId": "message_id",
+    "messageId": 1,
     "relevance": 0.95,
-    "snippet": "explanation"
+    "snippet": "Discusses power outlets installation"
+  },
+  {
+    "messageId": 3,
+    "relevance": 0.80,
+    "snippet": "Mentions electrical work"
   }
-]`;
+]
+
+Return ONLY valid JSON array, no markdown, no extra text. If no relevant messages, return [].`;
 
       const response = await getOpenAI().chat.completions.create({
         model: this.config.openai.model,
@@ -595,25 +602,33 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
     return 'medium'; // default
   }
 
-  private parseSearchResponse(content: string): AIFeatures.SearchResult[] {
-    const lines = content.split('\n');
-    const results: AIFeatures.SearchResult[] = [];
-
-    lines.forEach((line, index) => {
-      if (line.trim()) {
-        results.push({
-          messageId: `search_result_${index}`,
-          threadId: '',
-          text: line.trim(),
-          snippet: line.trim(),
-          sender: '',
-          timestamp: new Date(),
-          relevance: 0.8, // Default score
-        });
+  private parseSearchResponse(content: string): any[] {
+    try {
+      // Remove markdown code blocks if present
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      
+      // Try to parse as JSON array
+      const parsed = JSON.parse(cleanContent);
+      
+      if (!Array.isArray(parsed)) {
+        console.error('Expected array, got:', typeof parsed);
+        return [];
       }
-    });
-
-    return results;
+      
+      // Return array of { messageId, relevance, snippet }
+      return parsed.map(item => ({
+        messageId: String(item.messageId || item.index || '0'),
+        relevance: parseFloat(item.relevance || 0.5),
+        snippet: item.snippet || '',
+      }));
+    } catch (error) {
+      console.error('Failed to parse search response as JSON:', error);
+      console.log('Raw content:', content);
+      return [];
+    }
   }
 
   private parseProactiveResponse(
