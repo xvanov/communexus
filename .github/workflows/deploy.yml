@@ -88,85 +88,9 @@ jobs:
       - name: Deploy Storage Rules
         run: firebase deploy --only storage --token ${{ secrets.FIREBASE_TOKEN }}
 
-  # Build Mobile Apps
-  build-mobile:
-    name: Build Mobile Apps
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    strategy:
-      matrix:
-        platform: [ios, android]
-        profile: [preview, production]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Setup EAS CLI
-        run: npm install -g @expo/eas-cli
-
-      - name: Authenticate to EAS
-        run: eas login --token ${{ secrets.EXPO_TOKEN }}
-
-      - name: Build app
-        run: eas build --platform ${{ matrix.platform }} --profile ${{ matrix.profile }} --non-interactive
-
-  # Submit to TestFlight (iOS)
-  submit-testflight:
-    name: Submit to TestFlight
-    runs-on: ubuntu-latest
-    needs: [deploy-firebase, build-mobile]
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup EAS CLI
-        run: npm install -g @expo/eas-cli
-
-      - name: Authenticate to EAS
-        run: eas login --token ${{ secrets.EXPO_TOKEN }}
-
-      - name: Submit to TestFlight
-        run: eas submit --platform ios --profile testflight --non-interactive
-
-  # Submit to Play Store (Android)
-  submit-playstore:
-    name: Submit to Play Store
-    runs-on: ubuntu-latest
-    needs: [deploy-firebase, build-mobile]
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup EAS CLI
-        run: npm install -g @expo/eas-cli
-
-      - name: Authenticate to EAS
-        run: eas login --token ${{ secrets.EXPO_TOKEN }}
-
-      - name: Submit to Play Store
-        run: eas submit --platform android --profile production --non-interactive
+  # Build Mobile Apps (Manual - run via eas build locally or on-demand)
+  # Removed automatic mobile builds to save CI/CD resources
+  # Use: eas build --platform ios/android --profile preview/production
 
   # Performance Testing
   performance-test:
@@ -226,24 +150,19 @@ jobs:
   notify:
     name: Notify Deployment Status
     runs-on: ubuntu-latest
-    needs: [deploy-firebase, build-mobile, submit-testflight, submit-playstore]
+    needs: [deploy-firebase]
     if: always()
     steps:
       - name: Notify Success
-        if: ${{ needs.deploy-firebase.result == 'success' && needs.build-mobile.result == 'success' }}
+        if: ${{ needs.deploy-firebase.result == 'success' }}
         run: |
           echo "✅ Deployment successful!"
           echo "Firebase Functions: ${{ needs.deploy-firebase.result }}"
-          echo "Mobile Builds: ${{ needs.build-mobile.result }}"
-          echo "TestFlight: ${{ needs.submit-testflight.result }}"
-          echo "Play Store: ${{ needs.submit-playstore.result }}"
+          echo "📱 For mobile builds, run: eas build --platform ios/android --profile preview/production"
 
       - name: Notify Failure
-        if: ${{ needs.deploy-firebase.result == 'failure' || needs.build-mobile.result == 'failure' }}
+        if: ${{ needs.deploy-firebase.result == 'failure' }}
         run: |
           echo "❌ Deployment failed!"
           echo "Firebase Functions: ${{ needs.deploy-firebase.result }}"
-          echo "Mobile Builds: ${{ needs.build-mobile.result }}"
-          echo "TestFlight: ${{ needs.submit-testflight.result }}"
-          echo "Play Store: ${{ needs.submit-playstore.result }}"
           exit 1
