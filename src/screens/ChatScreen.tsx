@@ -198,6 +198,11 @@ export default function ChatScreen({ route, navigation }: any) {
   useEffect(() => {
     navigation.setOptions({
       title: displayName,
+      headerTitleStyle: {
+        fontSize: 17,
+        fontWeight: '600',
+        maxWidth: '60%', // Limit title width to prevent overlap with buttons
+      },
       headerRight: () => (
         <View style={styles.headerButtons}>
           <TouchableOpacity
@@ -210,9 +215,9 @@ export default function ChatScreen({ route, navigation }: any) {
             disabled={loadingActions}
           >
             {loadingActions ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={Colors.textPrimary} />
             ) : (
-              <Text style={styles.actionButtonText}>📋 Actions</Text>
+              <Text style={styles.actionButtonText}>📋</Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
@@ -220,7 +225,7 @@ export default function ChatScreen({ route, navigation }: any) {
             style={styles.aiButton}
             testID="ai-summary-button"
           >
-            <Text style={styles.aiButtonText}>✨ AI</Text>
+            <Text style={styles.aiButtonText}>✨</Text>
           </TouchableOpacity>
         </View>
       ),
@@ -347,28 +352,30 @@ export default function ChatScreen({ route, navigation }: any) {
 
 const styles = StyleSheet.create({
   actionButton: {
+    alignItems: 'center',
     backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.round,
+    height: 36,
+    justifyContent: 'center',
     marginRight: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
+    width: 36,
   },
   actionButtonText: {
     color: Colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 18,
   },
   aiButton: {
+    alignItems: 'center',
     backgroundColor: Colors.accent,
-    borderRadius: BorderRadius.md,
-    marginRight: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
+    borderRadius: BorderRadius.round,
+    height: 36,
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+    width: 36,
   },
   aiButtonText: {
     color: Colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 18,
   },
   centerContainer: {
     alignItems: 'center',
@@ -394,6 +401,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   headerButtons: {
+    alignItems: 'center',
     flexDirection: 'row',
   },
   loadingText: {
