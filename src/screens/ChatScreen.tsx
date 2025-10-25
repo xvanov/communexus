@@ -80,15 +80,23 @@ export default function ChatScreen({ route, navigation }: any) {
     : otherParticipants[0]?.name || 'Unknown';
 
   const extractActionItems = async () => {
+    console.log('📋 Extract Action Items called');
+    console.log('📋 Messages count:', messages.length);
+    
     if (messages.length === 0) {
+      console.log('📋 No messages to process');
       return;
     }
 
     try {
       setLoadingActions(true);
+      console.log('📋 Starting action item extraction...');
+      
       const url = __DEV__
         ? 'http://127.0.0.1:5001/communexus/us-central1/aiActionExtraction'
         : 'https://us-central1-communexus.cloudfunctions.net/aiActionExtraction';
+
+      console.log('📋 URL:', url);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -106,20 +114,23 @@ export default function ChatScreen({ route, navigation }: any) {
         }),
       });
 
+      console.log('📋 Response status:', response.status);
       const result = await response.json();
       console.log('✅ Action items result:', result);
 
       const data = result.result || result.data;
       if (data.success && data.actionItems) {
+        console.log('📋 Found action items:', data.actionItems.length);
         setActionItems(data.actionItems);
         setShowActionItems(true);
       } else {
-        console.error('No action items found');
+        console.error('❌ No action items found:', data.error);
       }
     } catch (err: any) {
       console.error('❌ Error extracting action items:', err);
     } finally {
       setLoadingActions(false);
+      console.log('📋 Action extraction complete');
     }
   };
 
@@ -188,7 +199,10 @@ export default function ChatScreen({ route, navigation }: any) {
       headerRight: () => (
         <View style={styles.headerButtons}>
           <TouchableOpacity
-            onPress={extractActionItems}
+            onPress={() => {
+              console.log('📋 Action button pressed!');
+              extractActionItems();
+            }}
             style={styles.actionButton}
             testID="action-items-button"
             disabled={loadingActions}
@@ -209,7 +223,7 @@ export default function ChatScreen({ route, navigation }: any) {
         </View>
       ),
     });
-  }, [displayName, navigation, loadingActions]);
+  }, [displayName, navigation, loadingActions, messages.length]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
