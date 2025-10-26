@@ -7,6 +7,7 @@
     "test": "jest --runInBand",
     "test:all": "jest --runInBand --testPathIgnorePatterns='/node_modules/' '/tests/ai/' '/tests/computer-use/'",
     "test:emul": "firebase emulators:exec --only firestore,auth,storage --project demo-communexus \"jest --runInBand\"",
+    "test:performance": "npx expo export --platform all && du -sh dist/ && node -e \"const fs=require('fs'); const stats=fs.statSync('dist'); if(stats.size > 50000000) { console.error('Bundle too large!'); process.exit(1); }\"",
     "test:e2e": "wdio run tests/e2e/config/wdio.conf.js",
     "test:e2e:ios": "wdio run tests/e2e/config/wdio.ios.conf.js",
     "test:e2e:ios:simple": "wdio run tests/e2e/config/wdio.ios.conf.js --spec=./tests/e2e/specs/simple-auth.test.js",
