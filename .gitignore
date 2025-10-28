@@ -229,3 +229,8 @@ coverage/
 functions/lib/
 test-results*
 ios/
+
+# Agent Feedback Environment
+.agent-env-state.json
+feedback/agent/
+test-results/agent-feedback/
