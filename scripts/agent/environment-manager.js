@@ -288,24 +288,47 @@ class EnvironmentManager {
    * Check if app needs building
    */
   async checkAppBuild() {
-    const buildPath = path.join(this.config.projectRoot, 'ios/build');
-    try {
-      await fs.access(buildPath);
-      // Build exists, but check if it's recent (within last 24 hours)
-      const stats = await fs.stat(buildPath);
-      const age = Date.now() - stats.mtimeMs;
-      const hoursOld = age / (1000 * 60 * 60);
-      
-      if (hoursOld > 24) {
-        console.log('  ⚠️  Build is older than 24 hours');
-        return true;
-      }
-      
-      return false; // Build is recent enough
-    } catch (error) {
-      // Build doesn't exist
-      return true;
+    // If SKIP_BUILD environment variable is set, skip the build
+    if (process.env.SKIP_BUILD === 'true') {
+      console.log('  ℹ️  Skipping build (SKIP_BUILD=true)');
+      return false;
     }
+
+    // Check if .app bundle exists in the build directory
+    // This is more reliable than trying to check installed apps
+    const buildDir = path.join(
+      this.config.projectRoot,
+      'ios/build/Build/Products/Debug-iphonesimulator'
+    );
+    
+    try {
+      const files = await fs.readdir(buildDir);
+      const appBundle = files.find(f => f.endsWith('.app'));
+      
+      if (appBundle) {
+        // Check how old the build is
+        const appPath = path.join(buildDir, appBundle);
+        const stats = await fs.stat(appPath);
+        const age = Date.now() - stats.mtimeMs;
+        const hoursOld = age / (1000 * 60 * 60);
+        
+        if (hoursOld < 24) {
+          console.log(`  ✅ App bundle is ${hoursOld.toFixed(1)} hours old (recent enough)`);
+          return false; // Build is recent
+        } else {
+          console.log(`  ⚠️  App bundle is ${hoursOld.toFixed(1)} hours old`);
+          console.log('  💡 Set SKIP_BUILD=true to skip rebuilding');
+          return true; // Build is old
+        }
+      }
+    } catch (error) {
+      // Build directory doesn't exist or can't read it
+    }
+
+    // No recent build found
+    console.log('  ⚠️  No recent build found');
+    console.log('  💡 Set SKIP_BUILD=true to skip building');
+    return true;
   }
 
   /**
