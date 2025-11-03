@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { AIActionItem } from '../../types/AIFeatures';
 import { ActionItemList } from './ActionItemList';
 
@@ -50,8 +44,8 @@ export const ActionItemModal: React.FC<ActionItemModalProps> = ({
             <ActionItemList
               actionItems={actionItems}
               threadId={threadId}
-              onActionItemPress={onActionItemPress}
-              onActionItemUpdate={onActionItemUpdate}
+              {...(onActionItemPress && { onActionItemPress })}
+              {...(onActionItemUpdate && { onActionItemUpdate })}
             />
           ) : (
             <View style={styles.emptyContainer}>

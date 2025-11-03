@@ -132,13 +132,13 @@ This addendum expands the Phase 3 roadmap from the base PRD with detailed specif
 interface ChannelAdapter {
   id: string;
   type: 'sms' | 'messenger' | 'whatsapp' | 'email' | 'in-app';
-  
+
   // Send message via this channel
   send(message: ChannelMessage): Promise<ChannelMessageResult>;
-  
+
   // Receive webhook and convert to unified format
   receive(webhookPayload: any): UnifiedMessage;
-  
+
   // Get message status
   getStatus(messageId: string): Promise<MessageStatus>;
 }
@@ -177,35 +177,35 @@ interface UnifiedMessage {
   - **Facebook Marketplace Responses:** Messenger for initial post responses, then switch to SMS
   - **Property Tours/Scheduling:** Prefer SMS over Messenger (easier for coordination)
   - **Detailed Information:** Email for longer responses (better formatting support)
-  
 - **Channel Usage Guidelines:**
   - **Messenger:** Primary channel for Facebook Marketplace initial inquiries, then migrate to SMS
   - **SMS:** Preferred for ongoing conversations, scheduling, quick updates
   - **Email:** Preferred for formal communications (lease agreements, detailed information)
 
 - **Channel Priority Logic:**
+
 ```typescript
 function selectChannel(thread: Thread, messageType: string): Channel {
   // Context-based exceptions
   if (messageType === 'lease_link') {
     return 'both_sms_email'; // Send to both channels
   }
-  
+
   if (thread.sourceChannel === 'messenger' && thread.isInitialInquiry) {
     // Initial inquiry on Messenger, continue there
     return 'messenger';
   }
-  
+
   if (messageType === 'property_tour' || messageType === 'scheduling') {
     // Tours and scheduling prefer SMS
     return 'sms';
   }
-  
+
   if (messageType === 'formal_document' || messageType === 'detailed_info') {
     // Formal communications prefer Email
     return 'email';
   }
-  
+
   // Default: Last used channel in thread
   return thread.lastUsedChannel || 'sms';
 }
@@ -214,12 +214,9 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 **3.1.5 UI Components**
 
 - **Channel Badge Component:** Display channel icon + identifier
+
   ```tsx
-  <ChannelBadge 
-    channel="sms" 
-    identifier="+1-555-0123" 
-    direction="incoming" 
-  />
+  <ChannelBadge channel="sms" identifier="+1-555-0123" direction="incoming" />
   ```
 
 - **Unified Message List:** Show messages from all channels in chronological order
@@ -246,6 +243,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 **Use Case 1: Property Inquiry & Sales Flow (Prospect Phase)**
 
 **Phase 1.1: Initial Inquiry & Property Information**
+
 - Potential tenant asks: "Is the room still available?"
 - Marketing Agent responds: "Yes! The room at 123 Main St is available for $800/month. Would you like to know more?"
 - Prospect asks follow-up questions (utilities, pet policy, amenities, etc.)
@@ -253,6 +251,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 - Marketing Agent highlights property benefits and selling points
 
 **Phase 1.2: Cross-Selling if Prospect Shows Disinterest**
+
 - If prospect indicates disinterest ("Too expensive", "Too far", "Not what I'm looking for"):
   - Marketing Agent acknowledges: "I understand. Let me check what else we have available..."
   - Marketing Agent searches for alternative properties matching stated preferences
@@ -261,6 +260,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 - If prospect interested in alternative: Continue with Phase 2
 
 **Phase 1.3: Qualification Check (Before Scheduling)**
+
 - Once prospect is interested, Marketing Agent initiates qualification:
   - "Great! Before we schedule a showing, I'd like to confirm a few quick questions to make sure this is a good fit:"
   - Qualification questions (as a list or conversation):
@@ -275,6 +275,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   - If any qualification not met → Politely decline: "Thanks for your interest, but this property may not be the best fit. Good luck with your search!"
 
 **Phase 2: Property Showing Scheduling**
+
 - Marketing Agent: "Perfect! Let me check our available showing times."
 - Marketing Agent queries Google Calendar (via backend connector) for available slots
 - Marketing Agent presents available time slots: "I have these times available: [list options]"
@@ -283,12 +284,12 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 - Marketing Agent sends confirmation via original channel (SMS/Messenger/Email)
 
 **Phase 3: Property Showing & Mode Switching**
+
 - **During Showing (Manual Mode):**
   - Property Manager switches thread from Auto to Manual mode
   - Property Manager takes over conversation: "I'm at the property, are you here?"
   - Property Manager handles real-time showing coordination
   - Property Manager answers on-site questions
-  
 - **After Showing (Back to Auto):**
   - Property Manager switches thread back to Auto mode
   - AI Agent (Marketing) receives full context:
@@ -296,13 +297,13 @@ function selectChannel(thread: Thread, messageType: string): Channel {
     - Property showing occurred
     - Any context Property Manager added during showing
     - Current stage: Post-showing follow-up
-  
   - AI Agent continues conversation:
     - If Property Manager didn't already send application: "Thanks for coming! If you're interested in moving forward, here's the application form: [link to platform]"
     - If Property Manager already sent application: AI acknowledges and follows up
     - AI handles application questions or next steps
 
 **Phase 4: Move-in Application**
+
 - After showing confirmed, Marketing Agent sends application form:
   - "Great! If you'd like to proceed, please fill out our application form here: [link to external platform]"
   - Link opens application form in external platform (rental management system)
@@ -310,6 +311,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   - Marketing Agent follows up on application status if needed
 
 **Phase 5: Action List Generation (Automatic)**
+
 - **AI Action Item Extraction** automatically analyzes conversation and generates actionable tasks for Property Manager
 - Action list generated at key stages:
   - **After showing:** Tasks like "Schedule follow-up call", "Review application when submitted"
@@ -317,15 +319,14 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   - **Before move-in:** Tasks like "Clean property", "Replace batteries in smoke detectors", "Update property inventory"
   - **During move-in:** Tasks like "Give keys to tenant", "Upload move-in pictures", "Complete move-in inspection", "Collect deposit"
   - **After move-in:** Tasks like "Welcome email/package", "Schedule orientation meeting"
-  
 - **Action List Features:**
   - Tasks automatically extracted from conversation context
   - Checkbox interface for Property Manager to mark tasks complete
   - Tasks linked to thread and property
   - Property Manager can add custom tasks manually
   - Action list visible in thread view and property dashboard
-  
 - **Example Generated Action Lists:**
+
   ```
   After Application Approved:
   ☐ Prepare lease agreement for 123 Main St
@@ -333,14 +334,14 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   ☐ Take move-in pictures (before tenant arrives)
   ☐ Verify move-in checklist items
   ☐ Confirm move-in date with tenant
-  
+
   During Move-in:
   ☐ Give keys to [Tenant Name]
   ☐ Upload move-in pictures to property file
   ☐ Complete move-in inspection checklist
   ☐ Collect deposit and first month rent
   ☐ Update tenant contact information
-  
+
   After Move-in:
   ☐ Send welcome email to tenant
   ☐ Schedule property orientation meeting
@@ -348,6 +349,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   ```
 
 **Use Case 2: Mid-Conversation Mode Switching**
+
 - Thread starts in Auto mode (AI handling)
 - Property Manager switches to Manual mode mid-conversation
 - Property Manager adds context: "I'm at the property, are you here?" or other real-time updates
@@ -356,11 +358,13 @@ function selectChannel(thread: Thread, messageType: string): Channel {
 - AI Agent continues seamlessly: "Based on our conversation, here's the application form..." or appropriate next step
 
 **Use Case 3: Information Answering (Tenant Phase)**
+
 - Tenant: "What's the pet policy?"
 - Property Management Agent: "Pets are allowed with a $200 deposit. Maximum 2 pets, no aggressive breeds."
 - Information pulled from property management backend
 
 **Use Case 4: Maintenance Request (Tenant Phase)**
+
 - Tenant: "There's a leak in the bathroom"
 - Property Management Agent: "I'll schedule a plumber for you. When would be a good time for maintenance?"
 - Property Management Agent creates maintenance request in backend system
@@ -372,6 +376,7 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   - ☐ Update property maintenance log
 
 **Use Case 5: Action List Generation (Automatic)**
+
 - **Automatic Generation:** AI analyzes conversation context and automatically generates action items
 - **Trigger Points:**
   - After property showing scheduled → Generate pre-showing action list
@@ -379,27 +384,25 @@ function selectChannel(thread: Thread, messageType: string): Channel {
   - During move-in conversation → Generate move-in action list (give keys, upload pictures, etc.)
   - During maintenance request → Generate repair action list
   - During lease renewal conversation → Generate renewal action list
-  
 - **Action List Types:**
   - **Prospect Stage Actions:** Follow-up, application review, qualification verification
   - **Move-in Preparation:** Lease preparation, key handoff scheduling, property cleaning, pictures
   - **Move-in Execution:** Give keys, upload move-in pictures, collect deposit, inspection
   - **Tenant Management:** Welcome package, orientation meeting, emergency contacts
   - **Maintenance Actions:** Schedule repair, verify completion, update logs
-  
 - **Action List Management:**
   - Property Manager can check off completed tasks
   - Tasks automatically marked when conversation indicates completion (e.g., "Keys given" message)
   - Property Manager can add custom tasks manually
   - Action list visible in thread view sidebar
   - Action list also visible in property dashboard
-  
 - **Example: Automatic Generation from Conversation:**
+
   ```
-  Conversation: 
+  Conversation:
   Tenant: "I got the keys, thanks!"
   PM: "Great! Don't forget to upload the move-in pictures"
-  
+
   AI Generates/Updates Action List:
   ☑ Give keys to tenant (completed - mentioned in conversation)
   ☐ Upload move-in pictures
@@ -415,7 +418,7 @@ interface AIAgentConfig {
   mode: 'auto' | 'manual'; // Conversation-level toggle
   // Per-conversation override (stored in thread)
   threadMode?: 'auto' | 'manual';
-  
+
   contextSources: {
     propertyData?: boolean; // Pull from property backend
     calendar?: boolean; // Check availability
@@ -446,7 +449,7 @@ interface AIAgentConfig {
 - **Dual Agent System:**
   - **Marketing Agent (Prospect Phase):** Friendly, customer-facing agent for potential tenants
     - Personality: Welcoming, helpful, sales-focused
-    - Capabilities: 
+    - Capabilities:
       - Answer property questions using backend property data
       - Cross-sell alternative properties when prospect shows disinterest
       - Conduct qualification interview (6 key questions) before scheduling
@@ -455,56 +458,61 @@ interface AIAgentConfig {
       - Send move-in application form link after showing
       - Resume conversation seamlessly after Property Manager mode switches
     - Used when: User status is "potential_tenant" or inquiry phase
-  
   - **Property Management Agent (Tenant Phase):** Professional, operational agent for existing tenants
     - Personality: Professional, efficient, problem-solving focused
     - Capabilities: Handle maintenance requests, explain house rules, schedule repairs, handle lease questions
     - Used when: User status is "tenant"
 
 - **Qualification Questions Template:**
+
   ```typescript
   const qualificationQuestions = [
     {
       id: 'evictions',
       question: 'Have you ever been evicted from a property?',
       acceptableAnswer: 'no',
-      required: true
+      required: true,
     },
     {
       id: 'past_problems',
-      question: 'Have you had any issues with previous landlords or housemates?',
+      question:
+        'Have you had any issues with previous landlords or housemates?',
       acceptableAnswer: 'no',
-      required: true
+      required: true,
     },
     {
       id: 'criminal_record',
       question: 'Do you have any criminal record we should be aware of?',
       acceptableAnswer: 'no',
-      required: true
+      required: true,
     },
     {
       id: 'move_in_amount',
-      question: 'The move-in amount is [deposit + rent]. Can you confirm this works for you?',
+      question:
+        'The move-in amount is [deposit + rent]. Can you confirm this works for you?',
       acceptableAnswer: 'yes',
       required: true,
-      dynamicAmount: true // Pull from property backend
+      dynamicAmount: true, // Pull from property backend
     },
     {
       id: 'respectful_behavior',
-      question: 'We expect all housemates to be respectful to others. Does that work for you?',
+      question:
+        'We expect all housemates to be respectful to others. Does that work for you?',
       acceptableAnswer: 'yes',
-      required: true
+      required: true,
     },
     {
       id: 'cleanliness',
-      question: 'We ask that common areas (kitchen, living room, etc.) be kept clean. Is that something you can commit to?',
+      question:
+        'We ask that common areas (kitchen, living room, etc.) be kept clean. Is that something you can commit to?',
       acceptableAnswer: 'yes',
-      required: true
-    }
+      required: true,
+    },
   ];
   ```
 
 - **LangChain Agents** with extended tool sets:
+
   ```typescript
   // Marketing Agent Tools
   marketingAgentTools = [
@@ -524,7 +532,7 @@ interface AIAgentConfig {
     detectModeSwitch(threadId), // Detect when Property Manager switches modes
     resumeConversationFromContext(threadId), // Resume after manual mode switch
   ];
-  
+
   // Property Management Agent Tools
   propertyManagementAgentTools = [
     getPropertyRules(propertyId),
@@ -556,7 +564,6 @@ interface AIAgentConfig {
     - AI Agent pauses responses
     - Property Manager messages stored in conversation history
     - Thread context preserved (prospect stage, property ID, etc.)
-  
   - When Property Manager switches back to Auto:
     - AI Agent reads full conversation context (including Property Manager messages)
     - AI Agent determines current stage (pre-showing, post-showing, application sent, etc.)
@@ -567,27 +574,30 @@ interface AIAgentConfig {
 **3.2.5 UI Components**
 
 - **AI Mode Toggle:** Conversation-level toggle at top of thread
+
   ```tsx
   <AIModeToggle
     mode={thread.mode} // 'auto' | 'manual'
-    onChange={(mode) => updateThreadMode(threadId, mode)}
+    onChange={mode => updateThreadMode(threadId, mode)}
     disabled={!aiAgentEnabled}
   />
   // Displays: [🔄 Auto] [✋ Manual] (current mode highlighted)
   ```
 
 - **AI Agent Status Indicator:** Show when AI is responding
+
   ```tsx
-  <AIAgentBadge 
-    status="responding" 
+  <AIAgentBadge
+    status="responding"
     message="AI is drafting a response..."
     agentType="marketing" | "property_management"
   />
   ```
 
 - **Message Attribution:** Show which messages were sent by AI vs human
+
   ```tsx
-  <MessageBubble 
+  <MessageBubble
     text="Yes, the room is available!"
     sentBy="ai"
     agentType="marketing"
@@ -596,31 +606,36 @@ interface AIAgentConfig {
   ```
 
 - **AI Response Preview (Manual Mode):** Show AI draft with approve/reject/edit options
+
   ```tsx
   <AIResponsePreview
     draft={aiGeneratedResponse}
     onApprove={() => sendMessage(aiGeneratedResponse)}
     onReject={() => dismissPreview()}
-    onEdit={(edited) => sendMessage(edited)}
+    onEdit={edited => sendMessage(edited)}
   />
   ```
 
 - **Agent Type Indicator:** Show which agent is handling conversation
+
   ```tsx
-  <AgentTypeBadge 
+  <AgentTypeBadge
     type="marketing" // or "property_management"
     message="Marketing Assistant" // or "Property Management Assistant"
   />
   ```
 
 - **Action List Component:** Display automatically generated action items
+
   ```tsx
   <ActionList
     threadId={threadId}
     propertyId={propertyId}
     actions={actionItems}
-    onToggleComplete={(actionId, completed) => updateActionStatus(actionId, completed)}
-    onAddCustom={(task) => addCustomAction(task)}
+    onToggleComplete={(actionId, completed) =>
+      updateActionStatus(actionId, completed)
+    }
+    onAddCustom={task => addCustomAction(task)}
     autoGenerated={true} // Shows badge if auto-generated
   />
   // Displays checkbox list:
@@ -631,6 +646,7 @@ interface AIAgentConfig {
   ```
 
 - **Action List Sidebar:** Show action list in thread view sidebar
+
   ```tsx
   <ActionListSidebar
     threadId={threadId}
@@ -667,7 +683,7 @@ Organization
       ├── Thread 1: Tenant A (SMS + Messenger)
       ├── Thread 2: Tenant B (Email + WhatsApp)
       └── Thread 3: Maintenance Request (SMS)
-  
+
 Project (Kitchen Renovation - 456 Oak Ave)
   ├── Thread 1: Client Communications
   ├── Thread 2: Vendor Coordination
@@ -719,6 +735,7 @@ interface Thread {
 **3.3.3 UI Components**
 
 - **Property/Project Folder View:**
+
   ```
   📁 Properties
     📍 123 Main St, Durham NC
@@ -751,7 +768,6 @@ interface Thread {
     - References to property features (e.g., "3 bedrooms", "downtown location")
     - Mention of nearby landmarks
     - Comparison to other properties
-  
 - **AI Property Disambiguation:**
   - If AI detects unclear property reference, ask user for clarification:
     - "Which property are you interested in? 123 Main St or 456 Oak Ave?"
@@ -805,6 +821,7 @@ interface Thread {
 **3.4.2 Export Content**
 
 For each message, include:
+
 - Message ID (unique identifier)
 - Timestamp (ISO 8601 with timezone)
 - Sender identity (phone number, email, name, user ID)
@@ -816,6 +833,7 @@ For each message, include:
 - AI attribution (if message sent by AI agent)
 
 Thread-level information:
+
 - Thread ID
 - Participants (all identities across channels)
 - Property/Project association
@@ -863,6 +881,7 @@ Thread-level information:
 **3.5.1 Embeddable SDK Components**
 
 **React Component Library:**
+
 ```typescript
 // Main embeddable component
 <CommunexusEmbedded
@@ -880,6 +899,7 @@ Thread-level information:
 ```
 
 **Standalone JavaScript SDK:**
+
 ```javascript
 // Vanilla JS integration
 const communexus = new CommunexusSDK({
@@ -910,6 +930,7 @@ communexus.embed('#communexus-container', {
   - Branding removal option
 
 - **Theme Configuration:**
+
 ```typescript
 interface EmbedTheme {
   primaryColor: string;
@@ -956,30 +977,49 @@ interface BackendConnector {
   getProperty(propertyId: string): Promise<Property>;
   getProperties(organizationId: string): Promise<Property[]>;
   searchProperties(query: string): Promise<Property[]>;
-  
+
   // Calendar/Availability (Google Calendar Integration)
   getAvailability(userId: string, dateRange: DateRange): Promise<TimeSlot[]>;
   createAppointment(appointment: Appointment): Promise<Appointment>;
   // Google Calendar specific methods
-  getGoogleCalendarAvailability(calendarId: string, dateRange: DateRange): Promise<TimeSlot[]>;
+  getGoogleCalendarAvailability(
+    calendarId: string,
+    dateRange: DateRange
+  ): Promise<TimeSlot[]>;
   createGoogleCalendarEvent(event: CalendarEvent): Promise<CalendarEvent>;
-  
+
   // Prospect Qualification
-  checkProspectQualification(prospectId: string, answers: QualificationAnswers): Promise<QualificationResult>;
-  storeQualificationResults(prospectId: string, results: QualificationResult): Promise<void>;
-  
+  checkProspectQualification(
+    prospectId: string,
+    answers: QualificationAnswers
+  ): Promise<QualificationResult>;
+  storeQualificationResults(
+    prospectId: string,
+    results: QualificationResult
+  ): Promise<void>;
+
   // Application Forms
-  getApplicationFormLink(propertyId: string, prospectId: string): Promise<string>;
-  checkApplicationStatus(prospectId: string, applicationId: string): Promise<ApplicationStatus>;
-  
+  getApplicationFormLink(
+    propertyId: string,
+    prospectId: string
+  ): Promise<string>;
+  checkApplicationStatus(
+    prospectId: string,
+    applicationId: string
+  ): Promise<ApplicationStatus>;
+
   // User/Contact Data
   getUser(userId: string): Promise<User>;
   getContacts(organizationId: string): Promise<Contact[]>;
   linkIdentity(externalId: string, communexusUserId: string): Promise<void>;
-  
+
   // Custom Data
   getCustomData(entityType: string, entityId: string): Promise<any>;
-  updateCustomData(entityType: string, entityId: string, data: any): Promise<void>;
+  updateCustomData(
+    entityType: string,
+    entityId: string,
+    data: any
+  ): Promise<void>;
 }
 ```
 
@@ -988,14 +1028,17 @@ interface BackendConnector {
 ```typescript
 // Example: Property Management System Connector
 class PropertyManagementConnector implements BackendConnector {
-  constructor(private apiKey: string, private baseUrl: string) {}
-  
+  constructor(
+    private apiKey: string,
+    private baseUrl: string
+  ) {}
+
   async getProperty(propertyId: string): Promise<Property> {
     const response = await fetch(`${this.baseUrl}/properties/${propertyId}`, {
-      headers: { 'Authorization': `Bearer ${this.apiKey}` },
+      headers: { Authorization: `Bearer ${this.apiKey}` },
     });
     const data = await response.json();
-    
+
     return {
       id: data.id,
       address: {
@@ -1011,8 +1054,11 @@ class PropertyManagementConnector implements BackendConnector {
       },
     };
   }
-  
-  async getAvailability(userId: string, dateRange: DateRange): Promise<TimeSlot[]> {
+
+  async getAvailability(
+    userId: string,
+    dateRange: DateRange
+  ): Promise<TimeSlot[]> {
     // Fetch calendar availability from property management system
     // Return available time slots
   }
@@ -1141,32 +1187,32 @@ actionItems: {
   threadId: string;
   propertyId?: string;
   organizationId: string;
-  
+
   // Action item content
   title: string;
   description?: string;
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority?: 'low' | 'normal' | 'high' | 'urgent';
-  
+
   // Generation metadata
   autoGenerated: boolean; // True if generated by AI, false if manually added
   generatedBy: 'marketing_agent' | 'property_management_agent' | 'user';
   generatedAt: Timestamp;
   conversationStage?: 'prospect' | 'showing' | 'application' | 'move_in_prep' | 'move_in' | 'post_move_in' | 'maintenance' | 'renewal';
-  
+
   // Completion tracking
   completedBy?: string; // User ID who marked complete
   completedAt?: Timestamp;
   autoCompleted: boolean; // True if AI detected completion in conversation
-  
+
   // Assignment
   assignedTo?: string; // User ID (typically Property Manager)
   dueDate?: Timestamp;
-  
+
   // Context
   relatedMessageIds?: string[]; // Messages that triggered this action
   notes?: string; // Additional notes from Property Manager
-  
+
   // Metadata
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -1255,21 +1301,25 @@ actionItemTemplates: {
 ### Component Architecture
 
 **Channel Adapters:**
+
 - Each channel (SMS, Messenger, etc.) has adapter implementing `ChannelAdapter` interface
 - Adapters handle webhook receiving, message sending, status checking
 - Unified message format conversion
 
 **Message Router:**
+
 - Routes inbound messages to correct thread
 - Uses identity linking, thread metadata, AI classification
 - Creates new threads if no match found
 
 **AI Agent Engine:**
+
 - LangChain-based agent with tool calling
 - Integrates with backend connector for data
 - Auto-response or approval workflow
 
 **Backend Connector System:**
+
 - Pluggable interface for external backends
 - Web app provides connector implementation
 - AI Agent and message routing use connector
@@ -1279,12 +1329,14 @@ actionItemTemplates: {
 ## Implementation Phases
 
 ### Phase 3.1: Foundation (Weeks 1-4)
+
 - Channel abstraction layer
 - Basic SMS integration (Twilio)
 - Unified thread model with channel indicators
 - Identity linking system
 
 ### Phase 3.2: Multi-Channel Expansion (Weeks 5-8)
+
 - Facebook Messenger integration
 - Email channel integration (SendGrid/SMTP)
 - Roomies.com integration (if feasible)
@@ -1292,30 +1344,35 @@ actionItemTemplates: {
 - **Note:** WhatsApp deferred - focusing on Messenger, Email, and SMS as primary channels
 
 ### Phase 3.3: AI Agent Participation (Weeks 9-12)
+
 - AI agent auto-response system
 - Backend connector integration
 - Approval workflow for AI responses
 - Scheduling and information answering
 
 ### Phase 3.4: Organization System (Weeks 13-16)
+
 - Property/Project hierarchy
 - Property assignment UI
 - Folder view components
 - Property-based filtering
 
 ### Phase 3.5: Web Embeddable (Weeks 17-20)
+
 - React component library
 - JavaScript SDK
 - Theming system
 - Integration documentation
 
 ### Phase 3.6: Backend Connector (Weeks 21-24)
+
 - Connector interface specification
 - Built-in connectors (Firebase, REST, GraphQL)
 - Connector registry system
 - Documentation and examples
 
 ### Phase 3.7: Export & Polish (Weeks 25-28)
+
 - PDF/Text/JSON export
 - Print formatting
 - Legal compliance features
@@ -1326,17 +1383,20 @@ actionItemTemplates: {
 ## Success Metrics
 
 ### Functional Metrics
+
 - **Multi-Channel Support:** 4+ channels integrated (SMS, Messenger, WhatsApp, Email)
 - **Channel Routing Accuracy:** 95%+ messages routed to correct thread
 - **AI Response Accuracy:** 80%+ responses don't require human intervention
 - **Export Completeness:** 100% of messages included in export
 
 ### Performance Metrics
+
 - **Message Delivery:** <2s latency for cross-channel message delivery
 - **AI Response Time:** <5s for AI agent responses
 - **Export Generation:** <10s for 1000-message thread export
 
 ### Business Metrics
+
 - **Embedding Adoption:** 3+ web applications successfully embedded
 - **Backend Integration:** 2+ custom backend connectors implemented
 - **User Satisfaction:** 90%+ users can successfully use multi-channel features
@@ -1390,28 +1450,28 @@ actionItemTemplates: {
   - Store encrypted credentials in secure environment variables (Firebase Config/Secrets Manager)
   - Never store credentials in client-side code or git repositories
   - Use per-organization credential isolation
-  
 - **Authentication:**
   - Use OAuth 2.0 where possible for external backends
   - Implement token refresh mechanisms
   - Store refresh tokens securely, never expose access tokens
-  
 - **Network Security:**
   - Use HTTPS for all API calls
   - Implement request signing for sensitive operations
   - Rate limiting to prevent abuse
-  
 - **Access Control:**
   - Credentials scoped to organization level
   - Role-based access control for credential management
   - Audit logging for credential access
-  
 - **Implementation:**
+
 ```typescript
 // Secure credential storage
 interface SecureCredentialStore {
   getCredentials(organizationId: string): Promise<EncryptedCredentials>;
-  storeCredentials(organizationId: string, credentials: Credentials): Promise<void>;
+  storeCredentials(
+    organizationId: string,
+    credentials: Credentials
+  ): Promise<void>;
   rotateCredentials(organizationId: string): Promise<void>;
 }
 
@@ -1428,12 +1488,10 @@ interface SecureCredentialStore {
   - Single organization account (all billing to one account)
   - Organization has multiple properties
   - Users belong to organization, not to multiple organizations
-  
 - **Property Association:**
   - **Potential Tenants:** Can be associated with multiple properties (shopping/deciding)
   - **Tenants:** Belong to single property once lease is signed
   - **Tenant Migration:** Tenants can move from one property to another within same organization
-  
 - **Data Isolation:**
   - All data scoped to organization level
   - Properties are sub-units within organization
@@ -1447,10 +1505,8 @@ interface SecureCredentialStore {
   - SMS (Twilio) - Primary ongoing communication
   - Facebook Messenger - Primary for Marketplace inquiries
   - Email (SendGrid/SMTP) - Primary for formal communications
-  
 - **Optional Channels:**
   - Roomies.com - Include if API available and straightforward
-  
 - **Deferred:**
   - WhatsApp Business API - Not in Phase 3 scope
 
@@ -1462,19 +1518,17 @@ interface SecureCredentialStore {
   - Single organization account (not per-property billing)
   - All channel costs (SMS, email) billed to organization account
   - Usage tracking per property for internal reporting
-  
 - **Channel Cost Handling:**
   - **SMS (Twilio):** Per-message pricing tracked at organization level
   - **Email (SendGrid):** Based on plan (free tier or paid)
   - **Facebook Messenger:** Free (no per-message costs)
-  
 - **Billing Implementation:**
   - Track usage at organization level
   - Provide usage reports per property for internal analysis
   - Alert when approaching plan limits
   - Upgrade prompts if limits exceeded
-  
 - **Cost Tracking:**
+
 ```typescript
 interface BillingUsage {
   organizationId: string;
@@ -1500,4 +1554,3 @@ interface BillingUsage {
 
 **Document Status:** ✅ Complete - All Specifications Finalized  
 **Next Action:** Merge into PRD → Begin Phase 3 Implementation Planning
-

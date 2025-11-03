@@ -70,6 +70,7 @@ npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 **Expected Output:**
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║                 AGENT ORCHESTRATOR                        ║
@@ -223,11 +224,13 @@ test-results/agent-feedback/
 ### Success/Failure
 
 **If tests pass:**
+
 - ✅ Feedback shows "PASSED"
 - PR branch created (if AUTO_CREATE_PR=true)
 - Agent moves to next task
 
 **If tests fail:**
+
 - ❌ Feedback shows "FAILED"
 - Screenshots captured
 - Suggestions generated
@@ -238,6 +241,7 @@ test-results/agent-feedback/
 ### Issue: "Firebase emulators failed to start"
 
 **Solution:**
+
 ```bash
 # Kill existing Firebase processes
 pkill -f firebase
@@ -256,6 +260,7 @@ npm run agent:env:start
 ### Issue: "Simulator not found"
 
 **Solution:**
+
 ```bash
 # List available simulators
 xcrun simctl list devices
@@ -269,6 +274,7 @@ xcrun simctl list devices
 ### Issue: "Appium connection failed"
 
 **Solution:**
+
 ```bash
 # Verify Appium is running
 ps aux | grep appium
@@ -283,6 +289,7 @@ lsof -i :4723
 ### Issue: "Element not found" in tests
 
 **Solution:**
+
 - Add `testID` prop to React Native components:
   ```tsx
   <TouchableOpacity testID="my-button">
@@ -293,6 +300,7 @@ lsof -i :4723
 ### Issue: "Claude AI not working"
 
 **Solution:**
+
 ```bash
 # Verify API key
 echo $ANTHROPIC_API_KEY
@@ -396,10 +404,10 @@ echo "ENABLE_VISUAL_CHECKS=true" >> .env
 **Ready to let the AI work for you?** 🤖
 
 Run this now:
+
 ```bash
 npm run appium:server &
 npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 **Watch your automated feedback loop in action!** ✨
-

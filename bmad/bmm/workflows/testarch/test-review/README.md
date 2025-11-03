@@ -165,7 +165,9 @@ await expect(page.locator('.text')).toBeVisible();
 
 ```typescript
 test.describe('1.3-E2E-001: User Login Flow', () => {
-  test('should log in successfully with valid credentials', async ({ page }) => {
+  test('should log in successfully with valid credentials', async ({
+    page,
+  }) => {
     // Test implementation
   });
 });
@@ -209,7 +211,9 @@ test.describe('P2: Edge Case - International Addresses', () => {
 
 ```typescript
 // ✅ Good: Explicit wait for condition
-await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({ timeout: 10000 });
+await expect(page.locator('[data-testid="user-menu"]')).toBeVisible({
+  timeout: 10000,
+});
 ```
 
 **FAIL**: Hard waits introduce flakiness
@@ -349,7 +353,7 @@ await page.fill('[name="phone"]', '555-1234');
 
 ```typescript
 // ✅ Good: Intercept before navigation
-await page.route('**/api/users', (route) => route.fulfill({ json: mockUsers }));
+await page.route('**/api/users', route => route.fulfill({ json: mockUsers }));
 await page.goto('/users'); // Navigate after route setup
 ```
 
@@ -358,7 +362,7 @@ await page.goto('/users'); // Navigate after route setup
 ```typescript
 // ❌ Bad: Navigate before intercept
 await page.goto('/users');
-await page.route('**/api/users', (route) => route.fulfill({ json: mockUsers })); // Too late!
+await page.route('**/api/users', route => route.fulfill({ json: mockUsers })); // Too late!
 ```
 
 **Knowledge**: network-first.md

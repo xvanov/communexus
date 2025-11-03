@@ -11,6 +11,7 @@ This test validates that the Todo List (Action Items) functionality works as exp
 1. **Stop your current emulators** (Ctrl+C in the terminal running them)
 
 2. **Restart emulators**:
+
    ```bash
    firebase emulators:start --only firestore,auth,storage
    ```
@@ -55,6 +56,6 @@ If you see `PERMISSION_DENIED: No matching allow statements`:
 ### TypeScript Errors
 
 If you see TypeScript compilation errors:
+
 - Make sure all dependencies are installed: `npm install`
 - Check that the types in `src/types/AIFeatures.ts` match the test expectations
-

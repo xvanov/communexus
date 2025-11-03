@@ -2,13 +2,13 @@
 
 /**
  * Environment Manager
- * 
+ *
  * Orchestrates the complete test environment:
  * - Firebase emulators (Firestore, Auth, Storage, Functions)
  * - iOS Simulators (2 for multi-device messaging tests)
  * - App building and installation
  * - Health checks and monitoring
- * 
+ *
  * Usage:
  *   node scripts/agent/environment-manager.js start
  *   node scripts/agent/environment-manager.js stop
@@ -29,7 +29,11 @@ class EnvironmentManager {
       firebaseProject: config.firebaseProject || 'demo-communexus',
       simulators: config.simulators || [
         { name: 'iPhone 15', role: 'alice', email: 'alice@demo.com' },
-        { name: 'iPhone SE (3rd generation)', role: 'bob', email: 'bob@demo.com' }
+        {
+          name: 'iPhone SE (3rd generation)',
+          role: 'bob',
+          email: 'bob@demo.com',
+        },
       ],
       appBundleId: config.appBundleId || 'com.communexus.communexus',
       firebasePorts: {
@@ -37,18 +41,21 @@ class EnvironmentManager {
         auth: 9099,
         storage: 9199,
         functions: 5001,
-        ui: 4000
+        ui: 4000,
       },
-      ...config
+      ...config,
     };
 
     this.processes = {
       firebase: null,
-      appium: null
+      appium: null,
     };
 
     this.simulatorData = [];
-    this.stateFile = path.join(this.config.projectRoot, '.agent-env-state.json');
+    this.stateFile = path.join(
+      this.config.projectRoot,
+      '.agent-env-state.json'
+    );
   }
 
   /**
@@ -97,7 +104,7 @@ class EnvironmentManager {
 
       return {
         success: true,
-        environment: this.getEnvironmentInfo()
+        environment: this.getEnvironmentInfo(),
       };
     } catch (error) {
       console.error('❌ Failed to start environment:', error.message);
@@ -154,18 +161,24 @@ class EnvironmentManager {
 
       // Check Firebase
       const firebaseRunning = await this.isFirebaseRunning();
-      console.log(`Firebase: ${firebaseRunning ? '✅ Running' : '❌ Not running'}`);
+      console.log(
+        `Firebase: ${firebaseRunning ? '✅ Running' : '❌ Not running'}`
+      );
 
       // Check simulators
       for (const sim of state.simulators) {
         const running = await this.isSimulatorRunning(sim.udid);
-        console.log(`${sim.name} (${sim.role}): ${running ? '✅ Running' : '❌ Not running'}`);
+        console.log(
+          `${sim.name} (${sim.role}): ${running ? '✅ Running' : '❌ Not running'}`
+        );
       }
 
       console.log('');
       return {
-        running: firebaseRunning && state.simulators.every(s => this.isSimulatorRunning(s.udid)),
-        details: state
+        running:
+          firebaseRunning &&
+          state.simulators.every(s => this.isSimulatorRunning(s.udid)),
+        details: state,
       };
     } catch (error) {
       console.error('❌ Failed to get status:', error.message);
@@ -186,25 +199,30 @@ class EnvironmentManager {
           '--only',
           'firestore,auth,storage,functions',
           '--project',
-          this.config.firebaseProject
+          this.config.firebaseProject,
         ],
         {
           cwd: this.config.projectRoot,
-          stdio: ['ignore', 'pipe', 'pipe']
+          stdio: ['ignore', 'pipe', 'pipe'],
         }
       );
 
       let started = false;
       const timeout = setTimeout(() => {
         if (!started) {
-          reject(new Error('Firebase emulators failed to start within 30 seconds'));
+          reject(
+            new Error('Firebase emulators failed to start within 30 seconds')
+          );
         }
       }, 30000);
 
-      firebase.stdout.on('data', (data) => {
+      firebase.stdout.on('data', data => {
         const output = data.toString();
         // Look for "All emulators ready"
-        if (output.includes('All emulators ready') || output.includes('All emulators started')) {
+        if (
+          output.includes('All emulators ready') ||
+          output.includes('All emulators started')
+        ) {
           if (!started) {
             started = true;
             clearTimeout(timeout);
@@ -213,7 +231,7 @@ class EnvironmentManager {
         }
       });
 
-      firebase.stderr.on('data', (data) => {
+      firebase.stderr.on('data', data => {
         const error = data.toString();
         // Only log errors, not warnings
         if (error.includes('Error:') || error.includes('ERROR')) {
@@ -221,12 +239,12 @@ class EnvironmentManager {
         }
       });
 
-      firebase.on('error', (error) => {
+      firebase.on('error', error => {
         clearTimeout(timeout);
         reject(new Error(`Failed to start Firebase: ${error.message}`));
       });
 
-      firebase.on('exit', (code) => {
+      firebase.on('exit', code => {
         if (code !== 0 && !started) {
           clearTimeout(timeout);
           reject(new Error(`Firebase emulators exited with code ${code}`));
@@ -247,7 +265,9 @@ class EnvironmentManager {
       console.log(`  Booting ${simConfig.name}...`);
 
       // Find simulator UDID
-      const { stdout } = await execAsync('xcrun simctl list devices available --json');
+      const { stdout } = await execAsync(
+        'xcrun simctl list devices available --json'
+      );
       const devices = JSON.parse(stdout);
 
       let udid = null;
@@ -277,7 +297,7 @@ class EnvironmentManager {
 
       this.simulatorData.push({
         ...simConfig,
-        udid
+        udid,
       });
 
       console.log(`  ✅ ${simConfig.name} booted (${udid})`);
@@ -300,20 +320,22 @@ class EnvironmentManager {
       this.config.projectRoot,
       'ios/build/Build/Products/Debug-iphonesimulator'
     );
-    
+
     try {
       const files = await fs.readdir(buildDir);
       const appBundle = files.find(f => f.endsWith('.app'));
-      
+
       if (appBundle) {
         // Check how old the build is
         const appPath = path.join(buildDir, appBundle);
         const stats = await fs.stat(appPath);
         const age = Date.now() - stats.mtimeMs;
         const hoursOld = age / (1000 * 60 * 60);
-        
+
         if (hoursOld < 24) {
-          console.log(`  ✅ App bundle is ${hoursOld.toFixed(1)} hours old (recent enough)`);
+          console.log(
+            `  ✅ App bundle is ${hoursOld.toFixed(1)} hours old (recent enough)`
+          );
           return false; // Build is recent
         } else {
           console.log(`  ⚠️  App bundle is ${hoursOld.toFixed(1)} hours old`);
@@ -338,13 +360,10 @@ class EnvironmentManager {
     try {
       // Build for the first simulator
       const device = this.simulatorData[0].name;
-      await execAsync(
-        `npx expo run:ios --device "${device}"`,
-        {
-          cwd: this.config.projectRoot,
-          maxBuffer: 10 * 1024 * 1024 // 10MB buffer for build output
-        }
-      );
+      await execAsync(`npx expo run:ios --device "${device}"`, {
+        cwd: this.config.projectRoot,
+        maxBuffer: 10 * 1024 * 1024, // 10MB buffer for build output
+      });
     } catch (error) {
       throw new Error(`App build failed: ${error.message}`);
     }
@@ -355,7 +374,10 @@ class EnvironmentManager {
    */
   async installApp() {
     // Find the .app bundle
-    const buildPath = path.join(this.config.projectRoot, 'ios/build/Build/Products/Debug-iphonesimulator');
+    const buildPath = path.join(
+      this.config.projectRoot,
+      'ios/build/Build/Products/Debug-iphonesimulator'
+    );
     const files = await fs.readdir(buildPath);
     const appBundle = files.find(f => f.endsWith('.app'));
 
@@ -389,7 +411,9 @@ class EnvironmentManager {
     // Launch app on each simulator
     for (const sim of this.simulatorData) {
       console.log(`  Launching app on ${sim.name}...`);
-      await execAsync(`xcrun simctl launch "${sim.udid}" ${this.config.appBundleId}`);
+      await execAsync(
+        `xcrun simctl launch "${sim.udid}" ${this.config.appBundleId}`
+      );
       await this.wait(3000); // Wait for app to launch
     }
   }
@@ -399,7 +423,9 @@ class EnvironmentManager {
    */
   async isFirebaseRunning() {
     try {
-      const response = await fetch(`http://127.0.0.1:${this.config.firebasePorts.firestore}`);
+      const response = await fetch(
+        `http://127.0.0.1:${this.config.firebasePorts.firestore}`
+      );
       return response.ok;
     } catch (error) {
       return false;
@@ -413,7 +439,7 @@ class EnvironmentManager {
     try {
       const { stdout } = await execAsync('xcrun simctl list devices --json');
       const devices = JSON.parse(stdout);
-      
+
       for (const runtime in devices.devices) {
         const device = devices.devices[runtime].find(d => d.udid === udid);
         if (device) {
@@ -436,10 +462,10 @@ class EnvironmentManager {
         auth: `http://127.0.0.1:${this.config.firebasePorts.auth}`,
         storage: `http://127.0.0.1:${this.config.firebasePorts.storage}`,
         functions: `http://127.0.0.1:${this.config.firebasePorts.functions}`,
-        ui: `http://127.0.0.1:${this.config.firebasePorts.ui}`
+        ui: `http://127.0.0.1:${this.config.firebasePorts.ui}`,
       },
       simulators: this.simulatorData,
-      appBundleId: this.config.appBundleId
+      appBundleId: this.config.appBundleId,
     };
   }
 
@@ -449,13 +475,23 @@ class EnvironmentManager {
   printEnvironmentInfo() {
     console.log('═══════════════════════════════════════════════════════════');
     console.log('🎉 AGENT FEEDBACK ENVIRONMENT READY');
-    console.log('═══════════════════════════════════════════════════════════\n');
+    console.log(
+      '═══════════════════════════════════════════════════════════\n'
+    );
 
     console.log('🔥 Firebase Emulators:');
-    console.log(`   Firestore: http://127.0.0.1:${this.config.firebasePorts.firestore}`);
-    console.log(`   Auth:      http://127.0.0.1:${this.config.firebasePorts.auth}`);
-    console.log(`   Functions: http://127.0.0.1:${this.config.firebasePorts.functions}`);
-    console.log(`   UI:        http://127.0.0.1:${this.config.firebasePorts.ui}\n`);
+    console.log(
+      `   Firestore: http://127.0.0.1:${this.config.firebasePorts.firestore}`
+    );
+    console.log(
+      `   Auth:      http://127.0.0.1:${this.config.firebasePorts.auth}`
+    );
+    console.log(
+      `   Functions: http://127.0.0.1:${this.config.firebasePorts.functions}`
+    );
+    console.log(
+      `   UI:        http://127.0.0.1:${this.config.firebasePorts.ui}\n`
+    );
 
     console.log('📱 iOS Simulators:');
     this.simulatorData.forEach(sim => {
@@ -464,7 +500,9 @@ class EnvironmentManager {
       console.log(`   └─ User: ${sim.email}\n`);
     });
 
-    console.log('═══════════════════════════════════════════════════════════\n');
+    console.log(
+      '═══════════════════════════════════════════════════════════\n'
+    );
   }
 
   /**
@@ -473,14 +511,10 @@ class EnvironmentManager {
   async saveState() {
     const state = {
       timestamp: new Date().toISOString(),
-      ...this.getEnvironmentInfo()
+      ...this.getEnvironmentInfo(),
     };
 
-    await fs.writeFile(
-      this.stateFile,
-      JSON.stringify(state, null, 2),
-      'utf-8'
-    );
+    await fs.writeFile(this.stateFile, JSON.stringify(state, null, 2), 'utf-8');
   }
 
   /**
@@ -515,14 +549,14 @@ async function main() {
         console.log('✅ Environment started successfully!');
         console.log('💡 Keep this terminal open to maintain the environment.');
         console.log('💡 Press Ctrl+C to stop.\n');
-        
+
         // Keep process alive
         process.on('SIGINT', async () => {
           console.log('\n\n🛑 Stopping environment...');
           await manager.stop();
           process.exit(0);
         });
-        
+
         // Keep alive
         await new Promise(() => {});
         break;
@@ -553,4 +587,3 @@ if (require.main === module) {
 }
 
 module.exports = EnvironmentManager;
-

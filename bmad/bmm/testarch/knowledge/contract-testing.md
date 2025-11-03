@@ -65,7 +65,7 @@ describe('User API Contract', () => {
             createdAt: string('2025-01-15T10:00:00Z'),
           }),
         })
-        .executeTest(async (mockServer) => {
+        .executeTest(async mockServer => {
           // Act: Call consumer code against mock server
           const user = await getUserById(1, {
             baseURL: mockServer.url,
@@ -79,7 +79,7 @@ describe('User API Contract', () => {
               name: 'John Doe',
               email: 'john@example.com',
               role: 'user',
-            }),
+            })
           );
         });
     });
@@ -101,9 +101,11 @@ describe('User API Contract', () => {
             code: 'USER_NOT_FOUND',
           },
         })
-        .executeTest(async (mockServer) => {
+        .executeTest(async mockServer => {
           // Act & Assert: Consumer handles 404 gracefully
-          await expect(getUserById(999, { baseURL: mockServer.url })).rejects.toThrow('User not found');
+          await expect(
+            getUserById(999, { baseURL: mockServer.url })
+          ).rejects.toThrow('User not found');
         });
     });
   });
@@ -139,7 +141,7 @@ describe('User API Contract', () => {
             createdAt: string('2025-01-15T11:00:00Z'),
           }),
         })
-        .executeTest(async (mockServer) => {
+        .executeTest(async mockServer => {
           const createdUser = await createUser(newUser, {
             baseURL: mockServer.url,
           });
@@ -150,7 +152,7 @@ describe('User API Contract', () => {
               name: 'Jane Smith',
               email: 'jane@example.com',
               role: 'admin',
-            }),
+            })
           );
         });
     });
@@ -525,7 +527,7 @@ describe('User API Resilience Contract', () => {
           retryable: true,
         },
       })
-      .executeTest(async (mockServer) => {
+      .executeTest(async mockServer => {
         // Consumer should retry on 500
         try {
           await getUserById(1, {
@@ -565,7 +567,7 @@ describe('User API Resilience Contract', () => {
           code: 'RATE_LIMIT_EXCEEDED',
         },
       })
-      .executeTest(async (mockServer) => {
+      .executeTest(async mockServer => {
         try {
           await getUserById(1, {
             baseURL: mockServer.url,
@@ -598,7 +600,7 @@ describe('User API Resilience Contract', () => {
         body: like({ id: 1, name: 'John' }),
       })
       .withDelay(15000) // Simulate 15 second delay
-      .executeTest(async (mockServer) => {
+      .executeTest(async mockServer => {
         try {
           await getUserById(1, {
             baseURL: mockServer.url,
@@ -634,7 +636,7 @@ describe('User API Resilience Contract', () => {
           // role, createdAt, etc. omitted (optional fields)
         },
       })
-      .executeTest(async (mockServer) => {
+      .executeTest(async mockServer => {
         const user = await getUserById(1, { baseURL: mockServer.url });
 
         // Consumer handles missing optional fields gracefully
@@ -658,7 +660,7 @@ export class ApiError extends Error {
     message: string,
     public code: string,
     public retryable: boolean = false,
-    public retryAfter?: number,
+    public retryAfter?: number
   ) {
     super(message);
   }
@@ -669,9 +671,18 @@ export class ApiError extends Error {
  */
 export async function getUserById(
   id: number,
-  config?: AxiosRequestConfig & { retries?: number; retryDelay?: number; respectRateLimit?: boolean },
+  config?: AxiosRequestConfig & {
+    retries?: number;
+    retryDelay?: number;
+    respectRateLimit?: boolean;
+  }
 ): Promise<User> {
-  const { retries = 3, retryDelay = 1000, respectRateLimit = true, ...axiosConfig } = config || {};
+  const {
+    retries = 3,
+    retryDelay = 1000,
+    respectRateLimit = true,
+    ...axiosConfig
+  } = config || {};
 
   let lastError: Error;
 
@@ -684,13 +695,20 @@ export async function getUserById(
 
       // Handle rate limiting
       if (error.response?.status === 429) {
-        const retryAfter = parseInt(error.response.headers['retry-after'] || '60');
-        throw new ApiError('Too many requests', 'RATE_LIMIT_EXCEEDED', false, retryAfter);
+        const retryAfter = parseInt(
+          error.response.headers['retry-after'] || '60'
+        );
+        throw new ApiError(
+          'Too many requests',
+          'RATE_LIMIT_EXCEEDED',
+          false,
+          retryAfter
+        );
       }
 
       // Retry on 500 errors
       if (error.response?.status === 500 && attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
+        await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
         continue;
       }
 
@@ -756,15 +774,20 @@ function tagRelease(version: string, environment: 'staging' | 'production') {
       --tag ${environment} \
       --broker-base-url ${PACT_BROKER_URL} \
       --broker-token ${PACT_BROKER_TOKEN}`,
-    { stdio: 'inherit' },
+    { stdio: 'inherit' }
   );
 }
 
 /**
  * Record deployment to environment
  */
-function recordDeployment(version: string, environment: 'staging' | 'production') {
-  console.log(`📝 Recording deployment of ${PACTICIPANT} v${version} to ${environment}`);
+function recordDeployment(
+  version: string,
+  environment: 'staging' | 'production'
+) {
+  console.log(
+    `📝 Recording deployment of ${PACTICIPANT} v${version} to ${environment}`
+  );
 
   execSync(
     `npx pact-broker record-deployment \
@@ -773,7 +796,7 @@ function recordDeployment(version: string, environment: 'staging' | 'production'
       --environment ${environment} \
       --broker-base-url ${PACT_BROKER_URL} \
       --broker-token ${PACT_BROKER_TOKEN}`,
-    { stdio: 'inherit' },
+    { stdio: 'inherit' }
   );
 }
 
@@ -791,7 +814,7 @@ function cleanupOldPacts() {
       --broker-token ${PACT_BROKER_TOKEN} \
       --keep-latest-for-branch 1 \
       --keep-min-age 30`,
-    { stdio: 'inherit' },
+    { stdio: 'inherit' }
   );
 }
 
@@ -799,7 +822,9 @@ function cleanupOldPacts() {
  * Check deployment compatibility
  */
 function canIDeploy(version: string, toEnvironment: string): boolean {
-  console.log(`🔍 Checking if ${PACTICIPANT} v${version} can deploy to ${toEnvironment}`);
+  console.log(
+    `🔍 Checking if ${PACTICIPANT} v${version} can deploy to ${toEnvironment}`
+  );
 
   try {
     execSync(
@@ -811,7 +836,7 @@ function canIDeploy(version: string, toEnvironment: string): boolean {
         --broker-token ${PACT_BROKER_TOKEN} \
         --retry-while-unknown 6 \
         --retry-interval 10`,
-      { stdio: 'inherit' },
+      { stdio: 'inherit' }
     );
     return true;
   } catch (error) {
@@ -846,7 +871,9 @@ async function main() {
       break;
 
     default:
-      console.error('Unknown command. Use: tag-release | record-deployment | can-i-deploy | cleanup');
+      console.error(
+        'Unknown command. Use: tag-release | record-deployment | can-i-deploy | cleanup'
+      );
       process.exit(1);
   }
 }

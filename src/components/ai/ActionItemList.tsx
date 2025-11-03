@@ -9,7 +9,10 @@ import {
 } from 'react-native';
 import { AIActionItem, PriorityLevel } from '../../types/AIFeatures';
 import { PriorityBadge } from '../common/PriorityBadge';
-import { updateActionItemStatus, filterActionItemsByStatus } from '../../services/actionItems';
+import {
+  updateActionItemStatus,
+  filterActionItemsByStatus,
+} from '../../services/actionItems';
 import { useAuth } from '../../hooks/useAuth';
 
 type FilterStatus = 'all' | 'pending' | 'completed';
@@ -35,7 +38,7 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
   // Filter and search action items
   const filteredItems = useMemo(() => {
     let filtered = filterActionItemsByStatus(actionItems, filterStatus);
-    
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(item => {
@@ -45,14 +48,18 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
         return taskMatch || textMatch || assignedMatch;
       });
     }
-    
+
     // Sort: completed items last, then by priority (high -> medium -> low)
-    const priorityOrder: Record<PriorityLevel, number> = { high: 3, medium: 2, low: 1 };
+    const priorityOrder: Record<PriorityLevel, number> = {
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
     return filtered.sort((a, b) => {
       // Completed items go to bottom
       if (a.status === 'completed' && b.status !== 'completed') return 1;
       if (a.status !== 'completed' && b.status === 'completed') return -1;
-      
+
       // Within same status, sort by priority
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
@@ -60,22 +67,28 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
 
   const handleToggleComplete = async (item: AIActionItem) => {
     if (updatingIds.has(item.id)) return;
-    
+
     const newStatus = item.status === 'completed' ? 'pending' : 'completed';
-    
+
     try {
       setUpdatingIds(prev => new Set(prev).add(item.id));
-      
+
       await updateActionItemStatus(item.id, newStatus, user?.uid);
-      
+
+      // Create updated item with proper handling of optional properties
+      const { completedAt: _, completedBy: __, ...restItem } = item;
       const updatedItem: AIActionItem = {
-        ...item,
+        ...restItem,
         status: newStatus,
-        completedAt: newStatus === 'completed' ? new Date() : undefined,
-        completedBy: newStatus === 'completed' ? user?.uid : undefined,
+        ...(newStatus === 'completed'
+          ? {
+              completedAt: new Date(),
+              ...(user?.uid && { completedBy: user.uid }),
+            }
+          : {}),
         updatedAt: new Date(),
       };
-      
+
       onActionItemUpdate?.(updatedItem);
     } catch (error) {
       console.error('Error updating action item:', error);
@@ -91,7 +104,7 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
   const renderActionItem = ({ item }: { item: AIActionItem }) => {
     const isUpdating = updatingIds.has(item.id);
     const isCompleted = item.status === 'completed';
-    
+
     return (
       <TouchableOpacity
         style={[
@@ -108,47 +121,58 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
             onPress={() => handleToggleComplete(item)}
             disabled={isUpdating}
           >
-            <View style={[styles.checkbox, isCompleted && styles.checkboxChecked]}>
+            <View
+              style={[styles.checkbox, isCompleted && styles.checkboxChecked]}
+            >
               {isCompleted && <Text style={styles.checkmark}>✓</Text>}
             </View>
           </TouchableOpacity>
-          
+
           <View style={styles.actionItemContent}>
             <View style={styles.actionItemHeader}>
-              <Text style={[
-                styles.actionItemText,
-                isCompleted && styles.completedText,
-              ]}>
+              <Text
+                style={[
+                  styles.actionItemText,
+                  isCompleted && styles.completedText,
+                ]}
+              >
                 {item.task}
               </Text>
               <PriorityBadge priority={item.priority} size="small" />
             </View>
-            
+
             {item.text && (
-              <Text style={[styles.actionItemDescription, isCompleted && styles.completedText]}>
+              <Text
+                style={[
+                  styles.actionItemDescription,
+                  isCompleted && styles.completedText,
+                ]}
+              >
                 {item.text}
               </Text>
             )}
-            
+
             <View style={styles.actionItemMeta}>
               {item.assignedTo && (
                 <Text style={styles.metaText}>👤 {item.assignedTo}</Text>
               )}
               {item.dueDate && (
                 <Text style={styles.metaText}>
-                  📅 Due: {new Date(item.dueDate).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
+                  📅 Due:{' '}
+                  {new Date(item.dueDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
                   })}
                 </Text>
               )}
               {isCompleted && item.completedAt && (
                 <Text style={styles.completedDateText}>
-                  ✅ Completed: {new Date(item.completedAt).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
+                  ✅ Completed:{' '}
+                  {new Date(item.completedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
                   })}
                 </Text>
               )}
@@ -162,15 +186,17 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
     );
   };
 
-  const pendingCount = actionItems.filter(item => item.status === 'pending').length;
-  const completedCount = actionItems.filter(item => item.status === 'completed').length;
+  const pendingCount = actionItems.filter(
+    item => item.status === 'pending'
+  ).length;
+  const completedCount = actionItems.filter(
+    item => item.status === 'completed'
+  ).length;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          Action Items ({actionItems.length})
-        </Text>
+        <Text style={styles.title}>Action Items ({actionItems.length})</Text>
         <Text style={styles.countText}>
           {pendingCount} pending, {completedCount} completed
         </Text>
@@ -188,26 +214,50 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          style={[styles.filterTab, filterStatus === 'all' && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            filterStatus === 'all' && styles.filterTabActive,
+          ]}
           onPress={() => setFilterStatus('all')}
         >
-          <Text style={[styles.filterTabText, filterStatus === 'all' && styles.filterTabTextActive]}>
+          <Text
+            style={[
+              styles.filterTabText,
+              filterStatus === 'all' && styles.filterTabTextActive,
+            ]}
+          >
             All ({actionItems.length})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.filterTab, filterStatus === 'pending' && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            filterStatus === 'pending' && styles.filterTabActive,
+          ]}
           onPress={() => setFilterStatus('pending')}
         >
-          <Text style={[styles.filterTabText, filterStatus === 'pending' && styles.filterTabTextActive]}>
+          <Text
+            style={[
+              styles.filterTabText,
+              filterStatus === 'pending' && styles.filterTabTextActive,
+            ]}
+          >
             Pending ({pendingCount})
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.filterTab, filterStatus === 'completed' && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            filterStatus === 'completed' && styles.filterTabActive,
+          ]}
           onPress={() => setFilterStatus('completed')}
         >
-          <Text style={[styles.filterTabText, filterStatus === 'completed' && styles.filterTabTextActive]}>
+          <Text
+            style={[
+              styles.filterTabText,
+              filterStatus === 'completed' && styles.filterTabTextActive,
+            ]}
+          >
             Completed ({completedCount})
           </Text>
         </TouchableOpacity>
@@ -216,8 +266,8 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
       {filteredItems.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
-            {searchQuery.trim() 
-              ? 'No action items match your search' 
+            {searchQuery.trim()
+              ? 'No action items match your search'
               : `No ${filterStatus === 'all' ? '' : filterStatus} action items`}
           </Text>
         </View>
@@ -225,7 +275,7 @@ export const ActionItemList: React.FC<ActionItemListProps> = ({
         <FlatList
           data={filteredItems}
           renderItem={renderActionItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContainer}
         />

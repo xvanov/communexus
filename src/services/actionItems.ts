@@ -1,12 +1,12 @@
 // actionItems.ts - Firestore service for action items persistence
 import {
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
   orderBy,
   updateDoc,
   deleteDoc,
@@ -32,9 +32,11 @@ const convertTimestamp = (timestamp: any): Date => {
 };
 
 // Safely convert date to Firestore Timestamp
-const toTimestamp = (date: Date | string | undefined | null): Timestamp | null => {
+const toTimestamp = (
+  date: Date | string | undefined | null
+): Timestamp | null => {
   if (!date) return null;
-  
+
   try {
     if (date instanceof Date) {
       // Validate date is not invalid
@@ -44,7 +46,7 @@ const toTimestamp = (date: Date | string | undefined | null): Timestamp | null =
       }
       return Timestamp.fromDate(date);
     }
-    
+
     // Try to parse string date
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
@@ -73,16 +75,18 @@ const toFirestore = (actionItem: AIFeatures.ActionItem): any => {
   if (actionItem.messageId) data.messageId = actionItem.messageId;
   if (actionItem.text) data.text = actionItem.text;
   if (actionItem.assignedTo) data.assignedTo = actionItem.assignedTo;
-  
+
   const dueDateTimestamp = toTimestamp(actionItem.dueDate);
   if (dueDateTimestamp) data.dueDate = dueDateTimestamp;
-  
+
   const completedAtTimestamp = toTimestamp(actionItem.completedAt);
   if (completedAtTimestamp) data.completedAt = completedAtTimestamp;
-  
+
   if (actionItem.completedBy) data.completedBy = actionItem.completedBy;
-  
-  const updatedAtTimestamp = actionItem.updatedAt ? toTimestamp(actionItem.updatedAt) : null;
+
+  const updatedAtTimestamp = actionItem.updatedAt
+    ? toTimestamp(actionItem.updatedAt)
+    : null;
   if (updatedAtTimestamp) data.updatedAt = updatedAtTimestamp;
 
   return data;
@@ -99,7 +103,7 @@ const fromFirestore = (doc: any): AIFeatures.ActionItem => {
     status: data.status || 'pending',
     createdAt: convertTimestamp(data.createdAt),
   };
-  
+
   if (data.messageId) result.messageId = data.messageId;
   if (data.text) result.text = data.text;
   if (data.assignedTo) result.assignedTo = data.assignedTo;
@@ -107,7 +111,7 @@ const fromFirestore = (doc: any): AIFeatures.ActionItem => {
   if (data.completedAt) result.completedAt = convertTimestamp(data.completedAt);
   if (data.completedBy) result.completedBy = data.completedBy;
   if (data.updatedAt) result.updatedAt = convertTimestamp(data.updatedAt);
-  
+
   return result;
 };
 
@@ -121,10 +125,10 @@ export const saveActionItem = async (
     const db = await getDb();
     const actionItemsRef = collection(db, COLLECTION_NAME);
     const actionItemRef = doc(actionItemsRef, actionItem.id);
-    
+
     const firestoreData = toFirestore(actionItem);
     await setDoc(actionItemRef, firestoreData, { merge: true });
-    
+
     console.log('✅ Action item saved:', actionItem.id);
   } catch (error) {
     console.error('❌ Error saving action item:', error);
@@ -160,7 +164,7 @@ export const updateActionItemStatus = async (
     const db = await getDb();
     const actionItemsRef = collection(db, COLLECTION_NAME);
     const actionItemRef = doc(actionItemsRef, actionItemId);
-    
+
     const updates: any = {
       status,
       updatedAt: Timestamp.now(),
@@ -201,11 +205,13 @@ export const getActionItemsForThread = async (
       where('threadId', '==', threadId),
       orderBy('createdAt', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
     const actionItems = snapshot.docs.map(doc => fromFirestore(doc));
-    
-    console.log(`✅ Loaded ${actionItems.length} action items for thread ${threadId}`);
+
+    console.log(
+      `✅ Loaded ${actionItems.length} action items for thread ${threadId}`
+    );
     return actionItems;
   } catch (error) {
     console.error('❌ Error loading action items:', error);
@@ -224,11 +230,11 @@ export const getActionItem = async (
     const actionItemsRef = collection(db, COLLECTION_NAME);
     const actionItemRef = doc(actionItemsRef, actionItemId);
     const snapshot = await getDoc(actionItemRef);
-    
+
     if (!snapshot.exists()) {
       return null;
     }
-    
+
     return fromFirestore(snapshot);
   } catch (error: any) {
     // If permission denied, the document might not exist or user doesn't have access
@@ -270,15 +276,15 @@ export const searchActionItems = async (
     // For better search, consider using Algolia or similar
     const allItems = await getActionItemsForThread(threadId);
     const query = searchQuery.toLowerCase().trim();
-    
+
     const filtered = allItems.filter(item => {
       const taskMatch = item.task.toLowerCase().includes(query);
       const textMatch = item.text?.toLowerCase().includes(query);
       const assignedMatch = item.assignedTo?.toLowerCase().includes(query);
-      
+
       return taskMatch || textMatch || assignedMatch;
     });
-    
+
     return filtered;
   } catch (error) {
     console.error('❌ Error searching action items:', error);
@@ -296,7 +302,6 @@ export const filterActionItemsByStatus = (
   if (!status || status === 'all') {
     return actionItems;
   }
-  
+
   return actionItems.filter(item => item.status === status);
 };
-

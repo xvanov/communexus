@@ -15,11 +15,13 @@ Brief description of what this feature does and why it's important.
 **Description**: Detailed description of what this task accomplishes.
 
 **Appium Tests**:
+
 - test-basic-functionality.js
 - test-user-interaction.js
 - test-error-handling.js
 
 **Visual Checks** (Claude AI):
+
 - "Is the new button visible in the header?"
 - "Does the modal appear with the correct title?"
 - "Are all elements properly aligned?"
@@ -28,6 +30,7 @@ Brief description of what this feature does and why it's important.
 (If Yes, describe the multi-device scenario)
 
 **Acceptance Criteria**:
+
 - [ ] Feature X is visible and accessible
 - [ ] User can interact with feature Y
 - [ ] Error handling works correctly
@@ -35,6 +38,7 @@ Brief description of what this feature does and why it's important.
 - [ ] Performance is acceptable (<2s load time)
 
 **Files to Modify**:
+
 - `src/components/MyComponent.tsx`
 - `src/screens/MyScreen.tsx`
 - `src/types/MyTypes.ts`
@@ -46,14 +50,17 @@ Brief description of what this feature does and why it's important.
 **Description**: Description of second task.
 
 **Appium Tests**:
+
 - test-integration.js
 
 **Visual Checks**:
+
 - "Does the integration work visually?"
 
 **Multi-Device**: No
 
 **Acceptance Criteria**:
+
 - [ ] Integration complete
 - [ ] Tests pass
 
@@ -62,12 +69,15 @@ Brief description of what this feature does and why it's important.
 ## Testing Strategy
 
 ### Unit Tests
+
 List any unit tests that should be written.
 
 ### Integration Tests
+
 List integration tests needed.
 
 ### E2E Tests
+
 Describe end-to-end test scenarios.
 
 ## Success Metrics
@@ -80,4 +90,3 @@ Describe end-to-end test scenarios.
 ## Notes
 
 Any additional notes, considerations, or dependencies.
-

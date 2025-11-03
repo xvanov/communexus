@@ -13,10 +13,7 @@ import {
 } from '../../src/services/actionItems';
 import { AIFeatures } from '../../src/types/AIFeatures';
 import { initializeFirebase, getDb } from '../../src/services/firebase';
-import {
-  doc,
-  setDoc,
-} from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -39,14 +36,22 @@ describe('Action Items (Todo List) Integration Tests', () => {
     // Initialize Firebase (this will connect to emulators if running)
     const { auth } = await initializeFirebase({ useEmulator: true });
     db = await getDb();
-    
+
     // Create test user
     try {
-      await createUserWithEmailAndPassword(auth, TEST_USER_EMAIL, TEST_USER_PASSWORD);
+      await createUserWithEmailAndPassword(
+        auth,
+        TEST_USER_EMAIL,
+        TEST_USER_PASSWORD
+      );
     } catch (error: any) {
       // User might already exist, try to sign in
       if (error.code === 'auth/email-already-in-use') {
-        await signInWithEmailAndPassword(auth, TEST_USER_EMAIL, TEST_USER_PASSWORD);
+        await signInWithEmailAndPassword(
+          auth,
+          TEST_USER_EMAIL,
+          TEST_USER_PASSWORD
+        );
       }
     }
 
@@ -167,11 +172,11 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
       const loaded = await getActionItemsForThread(TEST_THREAD_ID);
       expect(loaded.length).toBeGreaterThanOrEqual(2);
-      
+
       const task1 = loaded.find(item => item.id === 'test-action-4');
       expect(task1).toBeDefined();
       expect(task1?.task).toBe('Load test task 1');
-      
+
       const task2 = loaded.find(item => item.id === 'test-action-5');
       expect(task2).toBeDefined();
       expect(task2?.status).toBe('completed');
@@ -265,7 +270,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
       const updated = await getActionItem('test-action-9');
       expect(updated?.completedAt).toBeDefined();
-      
+
       const completedTime = updated?.completedAt?.getTime() || 0;
       expect(completedTime).toBeGreaterThanOrEqual(beforeUpdate);
       expect(completedTime).toBeLessThanOrEqual(afterUpdate);
@@ -309,12 +314,12 @@ describe('Action Items (Todo List) Integration Tests', () => {
     it('should filter action items by status - pending', async () => {
       const allItems = await getActionItemsForThread(TEST_THREAD_ID);
       const pending = filterActionItemsByStatus(allItems, 'pending');
-      
+
       expect(pending.length).toBeGreaterThan(0);
       pending.forEach(item => {
         expect(item.status).toBe('pending');
       });
-      
+
       const pendingIds = pending.map(item => item.id);
       expect(pendingIds).toContain('filter-test-1');
       expect(pendingIds).toContain('filter-test-3');
@@ -324,12 +329,12 @@ describe('Action Items (Todo List) Integration Tests', () => {
     it('should filter action items by status - completed', async () => {
       const allItems = await getActionItemsForThread(TEST_THREAD_ID);
       const completed = filterActionItemsByStatus(allItems, 'completed');
-      
+
       expect(completed.length).toBeGreaterThan(0);
       completed.forEach(item => {
         expect(item.status).toBe('completed');
       });
-      
+
       const completedIds = completed.map(item => item.id);
       expect(completedIds).toContain('filter-test-2');
       expect(completedIds).not.toContain('filter-test-1');
@@ -339,7 +344,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
     it('should return all items when filtering by "all"', async () => {
       const allItems = await getActionItemsForThread(TEST_THREAD_ID);
       const filtered = filterActionItemsByStatus(allItems, 'all');
-      
+
       expect(filtered.length).toBe(allItems.length);
       expect(filtered.length).toBeGreaterThan(0);
     });
@@ -380,7 +385,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
     it('should search action items by task text', async () => {
       const results = await searchActionItems(TEST_THREAD_ID, 'contract');
-      
+
       expect(results.length).toBeGreaterThan(0);
       const taskIds = results.map(item => item.id);
       expect(taskIds).toContain('search-test-1');
@@ -388,7 +393,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
     it('should search action items by description text', async () => {
       const results = await searchActionItems(TEST_THREAD_ID, 'meeting');
-      
+
       expect(results.length).toBeGreaterThan(0);
       const taskIds = results.map(item => item.id);
       expect(taskIds).toContain('search-test-3');
@@ -396,7 +401,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
     it('should be case-insensitive when searching', async () => {
       const results = await searchActionItems(TEST_THREAD_ID, 'INVOICE');
-      
+
       expect(results.length).toBeGreaterThan(0);
       const taskIds = results.map(item => item.id);
       expect(taskIds).toContain('search-test-2');
@@ -404,13 +409,13 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
     it('should return empty array for non-matching search', async () => {
       const results = await searchActionItems(TEST_THREAD_ID, 'xyzabc123');
-      
+
       expect(results.length).toBe(0);
     });
 
     it('should return empty array for empty search query', async () => {
       const results = await searchActionItems(TEST_THREAD_ID, '');
-      
+
       expect(results.length).toBeGreaterThanOrEqual(0);
     });
   });
@@ -419,7 +424,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
     it('should handle dates correctly when saving and loading', async () => {
       const createdAt = new Date('2024-01-15T10:00:00Z');
       const dueDate = new Date('2024-01-20T10:00:00Z');
-      
+
       const actionItem: AIFeatures.ActionItem = {
         id: 'date-test-1',
         threadId: TEST_THREAD_ID,
@@ -435,13 +440,17 @@ describe('Action Items (Todo List) Integration Tests', () => {
       const loaded = await getActionItem('date-test-1');
       expect(loaded?.createdAt).toBeInstanceOf(Date);
       expect(loaded?.dueDate).toBeInstanceOf(Date);
-      
+
       // Check dates are approximately correct (within 1 second due to timestamp conversion)
       expect(loaded?.createdAt).toBeDefined();
       expect(loaded?.dueDate).toBeDefined();
       if (loaded?.createdAt && loaded?.dueDate) {
-        expect(Math.abs(loaded.createdAt.getTime() - createdAt.getTime())).toBeLessThan(1000);
-        expect(Math.abs(loaded.dueDate.getTime() - dueDate.getTime())).toBeLessThan(1000);
+        expect(
+          Math.abs(loaded.createdAt.getTime() - createdAt.getTime())
+        ).toBeLessThan(1000);
+        expect(
+          Math.abs(loaded.dueDate.getTime() - dueDate.getTime())
+        ).toBeLessThan(1000);
       }
     });
 
@@ -458,7 +467,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
 
       // Should not throw error, should use current time as fallback
       await expect(saveActionItem(actionItem)).resolves.not.toThrow();
-      
+
       const loaded = await getActionItem('date-test-2');
       expect(loaded?.createdAt).toBeInstanceOf(Date);
       expect(loaded?.createdAt.getTime()).toBeGreaterThan(0);
@@ -534,7 +543,7 @@ describe('Action Items (Todo List) Integration Tests', () => {
       allItems = await getActionItemsForThread(TEST_THREAD_ID);
       const pending = filterActionItemsByStatus(allItems, 'pending');
       expect(pending.length).toBeGreaterThanOrEqual(2);
-      
+
       const pendingIds = pending.map(item => item.id);
       expect(pendingIds).toContain('workflow-2');
       expect(pendingIds).toContain('workflow-3');
@@ -557,4 +566,3 @@ describe('Action Items (Todo List) Integration Tests', () => {
     });
   });
 });
-

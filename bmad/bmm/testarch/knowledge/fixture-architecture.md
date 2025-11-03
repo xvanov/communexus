@@ -99,7 +99,13 @@ import { test as authFixture } from './auth-fixture';
 import { test as logFixture } from './log-fixture';
 
 // Compose all fixtures for comprehensive capabilities
-export const test = mergeTests(base, apiRequestFixture, networkFixture, authFixture, logFixture);
+export const test = mergeTests(
+  base,
+  apiRequestFixture,
+  networkFixture,
+  authFixture,
+  logFixture
+);
 
 export { expect } from '@playwright/test';
 
@@ -123,8 +129,12 @@ export const test = base.extend({
   network: async ({ page }, use) => {
     const interceptedRoutes = new Map();
 
-    const interceptRoute = async (method: string, url: string, response: unknown) => {
-      await page.route(url, (route) => {
+    const interceptRoute = async (
+      method: string,
+      url: string,
+      response: unknown
+    ) => {
+      await page.route(url, route => {
         if (route.request().method() === method) {
           route.fulfill({ body: JSON.stringify(response) });
         }
@@ -185,7 +195,14 @@ type HttpHelperParams = {
   token?: string;
 };
 
-export async function makeHttpRequest({ baseUrl, endpoint, method, body, headers = {}, token }: HttpHelperParams): Promise<unknown> {
+export async function makeHttpRequest({
+  baseUrl,
+  endpoint,
+  method,
+  body,
+  headers = {},
+  token,
+}: HttpHelperParams): Promise<unknown> {
   const url = `${baseUrl}${endpoint}`;
   const requestHeaders = {
     'Content-Type': 'application/json',
@@ -201,7 +218,9 @@ export async function makeHttpRequest({ baseUrl, endpoint, method, body, headers
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`HTTP ${method} ${url} failed: ${response.status} ${errorText}`);
+    throw new Error(
+      `HTTP ${method} ${url} failed: ${response.status} ${errorText}`
+    );
   }
 
   return response.json();
@@ -216,7 +235,7 @@ export const test = base.extend({
   httpHelper: async ({}, use) => {
     const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
 
-    await use((params) => makeHttpRequest({ baseUrl, ...params }));
+    await use(params => makeHttpRequest({ baseUrl, ...params }));
   },
 });
 
@@ -224,7 +243,7 @@ export const test = base.extend({
 // cypress/support/commands.ts
 import { makeHttpRequest } from '../../shared/helpers/http-helper';
 
-Cypress.Commands.add('apiRequest', (params) => {
+Cypress.Commands.add('apiRequest', params => {
   const baseUrl = Cypress.env('API_BASE_URL') || 'http://localhost:3000';
   return cy.wrap(makeHttpRequest({ baseUrl, ...params }));
 });
