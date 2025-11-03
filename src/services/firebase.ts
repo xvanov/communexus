@@ -109,10 +109,11 @@ const performInitialization = async (
               : isRealDevice()
                 ? false
                 : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true));
-    
+
     // If explicitly using emulator, assume they're running (for tests)
     // This allows tests to force emulator connection even if check fails
-    const shouldConnectEmulator = shouldUseEmulator && (config?.useEmulator === true || emulatorsRunning);
+    const shouldConnectEmulator =
+      shouldUseEmulator && (config?.useEmulator === true || emulatorsRunning);
 
     console.log('🔥 Firebase config:', {
       platform: Platform.OS,
@@ -131,7 +132,9 @@ const performInitialization = async (
 
     // Determine if we're in Node.js/test environment
     const isNodeEnv = typeof process !== 'undefined' && process.versions?.node;
-    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
+    const isTestEnv =
+      process.env.NODE_ENV === 'test' ||
+      process.env.JEST_WORKER_ID !== undefined;
 
     app =
       getApps()[0] ||
@@ -197,8 +200,10 @@ const performInitialization = async (
         }
       } catch (connectError: any) {
         // If already connected, that's fine
-        if (connectError?.message?.includes('already') || 
-            connectError?.code === 'auth/emulator-config-failed') {
+        if (
+          connectError?.message?.includes('already') ||
+          connectError?.code === 'auth/emulator-config-failed'
+        ) {
           console.log('ℹ️  Auth emulator already connected');
         } else {
           console.log('Auth emulator connection skipped:', connectError);

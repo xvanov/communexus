@@ -38,7 +38,9 @@ describe('Action Items (Todo List) Integration Tests', () => {
     jest.setTimeout(30000);
 
     // Initialize Firebase (this will connect to emulators if running)
-    const { auth: authInstance } = await initializeFirebase({ useEmulator: true });
+    const { auth: authInstance } = await initializeFirebase({
+      useEmulator: true,
+    });
     auth = authInstance;
     db = await getDb();
 
@@ -615,4 +617,3 @@ describe('Action Items (Todo List) Integration Tests', () => {
     });
   });
 });
-
