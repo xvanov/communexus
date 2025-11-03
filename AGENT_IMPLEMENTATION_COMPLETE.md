@@ -13,36 +13,42 @@ A complete **automated feedback environment** for AI agents to continuously deve
 ### Core Components
 
 ✅ **1. Environment Manager** (`scripts/agent/environment-manager.js`)
+
 - Orchestrates Firebase emulators, iOS simulators, and app builds
 - Manages 2 simulators for multi-device testing
 - Health checks and automatic cleanup
 - **Commands**: `npm run agent:env:{start|stop|status}`
 
 ✅ **2. Hybrid Test Runner** (`scripts/agent/hybrid-test-runner.js`)
+
 - Combines Appium (fast, deterministic) + Claude AI (intelligent, visual)
 - Multi-device messaging test coordination
 - Screenshot capture on failures
 - **Command**: `npm run agent:test -- --spec <spec.json>`
 
 ✅ **3. Feedback Collector** (`scripts/agent/feedback-collector.js`)
+
 - Aggregates test results, build errors, logs, screenshots
 - Generates JSON feedback + Markdown reports
 - AI-powered fix suggestions
 - **Command**: `npm run agent:feedback <results.json>`
 
 ✅ **4. Agent Orchestrator** (`scripts/agent/agent-orchestrator.js`)
+
 - Main control loop: Reads specs → Tests → Iterates → Creates PRs
 - Parses markdown specifications
 - Retry logic with feedback-driven iterations
 - **Command**: `npm run agent:orchestrate -- --spec <spec.md>`
 
 ✅ **5. Documentation**
+
 - Complete README (`scripts/agent/README.md`)
 - Quick Start Guide (`AGENT_QUICKSTART.md`)
 - Specification Template (`specs/TEMPLATE.md`)
 - Sample Test Spec (`specs/000-agent-system-test/spec.md`)
 
 ✅ **6. Package Scripts**
+
 - `agent:orchestrate` - Run the main agent loop
 - `agent:env:{start|stop|status}` - Manage environment
 - `agent:test` - Run tests
@@ -134,7 +140,7 @@ echo "ANTHROPIC_API_KEY=sk-ant-your-key-here" >> .env
 ```bash
 # .env file
 AUTO_CREATE_PR=true          # Auto-create PRs when tests pass
-AUTO_CONTINUE=true           # Continue to next task if one fails  
+AUTO_CONTINUE=true           # Continue to next task if one fails
 MAX_ATTEMPTS=3               # Max retry attempts per task
 ENABLE_VISUAL_CHECKS=true    # Enable Claude AI (requires API key)
 ```
@@ -146,27 +152,33 @@ ENABLE_VISUAL_CHECKS=true    # Enable Claude AI (requires API key)
 ### Scenario: Agent Develops "Thread Summarization UI"
 
 1. **You write spec**: `specs/005-ai-features/spec.md`
+
 ```markdown
 ### T001: Thread Summarization Button
 
 **Appium Tests**:
+
 - test-ai-button-visible.js
 
 **Visual Checks**:
+
 - "Is there a ✨ AI button in the chat header?"
 - "Does clicking it open a modal?"
 
 **Acceptance Criteria**:
+
 - [ ] AI button visible in header
 - [ ] Modal opens with summary
 ```
 
 2. **You run agent**:
+
 ```bash
 npm run agent:orchestrate -- --spec specs/005-ai-features/spec.md
 ```
 
 3. **Agent executes**:
+
 ```
 📄 Loading spec... ✅
 🚀 Setting up environment... ✅
@@ -187,6 +199,7 @@ npm run agent:orchestrate -- --spec specs/005-ai-features/spec.md
 ```
 
 4. **You get results**:
+
 - PR branch created: `agent/t001-thread-summarization-button`
 - Feedback report: `feedback/agent/latest-report.md`
 - Screenshots: `test-results/agent-feedback/*.png`
@@ -196,16 +209,19 @@ npm run agent:orchestrate -- --spec specs/005-ai-features/spec.md
 ## 🎯 Key Features
 
 ### Multi-Device Testing
+
 - **2 simulators** run simultaneously (Alice + Bob)
 - Test real-time messaging between devices
 - Verify synchronization works correctly
 
 ### Hybrid Testing Strategy
+
 - **Appium** (fast): Basic interactions, navigation, element visibility
 - **Claude AI** (smart): Visual validation, layout checks, complex scenarios
 - **Best of both worlds**: Speed + intelligence
 
 ### Intelligent Feedback
+
 - **Test results**: Pass/fail with details
 - **Screenshots**: Captured automatically, especially on failures
 - **Build errors**: Parsed and categorized
@@ -213,6 +229,7 @@ npm run agent:orchestrate -- --spec specs/005-ai-features/spec.md
 - **Logs**: Firebase, simulator, system logs
 
 ### Automatic Iteration
+
 - Tests fail → Agent collects feedback
 - Agent uses feedback to refine code
 - Retries up to `MAX_ATTEMPTS` times
@@ -223,30 +240,37 @@ npm run agent:orchestrate -- --spec specs/005-ai-features/spec.md
 ## 💡 Best Practices
 
 ### 1. Start Simple
+
 ```bash
 # Test infrastructure first
 npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 ### 2. Use Appium-Only Initially
+
 - Faster
 - Free
 - Good for functional testing
 - Add Claude AI later for visual validation
 
 ### 3. Write Clear Specs
+
 - Define specific tests for each task
 - Include visual checks for UI features
 - Set clear acceptance criteria
 
 ### 4. Review Feedback
+
 Always check:
+
 - `feedback/agent/latest-report.md` (human-readable)
 - `feedback/agent/latest.json` (for agent consumption)
 - Screenshots in `test-results/agent-feedback/`
 
 ### 5. Keep Appium Running
+
 Don't restart Appium between runs:
+
 ```bash
 # Terminal 1 (keep running)
 npm run appium:server
@@ -262,6 +286,7 @@ npm run agent:orchestrate -- --spec specs/...
 See **AGENT_QUICKSTART.md** for common issues and solutions.
 
 Quick fixes:
+
 - Firebase won't start: `pkill -f firebase`
 - Simulators not found: Check Xcode → Devices
 - Appium not connecting: `npm run appium:server`
@@ -274,17 +299,20 @@ Quick fixes:
 ### Immediate Actions
 
 1. **Test the system**:
+
 ```bash
 npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 2. **Create your first feature spec**:
+
 ```bash
 cp specs/TEMPLATE.md specs/008-my-feature/spec.md
 # Edit and run!
 ```
 
 3. **Integrate with your workflow**:
+
 - Use with Cursor for code generation
 - Add to CI/CD pipeline
 - Customize for your team's needs
@@ -319,7 +347,7 @@ This system demonstrates:
 ✅ **Feedback-driven development** loops  
 ✅ **Self-healing tests** with Claude AI  
 ✅ **Specification-driven** development  
-✅ **Continuous integration** ready  
+✅ **Continuous integration** ready
 
 ---
 
@@ -354,7 +382,7 @@ npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 
 **Built with ❤️ for continuous AI-driven development**
 
-*Part of the Communexus project - Revolutionizing how AI agents build software*
+_Part of the Communexus project - Revolutionizing how AI agents build software_
 
 ---
 
@@ -365,4 +393,3 @@ npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 - Enhancements: Submit a PR with improvements
 
 **Happy coding! 🚀🤖**
-

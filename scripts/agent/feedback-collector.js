@@ -2,20 +2,20 @@
 
 /**
  * Feedback Collector
- * 
+ *
  * Aggregates all feedback from the test environment for the AI agent:
  * - Test results (pass/fail, details, screenshots)
  * - Build logs and errors
  * - Firebase logs
  * - Simulator logs
  * - Performance metrics
- * 
+ *
  * Generates structured feedback that the AI can use to:
  * - Understand what failed
  * - See visual evidence (screenshots)
  * - Identify patterns
  * - Make informed decisions about fixes
- * 
+ *
  * Usage:
  *   const collector = new FeedbackCollector();
  *   const feedback = await collector.collect(testResults, buildLogs);
@@ -32,10 +32,13 @@ class FeedbackCollector {
   constructor(config = {}) {
     this.config = {
       projectRoot: config.projectRoot || process.cwd(),
-      feedbackDir: config.feedbackDir || path.join(process.cwd(), 'feedback/agent'),
-      screenshotDir: config.screenshotDir || path.join(process.cwd(), 'test-results/agent-feedback'),
+      feedbackDir:
+        config.feedbackDir || path.join(process.cwd(), 'feedback/agent'),
+      screenshotDir:
+        config.screenshotDir ||
+        path.join(process.cwd(), 'test-results/agent-feedback'),
       maxLogLines: config.maxLogLines || 100,
-      ...config
+      ...config,
     };
   }
 
@@ -56,8 +59,8 @@ class FeedbackCollector {
       suggestions: null,
       metadata: {
         duration: null,
-        environment: await this.getEnvironmentInfo()
-      }
+        environment: await this.getEnvironmentInfo(),
+      },
     };
 
     try {
@@ -107,7 +110,7 @@ class FeedbackCollector {
       exitCode: buildLogs.exitCode,
       errors: [],
       warnings: [],
-      summary: ''
+      summary: '',
     };
 
     if (!buildLogs.output) {
@@ -150,16 +153,18 @@ class FeedbackCollector {
       summary: {
         total: 0,
         passed: 0,
-        failed: 0
-      }
+        failed: 0,
+      },
     };
 
     // Analyze each category (fast, visual, multiDevice)
-    for (const [category, results] of Object.entries(testResults.details || {})) {
+    for (const [category, results] of Object.entries(
+      testResults.details || {}
+    )) {
       if (results.skipped) {
         analysis.categories[category] = {
           status: 'SKIPPED',
-          reason: results.reason
+          reason: results.reason,
         };
         continue;
       }
@@ -169,7 +174,7 @@ class FeedbackCollector {
         total: results.total,
         passed: results.passed,
         failed: results.failed,
-        tests: []
+        tests: [],
       };
 
       // Extract individual test details
@@ -180,7 +185,7 @@ class FeedbackCollector {
           passed: test.passed,
           duration: test.duration,
           error: test.error,
-          screenshot: test.screenshot || test.screenshots
+          screenshot: test.screenshot || test.screenshots,
         };
 
         analysis.categories[category].tests.push(testDetail);
@@ -206,23 +211,34 @@ class FeedbackCollector {
     const logs = {
       firebase: null,
       simulator: null,
-      appium: null
+      appium: null,
     };
 
     try {
       // Collect recent Firebase logs (if available)
-      const firebaseLogPath = path.join(this.config.projectRoot, 'firebase-debug.log');
+      const firebaseLogPath = path.join(
+        this.config.projectRoot,
+        'firebase-debug.log'
+      );
       try {
         const firebaseLogs = await fs.readFile(firebaseLogPath, 'utf-8');
-        logs.firebase = this.extractRecentLines(firebaseLogs, this.config.maxLogLines);
+        logs.firebase = this.extractRecentLines(
+          firebaseLogs,
+          this.config.maxLogLines
+        );
       } catch (error) {
         // No Firebase logs
       }
 
       // Collect iOS Simulator logs
       try {
-        const { stdout } = await execAsync('xcrun simctl spawn booted log show --predicate \'processImagePath contains "Communexus"\' --last 5m');
-        logs.simulator = this.extractRecentLines(stdout, this.config.maxLogLines);
+        const { stdout } = await execAsync(
+          'xcrun simctl spawn booted log show --predicate \'processImagePath contains "Communexus"\' --last 5m'
+        );
+        logs.simulator = this.extractRecentLines(
+          stdout,
+          this.config.maxLogLines
+        );
       } catch (error) {
         // No simulator logs
       }
@@ -240,7 +256,7 @@ class FeedbackCollector {
   async collectScreenshots() {
     const screenshots = {
       failed: [],
-      all: []
+      all: [],
     };
 
     try {
@@ -256,7 +272,7 @@ class FeedbackCollector {
           path: filepath,
           size: stats.size,
           timestamp: stats.mtime,
-          isFailed: file.includes('fail')
+          isFailed: file.includes('fail'),
         };
 
         screenshots.all.push(screenshot);
@@ -290,7 +306,8 @@ class FeedbackCollector {
         priority: 'HIGH',
         issue: 'Build failed',
         details: feedback.build.errors.slice(0, 5),
-        suggestion: 'Fix compilation errors. Check syntax, imports, and type errors.'
+        suggestion:
+          'Fix compilation errors. Check syntax, imports, and type errors.',
       });
     }
 
@@ -303,21 +320,24 @@ class FeedbackCollector {
           issue: `Test failed: ${test.name}`,
           details: test.error,
           screenshot: test.screenshot,
-          suggestion: this.inferTestFix(test)
+          suggestion: this.inferTestFix(test),
         });
       }
     }
 
     // 3. Visual check failures
     if (feedback.tests?.categories?.visual?.failed > 0) {
-      const visualTests = feedback.tests.categories.visual.tests.filter(t => !t.passed);
+      const visualTests = feedback.tests.categories.visual.tests.filter(
+        t => !t.passed
+      );
       for (const test of visualTests) {
         suggestions.push({
           category: 'VISUAL',
           priority: 'MEDIUM',
           issue: `Visual check failed: ${test.name}`,
           screenshot: test.screenshot,
-          suggestion: 'Review screenshot to see what the UI actually looks like. The visual appearance may not match expectations.'
+          suggestion:
+            'Review screenshot to see what the UI actually looks like. The visual appearance may not match expectations.',
         });
       }
     }
@@ -328,7 +348,8 @@ class FeedbackCollector {
         category: 'MULTI_DEVICE',
         priority: 'HIGH',
         issue: 'Multi-device messaging test failed',
-        suggestion: 'Check real-time synchronization between devices. Verify Firebase listeners are working correctly.'
+        suggestion:
+          'Check real-time synchronization between devices. Verify Firebase listeners are working correctly.',
       });
     }
 
@@ -338,7 +359,7 @@ class FeedbackCollector {
         category: 'SUCCESS',
         priority: 'INFO',
         issue: null,
-        suggestion: 'All tests passed! Ready to create PR.'
+        suggestion: 'All tests passed! Ready to create PR.',
       });
     }
 
@@ -390,7 +411,7 @@ class FeedbackCollector {
 
     return {
       total: totalDuration,
-      formatted: `${(totalDuration / 1000).toFixed(2)}s`
+      formatted: `${(totalDuration / 1000).toFixed(2)}s`,
     };
   }
 
@@ -399,16 +420,19 @@ class FeedbackCollector {
    */
   async getEnvironmentInfo() {
     try {
-      const envStatePath = path.join(this.config.projectRoot, '.agent-env-state.json');
+      const envStatePath = path.join(
+        this.config.projectRoot,
+        '.agent-env-state.json'
+      );
       const envState = JSON.parse(await fs.readFile(envStatePath, 'utf-8'));
       return {
         simulators: envState.simulators?.length || 0,
-        firebase: envState.firebase ? 'running' : 'unknown'
+        firebase: envState.firebase ? 'running' : 'unknown',
       };
     } catch (error) {
       return {
         simulators: 'unknown',
-        firebase: 'unknown'
+        firebase: 'unknown',
       };
     }
   }
@@ -440,7 +464,11 @@ class FeedbackCollector {
 
     // Generate markdown report
     const reportPath = path.join(this.config.feedbackDir, 'latest-report.md');
-    await fs.writeFile(reportPath, this.generateMarkdownReport(feedback), 'utf-8');
+    await fs.writeFile(
+      reportPath,
+      this.generateMarkdownReport(feedback),
+      'utf-8'
+    );
 
     console.log(`📄 Feedback saved to: ${filepath}`);
     console.log(`📄 Latest feedback: ${latestPath}`);
@@ -456,13 +484,17 @@ class FeedbackCollector {
     lines.push('# Agent Feedback Report\n');
     lines.push(`**Timestamp**: ${feedback.timestamp}\n`);
     lines.push(`**Task**: ${feedback.taskName}\n`);
-    lines.push(`**Result**: ${feedback.overallResult === 'PASSED' ? '✅ PASSED' : '❌ FAILED'}\n`);
+    lines.push(
+      `**Result**: ${feedback.overallResult === 'PASSED' ? '✅ PASSED' : '❌ FAILED'}\n`
+    );
     lines.push('---\n');
 
     // Build section
     if (feedback.build) {
       lines.push('## 🔨 Build\n');
-      lines.push(`Status: ${feedback.build.success ? '✅ Success' : '❌ Failed'}\n`);
+      lines.push(
+        `Status: ${feedback.build.success ? '✅ Success' : '❌ Failed'}\n`
+      );
       if (feedback.build.errors.length > 0) {
         lines.push('\n**Errors:**\n');
         feedback.build.errors.forEach(err => lines.push(`- ${err}\n`));
@@ -473,14 +505,22 @@ class FeedbackCollector {
     // Tests section
     if (feedback.tests) {
       lines.push('## 🧪 Tests\n');
-      lines.push(`**Summary**: ${feedback.tests.summary.passed}/${feedback.tests.summary.total} passed\n\n`);
+      lines.push(
+        `**Summary**: ${feedback.tests.summary.passed}/${feedback.tests.summary.total} passed\n\n`
+      );
 
-      for (const [category, results] of Object.entries(feedback.tests.categories)) {
-        lines.push(`### ${category.charAt(0).toUpperCase() + category.slice(1)}\n`);
+      for (const [category, results] of Object.entries(
+        feedback.tests.categories
+      )) {
+        lines.push(
+          `### ${category.charAt(0).toUpperCase() + category.slice(1)}\n`
+        );
         if (results.status === 'SKIPPED') {
           lines.push(`Status: ⏭️ SKIPPED (${results.reason})\n\n`);
         } else {
-          lines.push(`Status: ${results.status === 'PASSED' ? '✅' : '❌'} ${results.status}\n`);
+          lines.push(
+            `Status: ${results.status === 'PASSED' ? '✅' : '❌'} ${results.status}\n`
+          );
           lines.push(`Tests: ${results.passed}/${results.total} passed\n\n`);
 
           if (results.tests) {
@@ -504,7 +544,9 @@ class FeedbackCollector {
     if (feedback.suggestions && feedback.suggestions.length > 0) {
       lines.push('## 💡 Suggestions\n\n');
       feedback.suggestions.forEach((suggestion, i) => {
-        lines.push(`### ${i + 1}. ${suggestion.category} - ${suggestion.priority}\n\n`);
+        lines.push(
+          `### ${i + 1}. ${suggestion.category} - ${suggestion.priority}\n\n`
+        );
         if (suggestion.issue) {
           lines.push(`**Issue**: ${suggestion.issue}\n\n`);
         }
@@ -547,7 +589,7 @@ class FeedbackCollector {
 // CLI interface
 async function main() {
   const args = process.argv.slice(2);
-  
+
   if (args.length === 0) {
     console.error('Usage: node feedback-collector.js <test-results.json>');
     process.exit(1);
@@ -557,17 +599,21 @@ async function main() {
 
   try {
     const testResults = JSON.parse(await fs.readFile(resultsPath, 'utf-8'));
-    
+
     const collector = new FeedbackCollector();
     const feedback = await collector.collect(testResults);
 
-    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log(
+      '\n═══════════════════════════════════════════════════════════'
+    );
     console.log('📊 FEEDBACK SUMMARY');
     console.log('═══════════════════════════════════════════════════════════');
     console.log(`Overall: ${feedback.overallResult}`);
     console.log(`Duration: ${feedback.metadata.duration.formatted}`);
     console.log(`Suggestions: ${feedback.suggestions.length}`);
-    console.log('═══════════════════════════════════════════════════════════\n');
+    console.log(
+      '═══════════════════════════════════════════════════════════\n'
+    );
 
     process.exit(feedback.overallResult === 'PASSED' ? 0 : 1);
   } catch (error) {
@@ -582,4 +628,3 @@ if (require.main === module) {
 }
 
 module.exports = FeedbackCollector;
-

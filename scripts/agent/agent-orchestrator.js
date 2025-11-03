@@ -2,7 +2,7 @@
 
 /**
  * Agent Orchestrator
- * 
+ *
  * Main control loop for the AI agent development workflow:
  * 1. Read specification document
  * 2. Parse tasks (each task = one PR)
@@ -14,7 +14,7 @@
  *    e. If tests fail → iterate with feedback
  *    f. If tests pass → create PR
  * 4. Move to next task
- * 
+ *
  * Usage:
  *   node scripts/agent/agent-orchestrator.js --spec specs/005-new-feature/spec.md
  *   node scripts/agent/agent-orchestrator.js --spec specs/005-new-feature/spec.md --task T001
@@ -22,7 +22,7 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const { exec, spawn } = require('child_process');
+const { exec } = require('child_process');
 const { promisify } = require('util');
 
 const EnvironmentManager = require('./environment-manager');
@@ -38,19 +38,19 @@ class AgentOrchestrator {
       maxAttempts: config.maxAttempts || 3,
       autoCreatePR: config.autoCreatePR !== false,
       autoContinue: config.autoContinue !== false,
-      ...config
+      ...config,
     };
 
     this.environmentManager = new EnvironmentManager();
     this.feedbackCollector = new FeedbackCollector();
-    
+
     this.currentTask = null;
     this.environment = null;
     this.sessionState = {
       startTime: Date.now(),
       tasksCompleted: 0,
       tasksFailed: 0,
-      totalAttempts: 0
+      totalAttempts: 0,
     };
   }
 
@@ -58,10 +58,18 @@ class AgentOrchestrator {
    * Main orchestration loop
    */
   async run(specPath, specificTask = null) {
-    console.log('╔═══════════════════════════════════════════════════════════╗');
-    console.log('║                 AGENT ORCHESTRATOR                        ║');
-    console.log('║          Automated Feature Development Loop               ║');
-    console.log('╚═══════════════════════════════════════════════════════════╝\n');
+    console.log(
+      '╔═══════════════════════════════════════════════════════════╗'
+    );
+    console.log(
+      '║                 AGENT ORCHESTRATOR                        ║'
+    );
+    console.log(
+      '║          Automated Feature Development Loop               ║'
+    );
+    console.log(
+      '╚═══════════════════════════════════════════════════════════╝\n'
+    );
 
     try {
       // 1. Load specification
@@ -75,7 +83,7 @@ class AgentOrchestrator {
       console.log(`✅ Found ${tasks.length} task(s)\n`);
 
       // Filter to specific task if requested
-      const tasksToRun = specificTask 
+      const tasksToRun = specificTask
         ? tasks.filter(t => t.id === specificTask)
         : tasks;
 
@@ -93,20 +101,24 @@ class AgentOrchestrator {
       for (let i = 0; i < tasksToRun.length; i++) {
         const task = tasksToRun[i];
         console.log(`\n${'='.repeat(60)}`);
-        console.log(`📝 Task ${i + 1}/${tasksToRun.length}: ${task.id} - ${task.name}`);
+        console.log(
+          `📝 Task ${i + 1}/${tasksToRun.length}: ${task.id} - ${task.name}`
+        );
         console.log('='.repeat(60) + '\n');
 
         const result = await this.processTask(task, spec);
         results.push(result);
 
         if (!result.success) {
-          console.log(`\n❌ Task ${task.id} failed after ${result.attempts} attempt(s)`);
-          
+          console.log(
+            `\n❌ Task ${task.id} failed after ${result.attempts} attempt(s)`
+          );
+
           if (!this.config.autoContinue) {
             console.log('⏸️  Stopping (autoContinue=false)');
             break;
           }
-          
+
           console.log('⏭️  Continuing to next task (autoContinue=true)');
         } else {
           console.log(`\n✅ Task ${task.id} completed successfully!`);
@@ -123,12 +135,11 @@ class AgentOrchestrator {
 
       return {
         success: results.every(r => r.success),
-        results
+        results,
       };
-
     } catch (error) {
       console.error('\n❌ Orchestrator failed:', error.message);
-      
+
       // Cleanup on error
       if (this.environment) {
         await this.environmentManager.stop();
@@ -149,7 +160,7 @@ class AgentOrchestrator {
       success: false,
       attempts: 0,
       feedback: [],
-      finalFeedback: null
+      finalFeedback: null,
     };
 
     let previousFeedback = null;
@@ -164,12 +175,12 @@ class AgentOrchestrator {
         // Step 1: Generate/refine code
         console.log('💻 Step 1: Generating code...');
         const codeGenResult = await this.generateCode(task, previousFeedback);
-        
+
         if (!codeGenResult.success) {
           console.log('❌ Code generation failed:', codeGenResult.error);
-          previousFeedback = { 
-            type: 'code_gen_error', 
-            error: codeGenResult.error 
+          previousFeedback = {
+            type: 'code_gen_error',
+            error: codeGenResult.error,
           };
           continue;
         }
@@ -178,7 +189,7 @@ class AgentOrchestrator {
         // Step 2: Build app
         console.log('🔨 Step 2: Building app...');
         const buildResult = await this.buildApp();
-        
+
         if (!buildResult.success) {
           console.log('❌ Build failed');
           previousFeedback = await this.feedbackCollector.collect(
@@ -194,10 +205,13 @@ class AgentOrchestrator {
         console.log('🧪 Step 3: Running tests...');
         const testRunner = new HybridTestRunner(this.environment);
         const testResults = await testRunner.runTests(task);
-        
+
         // Step 4: Collect feedback
         console.log('\n📊 Step 4: Collecting feedback...');
-        const feedback = await this.feedbackCollector.collect(testResults, buildResult);
+        const feedback = await this.feedbackCollector.collect(
+          testResults,
+          buildResult
+        );
         taskResult.feedback.push(feedback);
         taskResult.finalFeedback = feedback;
 
@@ -218,13 +232,12 @@ class AgentOrchestrator {
         // Tests failed, prepare feedback for next iteration
         console.log('❌ Tests failed\n');
         previousFeedback = feedback;
-
       } catch (error) {
         console.error(`❌ Attempt ${attempt} error:`, error.message);
         previousFeedback = {
           type: 'system_error',
           error: error.message,
-          stack: error.stack
+          stack: error.stack,
         };
       }
 
@@ -246,12 +259,12 @@ class AgentOrchestrator {
    */
   async loadSpecification(specPath) {
     const content = await fs.readFile(specPath, 'utf-8');
-    
+
     // If it's a markdown file, parse it
     if (specPath.endsWith('.md')) {
       return this.parseMarkdownSpec(content, specPath);
     }
-    
+
     // If it's JSON, parse directly
     if (specPath.endsWith('.json')) {
       return JSON.parse(content);
@@ -268,7 +281,7 @@ class AgentOrchestrator {
       path: specPath,
       name: '',
       description: '',
-      tasks: []
+      tasks: [],
     };
 
     // Extract title
@@ -283,7 +296,7 @@ class AgentOrchestrator {
 
     while ((match = taskRegex.exec(content)) !== null) {
       const [, taskId, taskName, taskContent] = match;
-      
+
       const task = {
         id: taskId.trim(),
         name: taskName.trim(),
@@ -291,7 +304,7 @@ class AgentOrchestrator {
         appiumTests: this.extractAppiumTests(taskContent),
         visualChecks: this.extractVisualChecks(taskContent),
         multiDeviceTests: this.extractMultiDeviceTests(taskContent),
-        acceptanceCriteria: this.extractAcceptanceCriteria(taskContent)
+        acceptanceCriteria: this.extractAcceptanceCriteria(taskContent),
       };
 
       spec.tasks.push(task);
@@ -312,18 +325,22 @@ class AgentOrchestrator {
    * Extract Appium test configurations
    */
   extractAppiumTests(content) {
-    const match = content.match(/\*\*Appium Tests\*\*:\n([\s\S]*?)(?=\n\*\*|$)/);
+    const match = content.match(
+      /\*\*Appium Tests\*\*:\n([\s\S]*?)(?=\n\*\*|$)/
+    );
     if (!match) return [];
 
     const tests = [];
-    const lines = match[1].split('\n').filter(line => line.trim().startsWith('-'));
-    
+    const lines = match[1]
+      .split('\n')
+      .filter(line => line.trim().startsWith('-'));
+
     for (const line of lines) {
       const testName = line.replace(/^-\s*/, '').trim();
       tests.push({
         name: testName,
         steps: [], // Will be populated by code generator
-        assertions: []
+        assertions: [],
       });
     }
 
@@ -334,18 +351,22 @@ class AgentOrchestrator {
    * Extract visual check configurations
    */
   extractVisualChecks(content) {
-    const match = content.match(/\*\*Visual Checks\*\*.*?:\n([\s\S]*?)(?=\n\*\*|$)/);
+    const match = content.match(
+      /\*\*Visual Checks\*\*.*?:\n([\s\S]*?)(?=\n\*\*|$)/
+    );
     if (!match) return [];
 
     const checks = [];
-    const lines = match[1].split('\n').filter(line => line.trim().startsWith('-'));
-    
+    const lines = match[1]
+      .split('\n')
+      .filter(line => line.trim().startsWith('-'));
+
     for (const line of lines) {
       const question = line.replace(/^-\s*["']|["']$/g, '').trim();
       checks.push({
         description: question,
         question: question,
-        expectedAnswer: 'yes'
+        expectedAnswer: 'yes',
       });
     }
 
@@ -362,28 +383,34 @@ class AgentOrchestrator {
     }
 
     // Default multi-device messaging test
-    return [{
-      name: 'Real-time message delivery',
-      aliceSteps: [],
-      bobSteps: [],
-      bobVisualCheck: {
-        question: 'Does Bob see the message from Alice?',
-        expectedAnswer: 'yes'
+    return [
+      {
+        name: 'Real-time message delivery',
+        aliceSteps: [],
+        bobSteps: [],
+        bobVisualCheck: {
+          question: 'Does Bob see the message from Alice?',
+          expectedAnswer: 'yes',
+        },
+        syncDelay: 2000,
       },
-      syncDelay: 2000
-    }];
+    ];
   }
 
   /**
    * Extract acceptance criteria
    */
   extractAcceptanceCriteria(content) {
-    const match = content.match(/\*\*Acceptance Criteria\*\*:\n([\s\S]*?)(?=\n###|$)/);
+    const match = content.match(
+      /\*\*Acceptance Criteria\*\*:\n([\s\S]*?)(?=\n###|$)/
+    );
     if (!match) return [];
 
     const criteria = [];
-    const lines = match[1].split('\n').filter(line => line.trim().startsWith('-'));
-    
+    const lines = match[1]
+      .split('\n')
+      .filter(line => line.trim().startsWith('-'));
+
     for (const line of lines) {
       criteria.push(line.replace(/^-\s*\[\s*\]\s*/, '').trim());
     }
@@ -395,6 +422,7 @@ class AgentOrchestrator {
    * Parse tasks from spec
    */
   async parseTasks(spec) {
+    // spec parameter is used implicitly through this.spec if needed
     return spec.tasks || [];
   }
 
@@ -404,12 +432,19 @@ class AgentOrchestrator {
    */
   async generateCode(task, feedback = null) {
     console.log(`  Generating code for: ${task.name}`);
-    
+
     // Save feedback for the agent to read
     if (feedback) {
-      const feedbackPath = path.join(this.config.projectRoot, 'feedback/agent/current-feedback.json');
+      const feedbackPath = path.join(
+        this.config.projectRoot,
+        'feedback/agent/current-feedback.json'
+      );
       await fs.mkdir(path.dirname(feedbackPath), { recursive: true });
-      await fs.writeFile(feedbackPath, JSON.stringify(feedback, null, 2), 'utf-8');
+      await fs.writeFile(
+        feedbackPath,
+        JSON.stringify(feedback, null, 2),
+        'utf-8'
+      );
       console.log(`  📝 Feedback saved for agent: ${feedbackPath}`);
     }
 
@@ -420,11 +455,13 @@ class AgentOrchestrator {
     // 3. Return success/failure
 
     // Placeholder: Assume code is already written
-    console.log(`  ℹ️  Assuming code is already written (manual or via Cursor)`);
-    
+    console.log(
+      `  ℹ️  Assuming code is already written (manual or via Cursor)`
+    );
+
     return {
       success: true,
-      files: []
+      files: [],
     };
   }
 
@@ -433,27 +470,24 @@ class AgentOrchestrator {
    */
   async buildApp() {
     console.log('  Building iOS app...');
-    
+
     try {
-      const { stdout, stderr } = await execAsync(
-        'npm run type-check',
-        {
-          cwd: this.config.projectRoot,
-          maxBuffer: 10 * 1024 * 1024
-        }
-      );
+      const { stdout, stderr } = await execAsync('npm run type-check', {
+        cwd: this.config.projectRoot,
+        maxBuffer: 10 * 1024 * 1024,
+      });
 
       return {
         success: true,
         exitCode: 0,
-        output: stdout + stderr
+        output: stdout + stderr,
       };
     } catch (error) {
       return {
         success: false,
         exitCode: error.code || 1,
         output: error.stdout + error.stderr,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -467,17 +501,20 @@ class AgentOrchestrator {
     try {
       // Create branch
       const branchName = `agent/${task.id.toLowerCase()}-${task.name.toLowerCase().replace(/\s+/g, '-')}`;
-      
+
       await execAsync(`git checkout -b ${branchName}`);
       await execAsync('git add .');
-      await execAsync(`git commit -m "feat(${task.id}): ${task.name}\n\nAuto-generated by Agent Orchestrator\n\nAll tests passed:\n${feedback.tests.summary.passed}/${feedback.tests.summary.total} tests passing"`);
-      
+      await execAsync(
+        `git commit -m "feat(${task.id}): ${task.name}\n\nAuto-generated by Agent Orchestrator\n\nAll tests passed:\n${feedback.tests.summary.passed}/${feedback.tests.summary.total} tests passing"`
+      );
+
       console.log(`✅ Created branch: ${branchName}`);
       console.log(`✅ Committed changes`);
       console.log(`\n💡 To push and create PR:`);
       console.log(`   git push origin ${branchName}`);
-      console.log(`   gh pr create --title "${task.id}: ${task.name}" --body "Auto-generated by Agent Orchestrator"`);
-      
+      console.log(
+        `   gh pr create --title "${task.id}: ${task.name}" --body "Auto-generated by Agent Orchestrator"`
+      );
     } catch (error) {
       console.error('❌ Failed to create PR:', error.message);
     }
@@ -487,11 +524,21 @@ class AgentOrchestrator {
    * Print session summary
    */
   async printSessionSummary(results) {
-    const duration = ((Date.now() - this.sessionState.startTime) / 1000 / 60).toFixed(1);
+    const duration = (
+      (Date.now() - this.sessionState.startTime) /
+      1000 /
+      60
+    ).toFixed(1);
 
-    console.log('\n\n╔═══════════════════════════════════════════════════════════╗');
-    console.log('║                   SESSION SUMMARY                         ║');
-    console.log('╚═══════════════════════════════════════════════════════════╝\n');
+    console.log(
+      '\n\n╔═══════════════════════════════════════════════════════════╗'
+    );
+    console.log(
+      '║                   SESSION SUMMARY                         ║'
+    );
+    console.log(
+      '╚═══════════════════════════════════════════════════════════╝\n'
+    );
 
     console.log(`⏱️  Duration: ${duration} minutes`);
     console.log(`📝 Tasks Processed: ${results.length}`);
@@ -504,7 +551,9 @@ class AgentOrchestrator {
     console.log('📋 Task Results:\n');
     results.forEach(result => {
       const status = result.success ? '✅' : '❌';
-      console.log(`   ${status} ${result.taskId}: ${result.taskName} (${result.attempts} attempts)`);
+      console.log(
+        `   ${status} ${result.taskId}: ${result.taskName} (${result.attempts} attempts)`
+      );
     });
 
     console.log('');
@@ -521,12 +570,14 @@ class AgentOrchestrator {
 // CLI interface
 async function main() {
   const args = process.argv.slice(2);
-  
+
   const specIndex = args.indexOf('--spec');
   const taskIndex = args.indexOf('--task');
-  
+
   if (specIndex === -1 || !args[specIndex + 1]) {
-    console.error('Usage: node agent-orchestrator.js --spec path/to/spec.md [--task T001]');
+    console.error(
+      'Usage: node agent-orchestrator.js --spec path/to/spec.md [--task T001]'
+    );
     console.error('\nOptions:');
     console.error('  --spec    Path to specification file (.md or .json)');
     console.error('  --task    (Optional) Run specific task only');
@@ -539,7 +590,7 @@ async function main() {
   try {
     const orchestrator = new AgentOrchestrator({
       autoCreatePR: process.env.AUTO_CREATE_PR !== 'false',
-      autoContinue: process.env.AUTO_CONTINUE !== 'false'
+      autoContinue: process.env.AUTO_CONTINUE !== 'false',
     });
 
     const result = await orchestrator.run(specPath, specificTask);
@@ -558,4 +609,3 @@ if (require.main === module) {
 }
 
 module.exports = AgentOrchestrator;
-

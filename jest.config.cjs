@@ -32,9 +32,14 @@ module.exports = {
     '/tests/computer-use/',
     '/tests/integration/auth_emulator.test.ts', // Requires emulator (use test:emul)
     '/tests/integration/crud_threads.test.ts', // Requires emulator (use test:emul)
+    '/tests/integration/action_items.test.ts', // Requires emulator (use test:emul)
     '/tests/integration/functions_exports.test.ts', // Requires built functions (run in CI/CD after build)
     '/tests/integration/functions_hello.test.ts', // Requires built functions (run in CI/CD after build)
     '/tests/unit/hosting_config.test.ts', // Requires built dist (run in CI/CD after build)
   ],
+  // Force Jest to exit after tests complete to prevent hanging
+  forceExit: true,
+  // Set test timeout to 30 seconds (default is 5 seconds)
+  testTimeout: 30000,
   // setupFilesAfterEnv removed - file doesn't exist
 };

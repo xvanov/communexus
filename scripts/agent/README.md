@@ -53,6 +53,7 @@ Orchestrates the complete test environment:
 - Manages health checks and cleanup
 
 **Usage:**
+
 ```bash
 npm run agent:env:start    # Start environment
 npm run agent:env:status   # Check status
@@ -67,11 +68,13 @@ Combines two testing approaches for optimal coverage:
 - **Claude AI**: Intelligent visual validation with screenshots
 
 **Strategy:**
+
 - Run Appium tests first (fast feedback)
 - Run Claude AI visual checks if Appium passes
 - Run multi-device tests for messaging features
 
 **Usage:**
+
 ```bash
 npm run agent:test -- --spec path/to/test-spec.json
 ```
@@ -87,6 +90,7 @@ Aggregates all feedback for the AI agent:
 - AI-generated suggestions for fixes
 
 **Output:**
+
 - JSON feedback file
 - Markdown report
 - Screenshots organized by test
@@ -102,6 +106,7 @@ Main control loop that coordinates everything:
 - Creates PRs when tests pass
 
 **Usage:**
+
 ```bash
 # Run all tasks in a spec
 npm run agent:orchestrate -- --spec specs/005-new-feature/spec.md
@@ -167,6 +172,7 @@ npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 The agent will:
+
 1. Start Firebase emulators
 2. Boot iOS simulators
 3. Build and install the app
@@ -192,16 +198,19 @@ Specifications define what the agent should build and how to test it.
 **Description**: What this task accomplishes
 
 **Appium Tests**:
+
 - test-feature-visible.js
 - test-user-interaction.js
 
 **Visual Checks** (Claude AI):
+
 - "Is the button visible in the header?"
 - "Does the modal open correctly?"
 
 **Multi-Device**: Yes/No
 
 **Acceptance Criteria**:
+
 - [ ] Feature is visible
 - [ ] Tests pass
 - [ ] Performance is good
@@ -306,6 +315,7 @@ After each test run, the feedback collector generates:
 ### 2. Markdown Report (`feedback/agent/latest-report.md`)
 
 Human-readable report with:
+
 - Test summary
 - Failed tests with errors
 - Screenshots
@@ -429,6 +439,7 @@ npm run agent:orchestrate -- --spec specs/000-agent-system-test/spec.md
 ```
 
 Expected output:
+
 - Environment starts (Firebase + 2 simulators)
 - App builds and installs
 - Tests run (Appium + Claude)
@@ -469,22 +480,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Start Appium
         run: npm run appium:server &
-      
+
       - name: Run agent
         run: npm run agent:orchestrate -- --spec specs/my-spec/spec.md
         env:
-          AUTO_CREATE_PR: false  # Review before PR in CI
+          AUTO_CREATE_PR: false # Review before PR in CI
 ```
 
 ## Roadmap
 
 ### Phase 1: Core Infrastructure ✅
+
 - [x] Environment manager
 - [x] Hybrid test runner
 - [x] Feedback collector
@@ -492,18 +504,21 @@ jobs:
 - [x] Test specification format
 
 ### Phase 2: Enhanced Testing
+
 - [ ] Parallel test execution
 - [ ] Performance metrics collection
 - [ ] Video recording of test runs
 - [ ] Test result comparison
 
 ### Phase 3: Intelligence
+
 - [ ] AI-powered test generation from specs
 - [ ] Automatic bug fix suggestions
 - [ ] Learning from previous test runs
 - [ ] Predictive failure detection
 
 ### Phase 4: Scaling
+
 - [ ] Cloud device testing (BrowserStack, Sauce Labs)
 - [ ] Android support
 - [ ] Web browser testing
@@ -521,5 +536,4 @@ MIT - See LICENSE file.
 
 **Built for continuous AI-driven development** 🤖✨
 
-*Part of the Communexus project - AI-powered communication platform*
-
+_Part of the Communexus project - AI-powered communication platform_

@@ -2,16 +2,16 @@
 
 /**
  * Hybrid Test Runner
- * 
+ *
  * Combines two testing approaches for optimal coverage:
  * 1. Appium (Fast, deterministic, great for repeated actions)
  * 2. Claude AI (Intelligent, visual validation, self-healing)
- * 
+ *
  * Strategy:
  * - Use Appium for fast interaction tests (30-60 seconds)
  * - Use Claude for visual validation and complex scenarios
  * - Run multi-device tests for messaging features
- * 
+ *
  * Usage:
  *   node scripts/agent/hybrid-test-runner.js --spec path/to/spec.json
  */
@@ -31,10 +31,12 @@ class HybridTestRunner {
     this.config = {
       enableVisualChecks: config.enableVisualChecks !== false,
       enableMultiDevice: config.enableMultiDevice !== false,
-      screenshotDir: config.screenshotDir || path.join(process.cwd(), 'test-results/agent-feedback'),
+      screenshotDir:
+        config.screenshotDir ||
+        path.join(process.cwd(), 'test-results/agent-feedback'),
       claudeModel: config.claudeModel || 'claude-sonnet-4-20250514',
       appiumPort: config.appiumPort || 4723,
-      ...config
+      ...config,
     };
 
     // Initialize Claude AI if enabled
@@ -52,7 +54,7 @@ class HybridTestRunner {
     this.testResults = {
       fast: [],
       visual: [],
-      multiDevice: []
+      multiDevice: [],
     };
   }
 
@@ -66,7 +68,7 @@ class HybridTestRunner {
       taskName: taskSpec.name,
       timestamp: new Date().toISOString(),
       passed: false,
-      details: {}
+      details: {},
     };
 
     try {
@@ -74,26 +76,44 @@ class HybridTestRunner {
       if (taskSpec.appiumTests && taskSpec.appiumTests.length > 0) {
         console.log('⚡ Step 1: Running fast Appium tests...');
         results.details.fast = await this.runAppiumTests(taskSpec.appiumTests);
-        console.log(`✅ Fast tests: ${results.details.fast.passed}/${results.details.fast.total} passed\n`);
+        console.log(
+          `✅ Fast tests: ${results.details.fast.passed}/${results.details.fast.total} passed\n`
+        );
       }
 
       // 2. Run visual validation with Claude (if fast tests passed)
       if (this.config.enableVisualChecks && taskSpec.visualChecks) {
-        if (!results.details.fast || results.details.fast.passed === results.details.fast.total) {
+        if (
+          !results.details.fast ||
+          results.details.fast.passed === results.details.fast.total
+        ) {
           console.log('👁️  Step 2: Running visual validation with Claude...');
-          results.details.visual = await this.runVisualChecks(taskSpec.visualChecks);
-          console.log(`✅ Visual checks: ${results.details.visual.passed}/${results.details.visual.total} passed\n`);
+          results.details.visual = await this.runVisualChecks(
+            taskSpec.visualChecks
+          );
+          console.log(
+            `✅ Visual checks: ${results.details.visual.passed}/${results.details.visual.total} passed\n`
+          );
         } else {
-          console.log('⏭️  Step 2: Skipping visual checks (fast tests failed)\n');
-          results.details.visual = { skipped: true, reason: 'Fast tests failed' };
+          console.log(
+            '⏭️  Step 2: Skipping visual checks (fast tests failed)\n'
+          );
+          results.details.visual = {
+            skipped: true,
+            reason: 'Fast tests failed',
+          };
         }
       }
 
       // 3. Run multi-device messaging tests (if applicable)
       if (this.config.enableMultiDevice && taskSpec.multiDeviceTests) {
         console.log('📱📱 Step 3: Running multi-device messaging tests...');
-        results.details.multiDevice = await this.runMultiDeviceTests(taskSpec.multiDeviceTests);
-        console.log(`✅ Multi-device: ${results.details.multiDevice.passed}/${results.details.multiDevice.total} passed\n`);
+        results.details.multiDevice = await this.runMultiDeviceTests(
+          taskSpec.multiDeviceTests
+        );
+        console.log(
+          `✅ Multi-device: ${results.details.multiDevice.passed}/${results.details.multiDevice.total} passed\n`
+        );
       }
 
       // Calculate overall pass/fail
@@ -119,7 +139,7 @@ class HybridTestRunner {
       total: testConfigs.length,
       passed: 0,
       failed: 0,
-      tests: []
+      tests: [],
     };
 
     // Connect to first simulator
@@ -128,11 +148,11 @@ class HybridTestRunner {
 
     for (const testConfig of testConfigs) {
       console.log(`  Running: ${testConfig.name}...`);
-      
+
       try {
         const testResult = await this.runSingleAppiumTest(driver, testConfig);
         results.tests.push(testResult);
-        
+
         if (testResult.passed) {
           results.passed++;
           console.log(`  ✅ ${testConfig.name}`);
@@ -145,7 +165,7 @@ class HybridTestRunner {
         results.tests.push({
           name: testConfig.name,
           passed: false,
-          error: error.message
+          error: error.message,
         });
         console.log(`  ❌ ${testConfig.name}: ${error.message}`);
       }
@@ -159,7 +179,7 @@ class HybridTestRunner {
    */
   async runSingleAppiumTest(driver, testConfig) {
     const startTime = Date.now();
-    
+
     try {
       // Execute test steps
       for (const step of testConfig.steps) {
@@ -174,19 +194,22 @@ class HybridTestRunner {
       return {
         name: testConfig.name,
         passed: true,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     } catch (error) {
       // Take screenshot on failure
       const screenshot = await driver.takeScreenshot();
-      const screenshotPath = await this.saveScreenshot(screenshot, `appium-fail-${testConfig.name}`);
+      const screenshotPath = await this.saveScreenshot(
+        screenshot,
+        `appium-fail-${testConfig.name}`
+      );
 
       return {
         name: testConfig.name,
         passed: false,
         error: error.message,
         screenshot: screenshotPath,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
@@ -196,17 +219,19 @@ class HybridTestRunner {
    */
   async executeAppiumStep(driver, step) {
     switch (step.action) {
-      case 'tap':
+      case 'tap': {
         const element = await driver.$(`~${step.testID}`);
         await element.waitForDisplayed({ timeout: 5000 });
         await element.click();
         break;
+      }
 
-      case 'type':
+      case 'type': {
         const input = await driver.$(`~${step.testID}`);
         await input.waitForDisplayed({ timeout: 5000 });
         await input.setValue(step.text);
         break;
+      }
 
       case 'wait':
         await driver.pause(step.duration || 1000);
@@ -214,7 +239,7 @@ class HybridTestRunner {
 
       case 'swipe':
         await driver.execute('mobile: swipe', {
-          direction: step.direction || 'up'
+          direction: step.direction || 'up',
         });
         break;
 
@@ -228,21 +253,25 @@ class HybridTestRunner {
    */
   async executeAppiumAssertion(driver, assertion) {
     switch (assertion.type) {
-      case 'elementVisible':
+      case 'elementVisible': {
         const element = await driver.$(`~${assertion.testID}`);
         const isDisplayed = await element.isDisplayed();
         if (!isDisplayed) {
           throw new Error(`Element ${assertion.testID} not visible`);
         }
         break;
+      }
 
-      case 'elementText':
+      case 'elementText': {
         const textElement = await driver.$(`~${assertion.testID}`);
         const text = await textElement.getText();
         if (!text.includes(assertion.expectedText)) {
-          throw new Error(`Element text "${text}" does not contain "${assertion.expectedText}"`);
+          throw new Error(
+            `Element text "${text}" does not contain "${assertion.expectedText}"`
+          );
         }
         break;
+      }
 
       default:
         throw new Error(`Unknown assertion: ${assertion.type}`);
@@ -257,7 +286,7 @@ class HybridTestRunner {
       total: checks.length,
       passed: 0,
       failed: 0,
-      checks: []
+      checks: [],
     };
 
     const simulator = this.environment.simulators[0];
@@ -266,15 +295,22 @@ class HybridTestRunner {
       console.log(`  Checking: ${check.description}...`);
 
       try {
-        const screenshot = await this.takeSimulatorScreenshot(simulator.udid, `visual-${Date.now()}`);
-        const passed = await this.askClaude(screenshot, check.question, check.expectedAnswer);
+        const screenshot = await this.takeSimulatorScreenshot(
+          simulator.udid,
+          `visual-${Date.now()}`
+        );
+        const passed = await this.askClaude(
+          screenshot,
+          check.question,
+          check.expectedAnswer
+        );
 
         results.checks.push({
           description: check.description,
           question: check.question,
           expectedAnswer: check.expectedAnswer,
           passed,
-          screenshot: screenshot.path
+          screenshot: screenshot.path,
         });
 
         if (passed) {
@@ -289,7 +325,7 @@ class HybridTestRunner {
         results.checks.push({
           description: check.description,
           passed: false,
-          error: error.message
+          error: error.message,
         });
         console.log(`  ❌ ${check.description}: ${error.message}`);
       }
@@ -314,16 +350,16 @@ class HybridTestRunner {
               source: {
                 type: 'base64',
                 media_type: 'image/png',
-                data: screenshot.base64
-              }
+                data: screenshot.base64,
+              },
             },
             {
               type: 'text',
-              text: `${question}\n\nPlease answer with just "yes" or "no".`
-            }
-          ]
-        }
-      ]
+              text: `${question}\n\nPlease answer with just "yes" or "no".`,
+            },
+          ],
+        },
+      ],
     });
 
     const answer = response.content[0].text.toLowerCase().trim();
@@ -338,7 +374,7 @@ class HybridTestRunner {
       total: tests.length,
       passed: 0,
       failed: 0,
-      tests: []
+      tests: [],
     };
 
     // Get both simulators
@@ -346,7 +382,9 @@ class HybridTestRunner {
     const bob = this.environment.simulators.find(s => s.role === 'bob');
 
     if (!alice || !bob) {
-      throw new Error('Multi-device tests require two simulators (alice and bob)');
+      throw new Error(
+        'Multi-device tests require two simulators (alice and bob)'
+      );
     }
 
     // Get Appium drivers for both
@@ -377,7 +415,7 @@ class HybridTestRunner {
         results.tests.push({
           name: test.name,
           passed: false,
-          error: error.message
+          error: error.message,
         });
         console.log(`  ❌ ${test.name}: ${error.message}`);
       }
@@ -412,7 +450,10 @@ class HybridTestRunner {
 
       // Visual validation on bob's screen (if specified)
       if (test.bobVisualCheck) {
-        const screenshot = await this.takeSimulatorScreenshot(bob.simulator.udid, `multi-device-${test.name}`);
+        const screenshot = await this.takeSimulatorScreenshot(
+          bob.simulator.udid,
+          `multi-device-${test.name}`
+        );
         const passed = await this.askClaude(
           screenshot,
           test.bobVisualCheck.question,
@@ -427,12 +468,18 @@ class HybridTestRunner {
       return {
         name: test.name,
         passed: true,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     } catch (error) {
       // Take screenshots of both devices on failure
-      const aliceScreenshot = await this.takeSimulatorScreenshot(alice.simulator.udid, `alice-fail-${test.name}`);
-      const bobScreenshot = await this.takeSimulatorScreenshot(bob.simulator.udid, `bob-fail-${test.name}`);
+      const aliceScreenshot = await this.takeSimulatorScreenshot(
+        alice.simulator.udid,
+        `alice-fail-${test.name}`
+      );
+      const bobScreenshot = await this.takeSimulatorScreenshot(
+        bob.simulator.udid,
+        `bob-fail-${test.name}`
+      );
 
       return {
         name: test.name,
@@ -440,9 +487,9 @@ class HybridTestRunner {
         error: error.message,
         screenshots: {
           alice: aliceScreenshot.path,
-          bob: bobScreenshot.path
+          bob: bobScreenshot.path,
         },
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       };
     }
   }
@@ -468,8 +515,8 @@ class HybridTestRunner {
         'appium:bundleId': this.environment.appBundleId,
         'appium:noReset': true,
         'appium:fullReset': false,
-        'appium:autoAcceptAlerts': true
-      }
+        'appium:autoAcceptAlerts': true,
+      },
     });
 
     this.appiumDrivers[simulator.udid] = driver;
@@ -492,7 +539,7 @@ class HybridTestRunner {
     return {
       path: filepath,
       base64: imageBuffer.toString('base64'),
-      filename
+      filename,
     };
   }
 
@@ -515,7 +562,7 @@ class HybridTestRunner {
    */
   calculateOverallResult(details) {
     const categories = ['fast', 'visual', 'multiDevice'];
-    
+
     for (const category of categories) {
       const result = details[category];
       if (result && !result.skipped) {
@@ -533,17 +580,23 @@ class HybridTestRunner {
    */
   generateSummary(results) {
     const lines = [];
-    
+
     if (results.details.fast) {
-      lines.push(`Fast Tests: ${results.details.fast.passed}/${results.details.fast.total} passed`);
+      lines.push(
+        `Fast Tests: ${results.details.fast.passed}/${results.details.fast.total} passed`
+      );
     }
-    
+
     if (results.details.visual && !results.details.visual.skipped) {
-      lines.push(`Visual Checks: ${results.details.visual.passed}/${results.details.visual.total} passed`);
+      lines.push(
+        `Visual Checks: ${results.details.visual.passed}/${results.details.visual.total} passed`
+      );
     }
-    
+
     if (results.details.multiDevice) {
-      lines.push(`Multi-Device: ${results.details.multiDevice.passed}/${results.details.multiDevice.total} passed`);
+      lines.push(
+        `Multi-Device: ${results.details.multiDevice.passed}/${results.details.multiDevice.total} passed`
+      );
     }
 
     return lines.join(', ');
@@ -569,7 +622,7 @@ class HybridTestRunner {
 async function main() {
   const args = process.argv.slice(2);
   const specIndex = args.indexOf('--spec');
-  
+
   if (specIndex === -1 || !args[specIndex + 1]) {
     console.error('Usage: node hybrid-test-runner.js --spec path/to/spec.json');
     process.exit(1);
@@ -590,15 +643,23 @@ async function main() {
     const results = await runner.runTests(testSpec);
 
     // Print results
-    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log(
+      '\n═══════════════════════════════════════════════════════════'
+    );
     console.log(results.passed ? '✅ TESTS PASSED' : '❌ TESTS FAILED');
     console.log('═══════════════════════════════════════════════════════════');
     console.log(`Task: ${results.taskName}`);
     console.log(`Summary: ${results.summary}`);
-    console.log('═══════════════════════════════════════════════════════════\n');
+    console.log(
+      '═══════════════════════════════════════════════════════════\n'
+    );
 
     // Save results
-    const resultsPath = path.join(process.cwd(), 'test-results/agent-feedback', 'latest-results.json');
+    const resultsPath = path.join(
+      process.cwd(),
+      'test-results/agent-feedback',
+      'latest-results.json'
+    );
     await fs.mkdir(path.dirname(resultsPath), { recursive: true });
     await fs.writeFile(resultsPath, JSON.stringify(results, null, 2));
 
@@ -615,4 +676,3 @@ if (require.main === module) {
 }
 
 module.exports = HybridTestRunner;
-

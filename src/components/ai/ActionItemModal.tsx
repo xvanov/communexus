@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import { AIActionItem } from '../../types/AIFeatures';
 import { ActionItemList } from './ActionItemList';
 
@@ -14,14 +7,18 @@ interface ActionItemModalProps {
   visible: boolean;
   onClose: () => void;
   actionItems: AIActionItem[];
+  threadId: string;
   onActionItemPress?: (actionItem: AIActionItem) => void;
+  onActionItemUpdate?: (actionItem: AIActionItem) => void;
 }
 
 export const ActionItemModal: React.FC<ActionItemModalProps> = ({
   visible,
   onClose,
   actionItems,
+  threadId,
   onActionItemPress,
+  onActionItemUpdate,
 }) => {
   return (
     <Modal
@@ -42,11 +39,13 @@ export const ActionItemModal: React.FC<ActionItemModalProps> = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.content}>
+        <View style={styles.content}>
           {actionItems.length > 0 ? (
             <ActionItemList
               actionItems={actionItems}
+              threadId={threadId}
               {...(onActionItemPress && { onActionItemPress })}
+              {...(onActionItemUpdate && { onActionItemUpdate })}
             />
           ) : (
             <View style={styles.emptyContainer}>
@@ -56,7 +55,7 @@ export const ActionItemModal: React.FC<ActionItemModalProps> = ({
               </Text>
             </View>
           )}
-        </ScrollView>
+        </View>
       </View>
     </Modal>
   );

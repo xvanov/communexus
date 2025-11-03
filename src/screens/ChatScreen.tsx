@@ -23,6 +23,10 @@ import { ActionItemModal } from '../components/ai/ActionItemModal';
 import { ProactiveSuggestions } from '../components/ai/ProactiveSuggestions';
 import { AIActionItem, ProactiveSuggestion } from '../types/AIFeatures';
 import { Colors, Spacing, BorderRadius } from '../utils/theme';
+import {
+  saveActionItems,
+  getActionItemsForThread,
+} from '../services/actionItems';
 
 export default function ChatScreen({ route, navigation }: any) {
   const { threadId, thread, contact } = route.params as {
@@ -42,6 +46,22 @@ export default function ChatScreen({ route, navigation }: any) {
 
   // Don't show notifications for messages in this thread (user is viewing it)
   useInAppNotifications(threadId);
+
+  // Load action items from Firestore on mount
+  useEffect(() => {
+    const loadActionItems = async () => {
+      try {
+        const items = await getActionItemsForThread(threadId);
+        if (items.length > 0) {
+          setActionItems(items);
+        }
+      } catch (error) {
+        console.error('Error loading action items:', error);
+      }
+    };
+
+    loadActionItems();
+  }, [threadId]);
 
   // Handle case where thread is undefined (navigating from contacts)
   const safeThread = thread || {
@@ -122,7 +142,44 @@ export default function ChatScreen({ route, navigation }: any) {
       const data = result.result || result.data;
       if (data.success && data.actionItems) {
         console.log('📋 Found action items:', data.actionItems.length);
-        setActionItems(data.actionItems);
+
+        // Ensure all action items have IDs and required fields
+        const processedItems: AIActionItem[] = data.actionItems.map(
+          (item: any, index: number) => {
+            // Safely parse createdAt date
+            let createdAt: Date;
+            try {
+              if (item.createdAt) {
+                const parsed = new Date(item.createdAt);
+                createdAt = isNaN(parsed.getTime()) ? new Date() : parsed;
+              } else {
+                createdAt = new Date();
+              }
+            } catch {
+              createdAt = new Date();
+            }
+
+            return {
+              ...item,
+              id: item.id || `ai-${threadId}-${Date.now()}-${index}`,
+              threadId: item.threadId || threadId,
+              createdAt,
+              status: item.status || 'pending',
+              priority: item.priority || 'medium',
+            };
+          }
+        );
+
+        setActionItems(processedItems);
+
+        // Save to Firestore
+        try {
+          await saveActionItems(processedItems);
+          console.log('✅ Action items saved to Firestore');
+        } catch (error) {
+          console.error('❌ Error saving action items to Firestore:', error);
+        }
+
         setShowActionItems(true);
       } else {
         console.error('❌ No action items found:', data.error);
@@ -342,9 +399,16 @@ export default function ChatScreen({ route, navigation }: any) {
         visible={showActionItems}
         onClose={() => setShowActionItems(false)}
         actionItems={actionItems}
+        threadId={threadId}
         onActionItemPress={item => {
           console.log('Action item pressed:', item);
           // Could navigate to message or mark complete
+        }}
+        onActionItemUpdate={updatedItem => {
+          // Update local state when action item is updated
+          setActionItems(prev =>
+            prev.map(item => (item.id === updatedItem.id ? updatedItem : item))
+          );
         }}
       />
     </KeyboardAvoidingView>

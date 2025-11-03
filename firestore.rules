@@ -59,5 +59,32 @@ service cloud.firestore {
     match /notifications/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    
+    // Action Items - users can access action items for threads they participate in
+    match /actionItems/{actionItemId} {
+      // Allow read: For list queries, check thread participation per document
+      // For non-existent documents, allow read (for existence checks via getDoc)
+      allow read: if request.auth != null && (
+        // Allow read if document doesn't exist (for single document existence checks)
+        !exists(/databases/$(database)/documents/actionItems/$(actionItemId)) ||
+        // For existing documents in queries, verify user is participant in thread
+        // Note: resource.data is guaranteed to exist for existing documents
+        (resource != null &&
+         resource.data != null &&
+         resource.data.threadId != null &&
+         exists(/databases/$(database)/documents/threads/$(resource.data.threadId)) &&
+         request.auth.uid in get(/databases/$(database)/documents/threads/$(resource.data.threadId)).data.participants)
+      );
+      
+      // Allow create if user is a participant in the thread
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/threads/$(request.resource.data.threadId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/threads/$(request.resource.data.threadId)).data.participants;
+      
+      // Allow update/delete if user is a participant in the thread
+      allow update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/threads/$(resource.data.threadId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/threads/$(resource.data.threadId)).data.participants;
+    }
   }
 }
