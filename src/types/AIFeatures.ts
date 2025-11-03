@@ -15,7 +15,7 @@ export namespace AIFeatures {
   export interface ActionItem {
     id: string;
     threadId: string;
-    messageId: string;
+    messageId?: string; // Optional - may not always have source message
     task: string;
     text?: string;
     assignedTo?: string;
@@ -23,6 +23,9 @@ export namespace AIFeatures {
     priority: PriorityLevel;
     status: 'pending' | 'completed';
     createdAt: Date;
+    completedAt?: Date; // Date when task was completed
+    completedBy?: string; // User ID who completed the task
+    updatedAt?: Date; // Last update timestamp
   }
 
   export interface Priority {
@@ -100,10 +103,13 @@ export interface Decision {
 export interface ActionItem {
   id: string;
   threadId: string;
-  messageId: string;
+  messageId?: string; // Optional - may not always have source message
   task: string;
   assignedTo?: string;
   dueDate?: Date;
   status: 'pending' | 'completed';
   createdAt: Date;
+  completedAt?: Date; // Date when task was completed
+  completedBy?: string; // User ID who completed the task
+  updatedAt?: Date; // Last update timestamp
 }
