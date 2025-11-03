@@ -31,10 +31,15 @@ const TEST_USER_ID = 'test-user-action-items';
 describe('Action Items (Todo List) Integration Tests', () => {
   let testUserId: string;
   let db: any;
+  let auth: any;
 
   beforeAll(async () => {
+    // Increase timeout for setup
+    jest.setTimeout(30000);
+
     // Initialize Firebase (this will connect to emulators if running)
-    const { auth } = await initializeFirebase({ useEmulator: true });
+    const { auth: authInstance } = await initializeFirebase({ useEmulator: true });
+    auth = authInstance;
     db = await getDb();
 
     // Create test user
@@ -52,14 +57,28 @@ describe('Action Items (Todo List) Integration Tests', () => {
           TEST_USER_EMAIL,
           TEST_USER_PASSWORD
         );
+      } else {
+        throw error;
       }
     }
 
-    const user = auth.currentUser;
-    testUserId = user?.uid || TEST_USER_ID;
+    // Wait for auth state to be fully established
+    let user = auth.currentUser;
+    let retries = 0;
+    while (!user && retries < 10) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      user = auth.currentUser;
+      retries++;
+    }
 
-    // Wait a moment to ensure auth state is fully set
-    await new Promise(resolve => setTimeout(resolve, 100));
+    if (!user) {
+      throw new Error('Failed to authenticate test user');
+    }
+
+    testUserId = user.uid;
+
+    // Wait a moment to ensure auth state is fully propagated
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Create a test thread that the user participates in
     const threadRef = doc(db, 'threads', TEST_THREAD_ID);
@@ -87,14 +106,44 @@ describe('Action Items (Todo List) Integration Tests', () => {
     });
 
     // Wait a moment to ensure thread is written
-    await new Promise(resolve => setTimeout(resolve, 200));
-  });
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }, 30000); // 30 second timeout for beforeAll
 
   beforeEach(async () => {
     // Clear action items for test thread before each test
     // Note: In a real scenario, you'd want to clean up test data
     // For now, we'll use unique IDs per test
   });
+
+  afterAll(async () => {
+    // Close Firestore connections to allow Jest to exit
+    try {
+      if (db) {
+        // Disable network to stop all Firestore connections
+        const { disableNetwork } = await import('firebase/firestore');
+        try {
+          await disableNetwork(db);
+        } catch (e) {
+          // Network might already be disabled, ignore
+        }
+      }
+      // Sign out user to clean up auth state
+      if (auth) {
+        try {
+          await auth.signOut();
+        } catch (e) {
+          // Ignore sign out errors
+        }
+      }
+      // Small delay to ensure connections are closed
+      await new Promise(resolve => setTimeout(resolve, 200));
+    } catch (error) {
+      // Ignore cleanup errors - just log them
+      if (error instanceof Error) {
+        console.warn('Cleanup error (ignored):', error.message);
+      }
+    }
+  }, 10000); // 10 second timeout for cleanup
 
   describe('Action Item CRUD Operations', () => {
     it('should save a single action item to Firestore', async () => {
@@ -566,3 +615,4 @@ describe('Action Items (Todo List) Integration Tests', () => {
     });
   });
 });
+

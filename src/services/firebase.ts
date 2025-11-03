@@ -97,14 +97,22 @@ const performInitialization = async (
     // Check if emulators are actually running
     const emulatorsRunning = await checkEmulatorsRunning();
     const forceEmulators = getEnvFlag('EXPO_PUBLIC_FORCE_EMULATORS', false);
+    // If useEmulator is explicitly set to true, always use emulator regardless of check
     const shouldUseEmulator =
-      config?.useEmulator ??
-      (forceEmulators ||
-        (emulatorsRunning
-          ? true
-          : isRealDevice()
-            ? false
-            : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true)));
+      config?.useEmulator === true
+        ? true
+        : config?.useEmulator === false
+          ? false
+          : forceEmulators ||
+            (emulatorsRunning
+              ? true
+              : isRealDevice()
+                ? false
+                : getEnvFlag('EXPO_PUBLIC_USE_EMULATORS', true));
+    
+    // If explicitly using emulator, assume they're running (for tests)
+    // This allows tests to force emulator connection even if check fails
+    const shouldConnectEmulator = shouldUseEmulator && (config?.useEmulator === true || emulatorsRunning);
 
     console.log('🔥 Firebase config:', {
       platform: Platform.OS,
@@ -121,14 +129,18 @@ const performInitialization = async (
       console.log('☁️ WILL USE PRODUCTION FIREBASE');
     }
 
+    // Determine if we're in Node.js/test environment
+    const isNodeEnv = typeof process !== 'undefined' && process.versions?.node;
+    const isTestEnv = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined;
+
     app =
       getApps()[0] ||
       initializeApp({
         apiKey: shouldUseEmulator
-          ? 'AIzaSyC-fake-key-for-emulator'
+          ? 'fake-api-key-for-emulator'
           : process.env.FIREBASE_API_KEY || 'AIzaSyC-fake-key-for-emulator',
         authDomain: shouldUseEmulator
-          ? 'demo-communexus.firebaseapp.com'
+          ? 'localhost'
           : process.env.FIREBASE_AUTH_DOMAIN ||
             'demo-communexus.firebaseapp.com',
         projectId: shouldUseEmulator
@@ -144,8 +156,9 @@ const performInitialization = async (
       });
 
     // Initialize Auth with platform-specific persistence
-    if (Platform.OS === 'web') {
-      // For web, use regular getAuth
+    // In Node.js/test environment, always use getAuth
+    if (isNodeEnv || isTestEnv || Platform.OS === 'web') {
+      // For web/Node.js/test, use regular getAuth
       auth = getAuth(app);
     } else {
       // For React Native, use initializeAuth
@@ -169,17 +182,27 @@ const performInitialization = async (
     // Initialize Functions
     functionsClient = getFunctions(app);
 
-    // Connect to emulators if needed
-    if (shouldUseEmulator && emulatorsRunning) {
+    // Connect to emulators if needed - MUST connect Auth emulator BEFORE any auth operations
+    if (shouldConnectEmulator) {
       const host = getEmulatorHost();
 
+      // CRITICAL: Connect Auth emulator FIRST, before any auth operations
       try {
-        connectAuthEmulator(auth, `http://${host}:9099`, {
-          disableWarnings: true,
-        });
-        console.log('✅ Connected to Auth emulator');
-      } catch (connectError) {
-        console.log('Auth emulator connection skipped:', connectError);
+        // Check if already connected to avoid "already-in-use" error
+        if (!(auth as any)._delegate?._config?.emulator) {
+          connectAuthEmulator(auth, `http://${host}:9099`, {
+            disableWarnings: true,
+          });
+          console.log('✅ Connected to Auth emulator');
+        }
+      } catch (connectError: any) {
+        // If already connected, that's fine
+        if (connectError?.message?.includes('already') || 
+            connectError?.code === 'auth/emulator-config-failed') {
+          console.log('ℹ️  Auth emulator already connected');
+        } else {
+          console.log('Auth emulator connection skipped:', connectError);
+        }
       }
 
       try {
