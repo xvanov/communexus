@@ -1,0 +1,226 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.2</storyId>
+    <title>SMS Channel Adapter (Twilio Integration)</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 16:12:24</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-sms-channel-adapter-twilio-integration.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>property manager</asA>
+    <iWant>to send and receive SMS messages via Twilio</iWant>
+    <soThat>I can communicate with tenants via their phone numbers</soThat>
+    <tasks>
+      <task id="1" ac="1">Integrate and configure Twilio SDK
+        - Install Twilio SDK: npm install twilio@^4.19.0
+        - Create Twilio configuration service: src/services/channels/twilioConfig.ts
+        - Define Twilio credentials interface (accountSid, authToken, phoneNumber)
+        - Create Twilio client initialization function
+        - Add environment variable support for Twilio credentials
+        - Write configuration documentation
+      </task>
+      <task id="2" ac="2">Implement SMS channel adapter
+        - Create src/services/channels/sms.ts with TwilioSMSAdapter class
+        - Implement ChannelAdapter interface (send, receive, getStatus methods)
+        - Add id and type properties ('sms')
+        - Initialize Twilio client in constructor
+        - Write JSDoc comments for all methods
+      </task>
+      <task id="3" ac="3">Implement send SMS via Twilio API
+        - Implement send() method in TwilioSMSAdapter
+        - Convert UnifiedMessage to Twilio message format
+        - Extract recipient phone number from recipientIdentifier
+        - Extract message text from UnifiedMessage
+        - Call Twilio API to send SMS
+        - Convert Twilio response to ChannelMessageResult
+        - Map Twilio message SID to channelMessageId
+        - Handle Twilio API errors
+      </task>
+      <task id="4" ac="4">Implement receive SMS webhook handler
+        - Create webhook handler function: functions/src/channels/sms.ts
+        - Validate Twilio webhook request signature
+        - Parse Twilio webhook payload
+        - Extract message data (From, To, Body, MessageSid, etc.)
+        - Handle delivery status updates
+        - Return appropriate HTTP response to Twilio
+        - Add error handling for invalid webhooks
+      </task>
+      <task id="5" ac="5">Convert inbound SMS to UnifiedMessage
+        - Implement receive() method in TwilioSMSAdapter
+        - Convert Twilio webhook payload to UnifiedMessage
+        - Map From phone number to senderIdentifier
+        - Map To phone number to recipientIdentifier
+        - Map Body to text
+        - Map MessageSid to id
+        - Map Timestamp to timestamp (convert from Twilio format)
+        - Set channel to 'sms'
+        - Set direction to 'incoming'
+        - Set status based on MessageStatus
+        - Store Twilio-specific data in metadata.channelSpecific
+      </task>
+      <task id="6" ac="6">Convert outbound UnifiedMessage to Twilio format
+        - Implement message conversion in send() method
+        - Extract recipientIdentifier as To phone number
+        - Extract text as message body
+        - Extract fromIdentifier or use configured Twilio phone number
+        - Handle metadata.channelSpecific for Twilio options (statusCallback, etc.)
+        - Validate phone number format before sending
+      </task>
+      <task id="7" ac="7">Implement error handling
+        - Handle invalid phone numbers (Twilio error 21211)
+        - Handle rate limit errors (Twilio error 20003)
+        - Handle carrier failures (Twilio error 30008)
+        - Handle unsubscribed numbers (Twilio error 21610)
+        - Map Twilio errors to appropriate error types
+        - Return error status in ChannelMessageResult
+        - Log errors for debugging
+        - Add retry logic for transient failures
+      </task>
+      <task id="8" ac="8">Support international phone numbers
+        - Use Twilio phone number validation (E.164 format)
+        - Parse phone numbers using Twilio helper or library
+        - Support country codes in phone number format
+        - Validate international format before sending
+        - Handle international formatting in receive() method
+        - Test with various international phone number formats
+      </task>
+      <task id="testing">Unit and integration tests
+        - Create test file: src/services/channels/__tests__/sms.test.ts
+        - Test TwilioSMSAdapter implements ChannelAdapter interface
+        - Test send() method converts UnifiedMessage to Twilio format
+        - Test receive() method converts Twilio webhook to UnifiedMessage
+        - Test error handling for invalid numbers
+        - Test error handling for rate limits
+        - Test international phone number support
+        - Create webhook handler tests: functions/src/channels/__tests__/sms.test.ts
+        - Test webhook signature validation
+        - Test webhook payload parsing
+        - Test delivery status update handling
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Twilio SDK integrated and configured</criterion>
+    <criterion id="2">SMS channel adapter implements ChannelAdapter interface</criterion>
+    <criterion id="3">Can send SMS messages via Twilio API</criterion>
+    <criterion id="4">Can receive SMS webhooks from Twilio</criterion>
+    <criterion id="5">Inbound SMS converted to UnifiedMessage format</criterion>
+    <criterion id="6">Outbound SMS converted from UnifiedMessage to Twilio format</criterion>
+    <criterion id="7">Error handling for invalid numbers, rate limits, carrier failures</criterion>
+    <criterion id="8">Support for international phone numbers</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" section="Story 1.2: SMS Channel Adapter (Twilio Integration)" title="Epic Breakdown">
+        Story requirements and acceptance criteria for SMS Channel Adapter. Establishes Twilio SMS integration for multi-channel messaging.
+      </doc>
+      <doc path="docs/architecture.md" section="Epic 3.1.2: SMS Integration (Twilio)" title="Decision Architecture">
+        SMS Integration architecture specification. TwilioSMSAdapter implementation with services in src/services/channels/sms.ts and webhook handler in functions/src/channels/sms.ts.
+      </doc>
+      <doc path="docs/architecture.md" section="Channel Providers" title="Decision Architecture">
+        Twilio SDK version requirements (v4.19.0+). Node.js SDK for SMS/voice integration with webhook support for inbound messages.
+      </doc>
+      <doc path="docs/architecture.md" section="Implementation Patterns" title="Decision Architecture">
+        Channel Adapter Pattern implementation example showing TwilioSMSAdapter implementation pattern with send(), receive(), and getStatus() methods.
+      </doc>
+      <doc path="docs/architecture.md" section="Security Architecture" title="Decision Architecture">
+        Twilio SMS authentication and credential storage. API Key + Auth Token stored in Firebase Secrets Manager (encrypted per organization). Initialize Twilio SDK with credentials in Cloud Functions.
+      </doc>
+      <doc path="docs/architecture.md" section="Project Structure" title="Decision Architecture">
+        Project structure showing SMS channel adapter at src/services/channels/sms.ts and webhook handler at functions/src/channels/sms.ts.
+      </doc>
+      <doc path="docs/PRD-Phase3-Addendum.md" section="Channel Abstraction Interface" title="PRD Phase 3 Addendum">
+        Phase 3 SMS channel requirements showing ChannelAdapter and UnifiedMessage structure for SMS integration.
+      </doc>
+      <doc path="docs/stories/1-1-channel-abstraction-interface-design.md" section="Dev Agent Record" title="Story 1.1 Completion Notes">
+        Learnings from Story 1.1: ChannelAdapter interface created at src/services/channels/adapter.ts, UnifiedMessage types at src/types/Channel.ts, barrel exports and documentation patterns established.
+      </doc>
+      <doc path="src/services/channels/README.md" section="Example Implementation" title="Channel Adapter Documentation">
+        Example TwilioSMSAdapter implementation showing send(), receive(), and getStatus() methods with message conversion logic.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/services/channels/adapter.ts" kind="interface" symbol="ChannelAdapter" lines="53-132" reason="ChannelAdapter interface from Story 1.1 - TwilioSMSAdapter must implement this interface with send(), receive(), and getStatus() methods" />
+      <artifact path="src/types/Channel.ts" kind="type-definition" symbol="UnifiedMessage, ChannelMessage, ChannelMessageResult, MessageStatus" lines="63-212" reason="UnifiedMessage interface and supporting types from Story 1.1 - use these types for message conversion between Twilio and UnifiedMessage format" />
+      <artifact path="src/services/channels/README.md" kind="documentation" symbol="TwilioSMSAdapter example" lines="58-121" reason="Example TwilioSMSAdapter implementation showing send(), receive(), and getStatus() methods - use as reference for implementation pattern" />
+      <artifact path="src/services/channels/index.ts" kind="barrel-export" symbol="channel exports" lines="1-10" reason="Channel services barrel export - export TwilioSMSAdapter from here" />
+      <artifact path="functions/src/index.ts" kind="entry-point" symbol="Cloud Functions exports" lines="1-12" reason="Cloud Functions entry point - register SMS webhook handler here" />
+      <artifact path="functions/src/sendMessageNotification.ts" kind="cloud-function" symbol="sendMessageNotification" lines="1-50" reason="Example Cloud Function structure - use as reference for webhook handler implementation pattern" />
+    </code>
+    <dependencies>
+      <ecosystem name="node" type="npm">
+        <package name="typescript" version="^5.0.0" />
+        <package name="react" version="19.1.0" />
+        <package name="react-native" version="0.81.5" />
+        <package name="expo" version="^54.0.18" />
+        <package name="firebase" version="^12.4.0" />
+        <package name="zustand" version="^5.0.8" />
+        <package name="twilio" version="^4.19.0" required="true" />
+      </ecosystem>
+      <ecosystem name="dev" type="npm">
+        <package name="@typescript-eslint/eslint-plugin" version="^8.46.2" />
+        <package name="@typescript-eslint/parser" version="^8.46.2" />
+        <package name="eslint" version="^9.38.0" />
+        <package name="jest" version="^29.0.0" />
+        <package name="ts-jest" version="^29.4.5" />
+        <package name="@types/jest" version="^29.0.0" />
+        <package name="@types/node" version="^24.9.1" />
+        <package name="firebase-admin" version="^12.6.0" />
+        <package name="firebase-functions" version="^5.0.0" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must implement ChannelAdapter interface from Story 1.1</constraint>
+    <constraint>Must use UnifiedMessage format for all messages</constraint>
+    <constraint>Must handle Twilio API errors gracefully (invalid numbers, rate limits, carrier failures)</constraint>
+    <constraint>Must support international phone numbers (E.164 format)</constraint>
+    <constraint>Webhook handler must validate Twilio request signature for security</constraint>
+    <constraint>Credentials must be encrypted and stored securely in Firebase Secrets Manager</constraint>
+    <constraint>Follow existing project patterns: services in src/services/, Cloud Functions in functions/src/, tests co-located in __tests__/</constraint>
+    <constraint>TypeScript strict mode must be satisfied</constraint>
+    <constraint>Must maintain backward compatibility with existing message structure where possible</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="ChannelAdapter" kind="TypeScript interface" signature="interface ChannelAdapter { id: string; type: 'sms' | 'messenger' | 'email' | 'in-app'; send(message: ChannelMessage): Promise&lt;ChannelMessageResult&gt;; receive(webhookPayload: any): UnifiedMessage; getStatus(messageId: string): Promise&lt;MessageStatus&gt;; }" path="src/services/channels/adapter.ts" />
+    <interface name="UnifiedMessage" kind="TypeScript interface" signature="interface UnifiedMessage { id: string; threadId: string; channel: 'sms' | 'messenger' | 'email' | 'in-app'; direction: 'incoming' | 'outgoing'; senderIdentifier: string; recipientIdentifier: string; text: string; timestamp: Date; status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'; metadata?: { channelSpecific?: any }; }" path="src/types/Channel.ts" />
+    <interface name="Twilio SDK" kind="REST API" signature="Twilio Client API: messages.create({ to, from, body }), messages(messageSid).fetch(), webhook validation" path="https://www.twilio.com/docs/libraries/node" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      TypeScript strict mode must be satisfied. All code must pass type checking with tsc --noEmit. Unit tests should verify TwilioSMSAdapter methods (send, receive, getStatus) with mocked Twilio SDK. Integration tests should verify webhook handler with test Twilio webhook payloads. Error handling tests should verify invalid numbers, rate limits, carrier failures. International phone number tests should verify E.164 format support. Webhook security tests should verify signature validation. Use Jest as the testing framework. Tests should be co-located with source files in __tests__/ directories.
+    </standards>
+    <locations>
+      <location>src/services/channels/__tests__/</location>
+      <location>functions/src/channels/__tests__/</location>
+    </locations>
+    <ideas>
+      <test ac="1" idea="Test Twilio SDK installation and client initialization with test credentials" />
+      <test ac="2" idea="Test TwilioSMSAdapter implements ChannelAdapter interface by creating instance and verifying methods" />
+      <test ac="3" idea="Test send() method converts UnifiedMessage to Twilio format and calls Twilio API with correct parameters" />
+      <test ac="4" idea="Test webhook handler validates Twilio request signature and parses webhook payload correctly" />
+      <test ac="5" idea="Test receive() method converts Twilio webhook payload to UnifiedMessage format with all fields mapped correctly" />
+      <test ac="6" idea="Test send() method converts UnifiedMessage to Twilio format with phone number validation" />
+      <test ac="7" idea="Test error handling for invalid phone numbers (Twilio error 21211), rate limits (error 20003), carrier failures (error 30008), unsubscribed numbers (error 21610)" />
+      <test ac="8" idea="Test international phone number support with E.164 format validation and parsing" />
+      <test general="true" idea="Test webhook signature validation with valid and invalid signatures" />
+      <test general="true" idea="Test delivery status update handling in webhook handler" />
+      <test general="true" idea="Test retry logic for transient failures" />
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

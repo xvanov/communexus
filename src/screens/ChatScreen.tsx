@@ -15,9 +15,11 @@ import { useAuth } from '../hooks/useAuth';
 import { useInAppNotifications } from '../hooks/useInAppNotifications';
 import { Message } from '../types/Message';
 import { Thread } from '../types/Thread';
+import type { ChannelType } from '../types/Channel';
 import { sendMessage, createOptimisticMessage } from '../services/messaging';
 import { MessageBubble } from '../components/chat/MessageBubble';
 import { ChatInput } from '../components/chat/ChatInput';
+import { ChannelFilter } from '../components/thread/ChannelFilter';
 import { SummaryModal } from '../components/ai/SummaryModal';
 import { ActionItemModal } from '../components/ai/ActionItemModal';
 import { ProactiveSuggestions } from '../components/ai/ProactiveSuggestions';
@@ -43,6 +45,7 @@ export default function ChatScreen({ route, navigation }: any) {
   const [loadingActions, setLoadingActions] = useState(false);
   const [suggestions, setSuggestions] = useState<ProactiveSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [selectedChannel, setSelectedChannel] = useState<ChannelType | 'all'>('all');
 
   // Don't show notifications for messages in this thread (user is viewing it)
   useInAppNotifications(threadId);
@@ -320,13 +323,27 @@ export default function ChatScreen({ route, navigation }: any) {
     }
   };
 
+  // Filter messages by selected channel
+  const filteredMessages = messages.filter(message => {
+    if (selectedChannel === 'all') {
+      return true;
+    }
+    return message.channel === selectedChannel;
+  });
+
+  // Get available channels from thread's channelSources
+  const availableChannels = safeThread.channelSources || [];
+
   const renderMessage = ({ item }: { item: Message }) => {
     const isOwn = item.senderId === user?.uid;
+    // TODO: Get organizationId from user context or thread when available
+    const organizationId = undefined; // Will be available once org context is implemented
     return (
       <MessageBubble
         message={item}
         isOwn={isOwn}
         isGroup={safeThread.isGroup}
+        organizationId={organizationId}
       />
     );
   };
@@ -362,9 +379,17 @@ export default function ChatScreen({ route, navigation }: any) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      {/* Channel Filter - show only if thread has multiple channels */}
+      {availableChannels.length > 1 && (
+        <ChannelFilter
+          selectedChannel={selectedChannel}
+          onChannelSelect={setSelectedChannel}
+          availableChannels={availableChannels}
+        />
+      )}
       <FlatList
         ref={flatListRef}
-        data={messages}
+        data={filteredMessages}
         keyExtractor={item => item.id}
         renderItem={renderMessage}
         style={styles.messagesList}

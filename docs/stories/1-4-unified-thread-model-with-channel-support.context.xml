@@ -1,0 +1,269 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.4</storyId>
+    <title>Unified Thread Model with Channel Support</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 17:05:58</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-4-unified-thread-model-with-channel-support.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>property manager</asA>
+    <iWant>messages from different channels to appear in the same thread</iWant>
+    <soThat>I can see the complete conversation history regardless of channel</soThat>
+    <tasks>
+      <task id="1" ac="1">Extend Thread data model with channelSources array
+        - Update src/types/Thread.ts to add channelSources field
+        - Define channelSources type as array of ChannelType ('sms' | 'messenger' | 'whatsapp' | 'email' | 'in-app')
+        - Update Thread interface to include channelSources: ChannelType[]
+        - Add JSDoc comments for channelSources field
+        - Export updated Thread type from index.ts
+      </task>
+      <task id="2" ac="2">Extend Message data model with channel field
+        - Update src/types/Message.ts to add channel field
+        - Import ChannelType from Channel.ts
+        - Add channel: ChannelType to Message interface
+        - Add channelMessageId?: string for external channel message IDs
+        - Add senderIdentifier: string (phone, email, Facebook ID)
+        - Add recipientIdentifier: string
+        - Add direction: 'incoming' | 'outgoing'
+        - Add channelMetadata?: Record&lt;string, any&gt; for channel-specific data
+        - Add JSDoc comments for new fields
+        - Export updated Message type from index.ts
+      </task>
+      <task id="3" ac="3">Update thread service to manage channelSources
+        - Update src/services/threads.ts createThread() to initialize channelSources array
+        - Add method to add channel source to thread: addChannelSource(threadId, channel)
+        - Add method to get channel sources for thread: getChannelSources(threadId)
+        - Update thread queries to include channelSources field
+        - Update thread updates to maintain channelSources array
+        - Add logic to automatically update channelSources when message from new channel is added
+        - Write unit tests for channelSources management
+      </task>
+      <task id="4" ac="2,3">Update message service to store channel information
+        - Update message service to store channel field in messages
+        - Update createMessage() to accept channel and related fields
+        - Update message conversion from UnifiedMessage to include channel data
+        - Ensure channel information is preserved when saving messages to Firestore
+        - Update message queries to include channel field
+        - Write unit tests for channel field in messages
+      </task>
+      <task id="5" ac="4">Create channel indicator icon component
+        - Create src/components/common/ChannelIcon.tsx component
+        - Implement channel icons for each channel type (SMS, Messenger, Email, In-App)
+        - Add props for channel type and size
+        - Add accessibility labels for screen readers
+        - Style icons consistently with app theme
+        - Export component from common/index.ts
+      </task>
+      <task id="6" ac="5">Create direction indicator component
+        - Create src/components/common/DirectionIndicator.tsx component
+        - Implement direction display logic (Incoming/Outgoing with identifier)
+        - Use IdentityService to resolve identifiers to user names when available
+        - Format phone numbers in readable format (E.164 to display format)
+        - Format email addresses appropriately
+        - Add accessibility labels
+        - Export component from common/index.ts
+      </task>
+      <task id="7" ac="4,5,7">Update MessageBubble to show channel indicators
+        - Update src/components/chat/MessageBubble.tsx to import ChannelIcon
+        - Update src/components/chat/MessageBubble.tsx to import DirectionIndicator
+        - Add channel icon display above or next to message bubble
+        - Add direction indicator display (incoming/outgoing with identifier)
+        - Update message bubble styling to accommodate channel indicators
+        - Ensure channel indicators work for all channel types
+        - Add unit tests for MessageBubble with channel indicators
+      </task>
+      <task id="8" ac="6">Ensure chronological sorting regardless of channel
+        - Review message sorting logic in message service
+        - Verify messages are sorted by timestamp (createdAt) regardless of channel
+        - Update message queries to order by timestamp ascending
+        - Ensure thread view displays messages in chronological order
+        - Test with messages from multiple channels in same thread
+        - Write unit tests for chronological sorting across channels
+      </task>
+      <task id="9" ac="7">Create channel badge component
+        - Create src/components/common/ChannelBadge.tsx component
+        - Combine ChannelIcon and DirectionIndicator into badge format
+        - Display channel icon with channel name and identifier
+        - Style badge to be visually distinct but not overwhelming
+        - Add hover/touch states for badges
+        - Add accessibility support
+        - Export component from common/index.ts
+        - Note: Full channel badge implementation will be in Story 1.7, this is basic version
+      </task>
+      <task id="10" ac="7">Update ThreadView to show channel badges
+        - Find or create ThreadView component (may be in different location)
+        - Import ChannelBadge component
+        - Update message rendering to include ChannelBadge for each message
+        - Position channel badges appropriately in message layout
+        - Ensure badges don't interfere with message readability
+        - Test with messages from multiple channels
+        - Update unit tests for ThreadView with channel badges
+      </task>
+      <task id="11" ac="8">Implement channel filter
+        - Create channel filter UI component: src/components/thread/ChannelFilter.tsx
+        - Display filter buttons for each channel type (SMS, Messenger, Email, In-App, All)
+        - Add state management for selected channel filter
+        - Implement filter logic to show/hide messages based on selected channel
+        - Add "All" option to show messages from all channels
+        - Update ThreadView to use ChannelFilter component
+        - Add visual indicator for active filter
+        - Persist filter selection per thread (optional)
+        - Add accessibility support
+        - Write unit tests for channel filter
+      </task>
+      <task id="12" ac="1,2">Update Firestore schema and rules
+        - Update Firestore schema documentation to include channelSources in threads
+        - Update Firestore schema documentation to include channel fields in messages
+        - Review and update firestore.rules if needed for channel-related queries
+        - Ensure security rules allow reading/writing channel information
+        - Add indexes for channel-based queries if needed
+        - Document schema changes in architecture.md
+      </task>
+      <task id="13" ac="1-8">Integration testing
+        - Test thread creation with channelSources initialization
+        - Test adding messages from multiple channels to same thread
+        - Test channelSources array updates when new channel messages arrive
+        - Test message display with channel indicators and direction indicators
+        - Test chronological sorting with mixed channel messages
+        - Test channel filter functionality
+        - Test with SMS adapter (Story 1.2) integration
+        - Test with identity linking (Story 1.3) integration
+        - Write integration tests for multi-channel thread scenarios
+      </task>
+      <task id="14" ac="1-8">Update documentation
+        - Update architecture.md with extended Thread and Message models
+        - Document channelSources field in Thread interface
+        - Document channel fields in Message interface
+        - Update data model documentation in PRD if needed
+        - Create usage examples for multi-channel threads
+        - Document channel filter usage
+      </task>
+      <task id="15" ac="1-8">Testing
+        - Unit tests for Thread type extensions
+        - Unit tests for Message type extensions
+        - Unit tests for thread service channelSources management
+        - Unit tests for message service channel field handling
+        - Unit tests for ChannelIcon component
+        - Unit tests for DirectionIndicator component
+        - Unit tests for ChannelBadge component
+        - Unit tests for ChannelFilter component
+        - Unit tests for MessageBubble with channel indicators
+        - Unit tests for ThreadView with channel badges
+        - Integration tests for multi-channel thread scenarios
+        - Test chronological sorting across channels
+        - Test channel filter functionality
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Thread data model extended with channelSources array</criterion>
+    <criterion id="2">Messages include channel field (sms, messenger, email, in-app)</criterion>
+    <criterion id="3">Thread can contain messages from multiple channels</criterion>
+    <criterion id="4">Messages display with channel indicator icon</criterion>
+    <criterion id="5">Messages display with direction indicator ("Incoming from [Phone: +1-555-0123]")</criterion>
+    <criterion id="6">Messages sorted chronologically regardless of channel</criterion>
+    <criterion id="7">Thread view shows channel badges for each message</criterion>
+    <criterion id="8">Channel filter allows filtering messages by channel</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 1.4" snippet="Story 1.4: Unified Thread Model with Channel Support - As a property manager, I want messages from different channels to appear in the same thread, so that I can see the complete conversation history regardless of channel." />
+      <doc path="docs/architecture.md" title="Architecture Documentation" section="Data Architecture" snippet="Extended Thread and Message data models with channelSources array and channel fields. Threads include channelSources: ('sms' | 'messenger' | 'whatsapp' | 'email' | 'in-app')[] and messages include channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, and channelMetadata fields." />
+      <doc path="docs/PRD-Phase3-Addendum.md" title="PRD Phase 3 Addendum" section="Extended Threads" snippet="Threads extended with channelSources array and organizationId, propertyId, projectId fields. Messages extended with channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, and channelMetadata fields." />
+      <doc path="docs/stories/1-1-channel-abstraction-interface-design.md" title="Story 1.1: Channel Abstraction Interface Design" section="Story" snippet="Defined ChannelAdapter interface and UnifiedMessage type with channel, direction, senderIdentifier, recipientIdentifier fields. Provides foundation for multi-channel messaging." />
+      <doc path="docs/stories/1-2-sms-channel-adapter-twilio-integration.md" title="Story 1.2: SMS Channel Adapter" section="Story" snippet="Implemented TwilioSMSAdapter implementing ChannelAdapter interface. Converts UnifiedMessage to/from Twilio format. Provides SMS channel implementation for testing multi-channel threads." />
+      <doc path="docs/stories/1-3-identity-linking-system.md" title="Story 1.3: Identity Linking System" section="Story" snippet="Implemented IdentityService for linking external identifiers (phone numbers, emails, Facebook IDs) to internal user identities. Provides lookupByIdentifier() method for resolving identifiers in direction indicators." />
+    </docs>
+    <code>
+      <artifact path="src/types/Thread.ts" kind="type-definition" symbol="Thread" lines="1-23" reason="Existing Thread interface - needs extension with channelSources: ChannelType[] field" />
+      <artifact path="src/types/Message.ts" kind="type-definition" symbol="Message" lines="1-22" reason="Existing Message interface - needs extension with channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, and channelMetadata fields" />
+      <artifact path="src/types/Channel.ts" kind="type-definition" symbol="ChannelType, UnifiedMessage, MessageDirection" lines="1-150" reason="ChannelType union type and UnifiedMessage interface - provides channel types and message format for multi-channel support" />
+      <artifact path="src/services/threads.ts" kind="service" symbol="createThread, getThread, updateThread" lines="1-327" reason="Thread service - needs extension to manage channelSources array, add methods for adding/getting channel sources" />
+      <artifact path="src/services/identity.ts" kind="service" symbol="IdentityService, lookupByIdentifier" lines="1-1238" reason="Identity service - provides lookupByIdentifier() method for resolving external identifiers to user names in direction indicators" />
+      <artifact path="src/hooks/useIdentity.ts" kind="hook" symbol="useLookupIdentity" lines="1-538" reason="Identity hooks - provides useLookupIdentity() hook for UI components to resolve identifiers" />
+      <artifact path="src/components/chat/MessageBubble.tsx" kind="component" symbol="MessageBubble" lines="1-150" reason="Message bubble component - needs update to display channel indicators and direction indicators" />
+      <artifact path="src/components/thread/ThreadItem.tsx" kind="component" symbol="ThreadItem" lines="1-188" reason="Thread item component - may need update to show channel sources in thread list" />
+      <artifact path="firestore.rules" kind="configuration" symbol="threads, messages" lines="1-171" reason="Firestore security rules - may need updates for channel-related queries and indexes" />
+    </code>
+    <dependencies>
+      <dependency ecosystem="node" package="react" version="19.1.0" />
+      <dependency ecosystem="node" package="react-native" version="0.81.5" />
+      <dependency ecosystem="node" package="firebase" version="^12.4.0" />
+      <dependency ecosystem="node" package="typescript" version="^5.0.0" />
+      <dependency ecosystem="node" package="@types/react" version="~19.1.10" />
+      <dependency ecosystem="node" package="@types/react-native" version="~0.73.0" />
+      <dependency ecosystem="node" package="jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="@types/jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="ts-jest" version="^29.4.5" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Thread data model must maintain backward compatibility with existing threads that don't have channelSources</constraint>
+    <constraint>Message data model must maintain backward compatibility with existing messages that don't have channel fields</constraint>
+    <constraint>channelSources array must be automatically updated when new channel messages are added to thread</constraint>
+    <constraint>Messages must be sorted chronologically by timestamp regardless of channel</constraint>
+    <constraint>Channel indicators must be accessible (screen reader support, keyboard navigation)</constraint>
+    <constraint>Direction indicators must use IdentityService to resolve identifiers to user names when available</constraint>
+    <constraint>Phone numbers must be formatted from E.164 to display format in direction indicators</constraint>
+    <constraint>Channel filter must support filtering by all channel types (SMS, Messenger, Email, In-App)</constraint>
+    <constraint>Channel badges must be visually distinct but not overwhelming</constraint>
+    <constraint>Firestore security rules must allow reading/writing channel information for thread participants</constraint>
+    <constraint>Firestore indexes may be needed for channel-based queries</constraint>
+    <constraint>All UI components must follow React Native styling patterns and theme consistency</constraint>
+    <constraint>All new components must have unit tests with Jest and React Testing Library</constraint>
+    <constraint>Integration tests must verify multi-channel thread scenarios work correctly</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="Thread" kind="TypeScript interface" signature="interface Thread { id: string; participants: string[]; participantDetails: { id: string; name: string; photoUrl?: string }[]; isGroup: boolean; groupName?: string; groupPhotoUrl?: string; lastMessage?: { text: string; senderId: string; senderName: string; timestamp: Date }; unreadCount: Record&lt;string, number&gt;; createdAt: Date; updatedAt: Date; channelSources?: ChannelType[]; }" path="src/types/Thread.ts" />
+    <interface name="Message" kind="TypeScript interface" signature="interface Message { id: string; threadId: string; senderId: string; senderName: string; senderPhotoUrl?: string; text: string; mediaUrl?: string; mediaType?: 'image' | 'video' | 'file'; status: 'sending' | 'sent' | 'delivered' | 'read'; deliveredTo: string[]; readBy: string[]; readTimestamps: Record&lt;string, Date&gt;; createdAt: Date; sentAt?: Date; deliveredAt?: Date; priority?: 'urgent' | 'high' | 'normal'; isDecision?: boolean; deleted?: boolean; channel?: ChannelType; channelMessageId?: string; senderIdentifier?: string; recipientIdentifier?: string; direction?: 'incoming' | 'outgoing'; channelMetadata?: Record&lt;string, any&gt;; }" path="src/types/Message.ts" />
+    <interface name="ChannelType" kind="TypeScript type" signature="type ChannelType = 'sms' | 'messenger' | 'email' | 'in-app';" path="src/types/Channel.ts" />
+    <interface name="UnifiedMessage" kind="TypeScript interface" signature="interface UnifiedMessage { id: string; threadId: string; channel: ChannelType; direction: 'incoming' | 'outgoing'; senderIdentifier: string; recipientIdentifier: string; text: string; timestamp: Date; status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'; metadata?: { channelSpecific?: any }; }" path="src/types/Channel.ts" />
+    <interface name="IdentityService.lookupByIdentifier" kind="TypeScript method" signature="lookupByIdentifier(externalIdentifier: string, organizationId: string): Promise&lt;{ userId: string; identityLink: IdentityLink } | null&gt;" path="src/services/identity.ts" />
+    <interface name="useLookupIdentity" kind="React hook" signature="useLookupIdentity(): { lookupByIdentifier: (identifier: string, orgId: string) =&gt; Promise&lt;{ userId: string; identityLink: IdentityLink } | null&gt;; loading: boolean; error: string | null; }" path="src/hooks/useIdentity.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing standards follow Jest framework with React Testing Library for component tests. Unit tests should cover all new functionality including type extensions, service methods, and UI components. Integration tests should verify multi-channel thread scenarios work correctly with SMS adapter and identity linking integration. All tests should use TypeScript and follow existing test patterns in src/services/__tests__/ and src/hooks/__tests__/ directories.
+    </standards>
+    <locations>
+      - src/services/__tests__/ - Unit tests for thread and message service extensions
+      - src/hooks/__tests__/ - Unit tests for hooks (if new hooks are created)
+      - src/components/common/__tests__/ - Unit tests for ChannelIcon, DirectionIndicator, ChannelBadge components
+      - src/components/thread/__tests__/ - Unit tests for ChannelFilter component
+      - src/components/chat/__tests__/ - Unit tests for MessageBubble component updates
+      - tests/integration/ - Integration tests for multi-channel thread scenarios
+    </locations>
+    <ideas>
+      <test ac="1">Test Thread type extension with channelSources field - verify channelSources array is optional and defaults to empty array</test>
+      <test ac="2">Test Message type extension with channel fields - verify all new fields are optional for backward compatibility</test>
+      <test ac="3">Test thread service channelSources management - verify addChannelSource() adds channel to array, getChannelSources() returns array, automatic updates when messages added</test>
+      <test ac="2,3">Test message service channel field handling - verify channel information is stored and retrieved correctly</test>
+      <test ac="4">Test ChannelIcon component - verify icons render correctly for each channel type, accessibility labels work</test>
+      <test ac="5">Test DirectionIndicator component - verify direction display logic, identifier formatting, IdentityService integration</test>
+      <test ac="7">Test ChannelBadge component - verify badge combines icon and indicator correctly, styling is appropriate</test>
+      <test ac="8">Test ChannelFilter component - verify filter buttons work, filter logic shows/hides messages correctly, "All" option works</test>
+      <test ac="4,5,7">Test MessageBubble with channel indicators - verify channel indicators display correctly, don't interfere with message text</test>
+      <test ac="7">Test ThreadView with channel badges - verify badges display for each message, positioning is correct</test>
+      <test ac="6">Test chronological sorting - verify messages from multiple channels are sorted by timestamp regardless of channel</test>
+      <test ac="1-8">Integration test: Create thread with SMS message, add Messenger message, verify channelSources updated, verify chronological sorting, verify channel filter works</test>
+      <test ac="1-8">Integration test: Test with Story 1.2 SMS adapter - verify SMS messages appear in thread with correct channel indicators</test>
+      <test ac="1-8">Integration test: Test with Story 1.3 Identity service - verify direction indicators resolve identifiers to user names correctly</test>
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

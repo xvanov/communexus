@@ -1,0 +1,61 @@
+{
+  "repository_type": "multi-part",
+  "parts": [
+    {
+      "part_id": "mobile",
+      "name": "Mobile Application",
+      "type": "mobile",
+      "root_path": "/Users/kalin.ivanov/rep/communexus/main",
+      "project_type_id": "mobile",
+      "display_name": "Mobile App (React Native/Expo)",
+      "entry_point": "index.js",
+      "description": "React Native/Expo cross-platform mobile application"
+    },
+    {
+      "part_id": "backend",
+      "name": "Backend Functions",
+      "type": "backend",
+      "root_path": "/Users/kalin.ivanov/rep/communexus/main/functions",
+      "project_type_id": "backend",
+      "display_name": "Backend Functions (Firebase Cloud Functions)",
+      "entry_point": "src/index.ts",
+      "description": "Firebase Cloud Functions for server-side logic and AI services"
+    }
+  ],
+  "integration_points": [
+    {
+      "from": "mobile",
+      "to": "backend",
+      "type": "Firebase Cloud Functions",
+      "protocol": "HTTP",
+      "description": "Mobile app calls Cloud Functions for AI features and message routing"
+    },
+    {
+      "from": "mobile",
+      "to": "backend",
+      "type": "Firestore",
+      "protocol": "Real-time sync",
+      "description": "Shared database for messages, threads, and user data"
+    },
+    {
+      "from": "mobile",
+      "to": "backend",
+      "type": "Firebase Authentication",
+      "protocol": "OAuth/Firebase Auth",
+      "description": "User authentication and identity management"
+    },
+    {
+      "from": "mobile",
+      "to": "backend",
+      "type": "Firebase Storage",
+      "protocol": "HTTP",
+      "description": "Media file storage and retrieval"
+    }
+  ]
+}
+
+
+
+
+
+

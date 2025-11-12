@@ -1,0 +1,182 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>7</storyId>
+    <title>Channel Badge UI Component</title>
+    <status>drafted</status>
+    <generatedAt>2025-01-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-7-channel-badge-ui-component.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>property manager</asA>
+    <iWant>to see which channel each message came from</iWant>
+    <soThat>I can understand the communication context</soThat>
+    <tasks>
+      <task id="1" ac="1,5">Enhance ChannelBadge component styling and layout</task>
+      <task id="2" ac="2">Enhance ChannelBadge to display channel type and identifier prominently</task>
+      <task id="3" ac="3">Ensure direction display is clear and prominent</task>
+      <task id="4" ac="4">Integrate ChannelBadge into message list components</task>
+      <task id="5" ac="5">Ensure consistent styling with app design system</task>
+      <task id="6" ac="6">Implement accessibility support</task>
+      <task id="7" ac="7">Ensure responsive design for mobile and desktop</task>
+      <task id="8" ac="2">Update ChannelBadge to use IdentityService for name resolution</task>
+      <task id="9" ac="all">Write unit tests for ChannelBadge component</task>
+      <task id="10" ac="4">Integration testing with message list</task>
+      <task id="11" ac="all">Documentation and code cleanup</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">ChannelBadge component created with channel icons (📱 SMS, 💬 Messenger, 📧 Email)</ac>
+    <ac id="2">Component displays channel type and identifier (phone number, email, name)</ac>
+    <ac id="3">Component shows direction (incoming/outgoing)</ac>
+    <ac id="4">Component integrated into message list</ac>
+    <ac id="5">Component styled consistently with app design</ac>
+    <ac id="6">Component accessible (screen reader support)</ac>
+    <ac id="7">Component responsive (mobile and desktop)</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" section="Story 1.7" title="Epic Breakdown">
+        Story 1.7: Channel Badge UI Component. As a property manager, I want to see which channel each message came from, so that I can understand the communication context. Acceptance criteria include channel icons, identifier display, direction indicators, integration into message list, styling consistency, accessibility, and responsiveness.
+      </doc>
+      <doc path="docs/architecture.md" section="Phase 3.1: Multi-Channel Foundation" title="Architecture">
+        Channel abstraction architecture with adapter pattern. Channel adapters normalize external APIs to UnifiedMessage format. UI components extend existing MessageBubble and ThreadView components.
+      </doc>
+      <doc path="docs/architecture.md" section="Data Architecture" title="Data Models">
+        Extended Message and Thread data models with channel fields. Messages include channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, and channelMetadata fields. Threads include channelSources array.
+      </doc>
+      <doc path="docs/PRD-Phase3-Addendum.md" section="Feature 3.1: Multi-Channel Messaging Wrapper" title="PRD">
+        Multi-channel messaging requirements. Unified thread model with channel support. Each message displays channel indicator icon, direction indicator, timestamp, and status per channel capabilities.
+      </doc>
+      <doc path="docs/stories/1-4-unified-thread-model-with-channel-support.md" section="Dev Agent Record" title="Previous Story Learnings">
+        ChannelBadge component basic version exists at src/components/common/ChannelBadge.tsx. ChannelIcon and DirectionIndicator components available. Components use theme utilities and include accessibility labels. Full channel badge implementation needed in Story 1.7.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/components/common/ChannelBadge.tsx" kind="component" symbol="ChannelBadge">
+        Basic ChannelBadge component that combines ChannelIcon and DirectionIndicator. Needs enhancement for styling, identifier display, and full integration. Currently uses View with ChannelIcon and DirectionIndicator subcomponents.
+      </artifact>
+      <artifact path="src/components/common/ChannelIcon.tsx" kind="component" symbol="ChannelIcon" lines="1-95">
+        Channel icon component with icons for SMS (📱), Messenger (💬), Email (📧), and In-App (💬). Supports small, medium, and large sizes. Includes accessibility labels and proper styling.
+      </artifact>
+      <artifact path="src/components/common/DirectionIndicator.tsx" kind="component" symbol="DirectionIndicator" lines="1-160">
+        Direction indicator component that displays "Incoming from [Channel: Identifier]" or "Outgoing to [Channel: Identifier]". Formats phone numbers from E.164 to display format. Integrates with IdentityService via useLookupIdentity hook.
+      </artifact>
+      <artifact path="src/components/chat/MessageBubble.tsx" kind="component" symbol="MessageBubble" lines="1-180">
+        Message bubble component that currently displays ChannelIcon and DirectionIndicator separately above message bubble. Needs integration with enhanced ChannelBadge component. Shows channel indicators when message has channel information.
+      </artifact>
+      <artifact path="src/services/identity.ts" kind="service" symbol="IdentityService" lines="1-100">
+        Identity service for resolving external identifiers (phone, email, Facebook ID) to user IDs and names. Provides lookupByIdentifier method and caching for performance. Used by DirectionIndicator for name resolution.
+      </artifact>
+      <artifact path="src/hooks/useIdentity.ts" kind="hook" symbol="useLookupIdentity">
+        React hook for identity lookup in components. Provides lookupByIdentifier function for resolving identifiers to user names. Used by DirectionIndicator component.
+      </artifact>
+      <artifact path="src/types/Channel.ts" kind="type" symbol="ChannelType">
+        Channel type definitions: 'sms' | 'messenger' | 'email' | 'in-app'. UnifiedMessage interface for channel messages.
+      </artifact>
+      <artifact path="src/types/Message.ts" kind="type" symbol="Message" lines="1-78">
+        Message interface with channel fields: channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, channelMetadata. All fields optional for backward compatibility.
+      </artifact>
+      <artifact path="src/utils/theme.ts" kind="utility" symbol="Colors, Spacing, Typography" lines="1-127">
+        App design system with Colors (background, primary, text, bubble), Spacing (8px base unit), Typography (h1-h3, body, caption, button), BorderRadius, and Shadows. Used by all UI components for consistent styling.
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="react" version="19.1.0"/>
+        <package name="react-native" version="0.81.5"/>
+        <package name="expo" version="^54.0.18"/>
+        <package name="typescript" version="^5.0.0"/>
+        <package name="@react-native-async-storage/async-storage" version="^2.2.0"/>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Enhancement vs. Recreation: ChannelBadge component already exists from Story 1.4, so focus on enhancement rather than creating from scratch</constraint>
+    <constraint>Styling Consistency: Badge must match app design system (Colors, Spacing, Typography from src/utils/theme.ts) and be visually distinct but not overwhelming</constraint>
+    <constraint>Accessibility First: Badge must be fully accessible with descriptive labels that include channel type, direction, and identifier information</constraint>
+    <constraint>Backward Compatibility: All channel fields are optional for backward compatibility with existing threads and messages</constraint>
+    <constraint>React Native Patterns: Follow React Native component patterns and use React Native Testing Library for tests</constraint>
+    <constraint>TypeScript Strict Mode: All code must use TypeScript with strict type checking</constraint>
+    <constraint>Performance: Badge must perform well with large message lists (consider virtualization if needed)</constraint>
+    <constraint>Identity Resolution: Use IdentityService from Story 1.3 for name resolution when identity is linked, fallback to identifier display</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="ChannelBadgeProps" kind="component props" path="src/components/common/ChannelBadge.tsx">
+      interface ChannelBadgeProps {
+        channel: ChannelType;
+        direction: 'incoming' | 'outgoing';
+        identifier: string;
+        organizationId?: string;
+        size?: 'small' | 'medium' | 'large';
+        showIcon?: boolean;
+        showDirection?: boolean;
+      }
+    </interface>
+    <interface name="ChannelType" kind="type" path="src/types/Channel.ts">
+      type ChannelType = 'sms' | 'messenger' | 'email' | 'in-app';
+    </interface>
+    <interface name="Message" kind="type" path="src/types/Message.ts">
+      interface Message {
+        channel?: ChannelType;
+        channelMessageId?: string;
+        senderIdentifier?: string;
+        recipientIdentifier?: string;
+        direction?: 'incoming' | 'outgoing';
+        channelMetadata?: Record&lt;string, any&gt;;
+        // ... other Message fields
+      }
+    </interface>
+    <interface name="IdentityService.lookupByIdentifier" kind="method" path="src/services/identity.ts">
+      lookupByIdentifier(externalIdentifier: string, organizationId: string): Promise&lt;{ identityLink: IdentityLink | null; userId: string | null }&gt;
+    </interface>
+    <interface name="useLookupIdentity" kind="hook" path="src/hooks/useIdentity.ts">
+      useLookupIdentity(): { lookupByIdentifier: (identifier: string, orgId: string) =&gt; Promise&lt;...&gt;; loading: boolean }
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing standards: Use Jest for unit tests and React Native Testing Library for component tests. Tests must be deterministic, fast (under 10 seconds for unit tests), and provide meaningful feedback. Focus on testing critical paths that impact user experience. Use TypeScript strict mode and ensure all tests are properly typed. Test accessibility with screen reader support verification.
+    </standards>
+    <locations>
+      <location>src/components/common/__tests__/ChannelBadge.test.tsx</location>
+      <location>src/components/__tests__/</location>
+      <location>src/services/__tests__/</location>
+      <location>tests/integration/</location>
+    </locations>
+    <ideas>
+      <test ac="1">Test ChannelBadge renders with correct channel icon for each channel type (SMS, Messenger, Email, In-App)</test>
+      <test ac="2">Test ChannelBadge displays channel type name alongside icon</test>
+      <test ac="2">Test ChannelBadge displays identifier in readable format (formatted phone numbers, readable email addresses)</test>
+      <test ac="2">Test ChannelBadge shows user name when identity is linked via IdentityService</test>
+      <test ac="2">Test ChannelBadge falls back to identifier display when name is not available</test>
+      <test ac="3">Test ChannelBadge shows direction correctly for incoming and outgoing messages</test>
+      <test ac="4">Test ChannelBadge displays in MessageBubble component for each message</test>
+      <test ac="4">Test ChannelBadge works with messages from multiple channels in same thread</test>
+      <test ac="5">Test ChannelBadge uses theme colors and spacing consistently</test>
+      <test ac="5">Test ChannelBadge matches styling with other UI components (buttons, cards)</test>
+      <test ac="6">Test ChannelBadge accessibility labels include channel type, direction, and identifier</test>
+      <test ac="6">Test ChannelBadge works with VoiceOver (iOS) and TalkBack (Android)</test>
+      <test ac="7">Test ChannelBadge responsive design on mobile devices (small screens, different orientations)</test>
+      <test ac="7">Test ChannelBadge responsive design on tablet and desktop sizes</test>
+      <test ac="7">Test ChannelBadge handles long identifiers with truncation</test>
+      <test ac="7">Test ChannelBadge performance with large message lists</test>
+      <test integration="4">Integration test: ChannelBadge in MessageBubble with messages from multiple channels</test>
+      <test integration="4">Integration test: ChannelBadge with channel filter active (Story 1.4)</test>
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

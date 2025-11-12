@@ -4,18 +4,22 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Message } from '../../types/Message';
 import { PriorityBadge } from '../common/PriorityBadge';
 import { PriorityLevel } from '../../types/AIFeatures';
+import { ChannelIcon } from '../common/ChannelIcon';
+import { DirectionIndicator } from '../common/DirectionIndicator';
 import { Colors, Spacing, BorderRadius, Shadows } from '../../utils/theme';
 
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
   isGroup?: boolean;
+  organizationId?: string;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   isOwn,
   isGroup = false,
+  organizationId,
 }) => {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -38,6 +42,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const priority = (message as any).priority as PriorityLevel | undefined;
 
+  // Show channel indicators if message has channel information
+  const showChannelIndicators = message.channel && (message.senderIdentifier || message.recipientIdentifier);
+
   return (
     <View
       style={[styles.messageContainer, isOwn && styles.ownMessageContainer]}
@@ -46,6 +53,23 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       {isGroup && !isOwn && (
         <Text style={styles.senderName}>{message.senderName}</Text>
       )}
+      
+      {/* Channel indicators - show above message bubble */}
+      {showChannelIndicators && (
+        <View style={styles.channelIndicatorContainer}>
+          <ChannelIcon channel={message.channel} size="small" />
+          {message.direction && message.senderIdentifier && (
+            <DirectionIndicator
+              direction={message.direction}
+              channel={message.channel}
+              identifier={message.direction === 'incoming' ? message.senderIdentifier : message.recipientIdentifier || ''}
+              organizationId={organizationId}
+              size="small"
+            />
+          )}
+        </View>
+      )}
+
       <View
         style={[
           styles.messageBubble,
@@ -145,5 +169,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 4,
     opacity: 0.9,
+  },
+  channelIndicatorContainer: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    marginBottom: Spacing.xs,
+    marginLeft: Spacing.xs,
   },
 });

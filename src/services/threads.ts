@@ -11,9 +11,11 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  arrayUnion,
 } from 'firebase/firestore';
 import { getDb } from './firebase';
 import { Thread } from '../types/Thread';
+import type { ChannelType } from '../types/Channel';
 
 // Create a new thread with deduplication logic
 export const createThread = async (
@@ -50,6 +52,7 @@ export const createThread = async (
     groupPhotoUrl: groupPhotoUrl || null,
     lastMessage: null,
     unreadCount: participants.reduce((acc, id) => ({ ...acc, [id]: 0 }), {}),
+    channelSources: [], // Initialize empty array for new threads
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
@@ -114,6 +117,7 @@ export const getThread = async (threadId: string): Promise<Thread | null> => {
         }
       : undefined,
     unreadCount: data.unreadCount || {},
+    channelSources: data.channelSources || [],
     createdAt: data.createdAt?.toDate() || new Date(),
     updatedAt: data.updatedAt?.toDate() || new Date(),
   };
@@ -148,6 +152,7 @@ export const listThreadsForUser = async (userId: string): Promise<Thread[]> => {
           }
         : undefined,
       unreadCount: data.unreadCount || {},
+      channelSources: data.channelSources || [],
       createdAt: data.createdAt?.toDate() || new Date(),
       updatedAt: data.updatedAt?.toDate() || new Date(),
     });
@@ -187,6 +192,7 @@ export const subscribeToUserThreads = async (
             }
           : undefined,
         unreadCount: data.unreadCount || {},
+        channelSources: data.channelSources || [],
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
       });
@@ -323,4 +329,63 @@ export const findOrCreateOneOnOneThread = async (
     [user1Details, user2Details],
     false
   );
+};
+
+/**
+ * Add a channel source to a thread's channelSources array
+ * If the channel is already in the array, no change is made
+ * 
+ * @param threadId - The thread ID
+ * @param channel - The channel type to add
+ * @returns Promise that resolves when the update is complete
+ */
+export const addChannelSource = async (
+  threadId: string,
+  channel: ChannelType
+): Promise<void> => {
+  const db = await getDb();
+  const threadRef = doc(db, 'threads', threadId);
+
+  // Use arrayUnion to add channel only if it doesn't already exist
+  await updateDoc(threadRef, {
+    channelSources: arrayUnion(channel),
+    updatedAt: serverTimestamp(),
+  });
+};
+
+/**
+ * Get channel sources for a thread
+ * 
+ * @param threadId - The thread ID
+ * @returns Promise that resolves to an array of channel types, or empty array if thread doesn't exist
+ */
+export const getChannelSources = async (
+  threadId: string
+): Promise<ChannelType[]> => {
+  const thread = await getThread(threadId);
+  return thread?.channelSources || [];
+};
+
+/**
+ * Automatically update channelSources when a message from a new channel is added
+ * This is a convenience method that checks if the channel exists and adds it if not
+ * 
+ * @param threadId - The thread ID
+ * @param channel - The channel type from the message
+ * @returns Promise that resolves when the update is complete
+ */
+export const updateChannelSourcesForMessage = async (
+  threadId: string,
+  channel: ChannelType
+): Promise<void> => {
+  const thread = await getThread(threadId);
+  if (!thread) {
+    throw new Error('Thread not found');
+  }
+
+  // Only update if channel is not already in the array
+  const currentSources = thread.channelSources || [];
+  if (!currentSources.includes(channel)) {
+    await addChannelSource(threadId, channel);
+  }
 };

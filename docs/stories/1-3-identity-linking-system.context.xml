@@ -1,0 +1,226 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.3</storyId>
+    <title>Identity Linking System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 16:35:48</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-3-identity-linking-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>property manager</asA>
+    <iWant>external phone numbers and emails to be linked to internal user identities</iWant>
+    <soThat>messages from the same person across channels appear in the same thread</soThat>
+    <tasks>
+      <task id="1" ac="1">Create identity linking data model
+        - Create src/types/Identity.ts file
+        - Define IdentityLink interface with fields: id, userId, organizationId, externalIdentities[], createdAt
+        - Define ExternalIdentity interface with fields: type, value, verified
+        - Define ExternalIdentityType: 'phone' | 'email' | 'facebook_id' | 'whatsapp_id'
+        - Create Firestore collection structure documentation
+        - Write JSDoc comments for all types
+      </task>
+      <task id="2" ac="2,3,4,5,6">Create identity service
+        - Create src/services/identity.ts with IdentityService class
+        - Implement linkPhoneNumber(userId, phoneNumber, organizationId) method
+        - Implement linkEmail(userId, email, organizationId) method
+        - Implement linkFacebookId(userId, facebookId, organizationId) method
+        - Implement lookupByIdentifier(externalIdentifier, organizationId) method
+        - Implement addExternalIdentity(userId, externalIdentity, organizationId) method
+        - Handle multiple external identities per user
+        - Write JSDoc comments for all methods
+      </task>
+      <task id="3" ac="7">Implement identity verification
+        - Add verification status tracking to ExternalIdentity interface
+        - Implement verifyPhoneNumber(phoneNumber, verificationCode) method
+        - Implement verifyEmail(email, verificationLink) method
+        - Implement verifyFacebookId(facebookId, oauthToken) method
+        - Update verification status in identityLinks collection
+        - Add verification expiration logic
+        - Write verification documentation
+      </task>
+      <task id="4" ac="5">Implement identity lookup
+        - Create lookupByIdentifier(externalIdentifier, organizationId) method
+        - Query identityLinks collection by externalIdentities array
+        - Support lookup by phone number (E.164 format)
+        - Support lookup by email address
+        - Support lookup by Facebook ID
+        - Return userId if found, null if not found
+        - Handle multiple matches (return first match or error)
+        - Add caching for frequently accessed identities
+      </task>
+      <task id="5" ac="6">Support multiple external identities per user
+        - Implement addExternalIdentity() method to add new identity to existing link
+        - Prevent duplicate external identities
+        - Validate external identity format before adding
+        - Handle identity updates (change verified status, etc.)
+        - Add method to remove external identity
+        - Add method to list all external identities for a user
+      </task>
+      <task id="6" ac="8">Create admin UI for manual identity linking
+        - Create src/components/admin/IdentityLinkManager.tsx component
+        - Create identity linking form (user selector, external identifier input, identity type selector)
+        - Implement link identity functionality
+        - Display existing identity links for a user
+        - Add ability to remove identity links
+        - Add ability to verify/unverify identities
+        - Add search functionality to find users by external identifier
+        - Style component to match app design
+        - Add accessibility support (screen reader, keyboard navigation)
+      </task>
+      <task id="7" ac="2,3,4,5,6">Create React hook for identity operations
+        - Create src/hooks/useIdentity.ts hook
+        - Implement useLinkIdentity() hook for linking identities
+        - Implement useLookupIdentity() hook for identity lookup
+        - Implement useIdentityLinks() hook for fetching user's identity links
+        - Implement useVerifyIdentity() hook for verification
+        - Add loading and error states
+        - Add optimistic updates for better UX
+      </task>
+      <task id="8" ac="1,2,3,4,5,6">Create Firestore security rules for identityLinks
+        - Add identityLinks collection rules to firestore.rules
+        - Allow users to read their own identity links
+        - Allow admins to read/write all identity links
+        - Prevent users from modifying other users' identity links
+        - Validate external identity format in rules
+        - Test security rules with Firebase emulator
+      </task>
+      <task id="testing">Unit and integration tests
+        - Create test file: src/services/__tests__/identity.test.ts
+        - Test linkPhoneNumber() method
+        - Test linkEmail() method
+        - Test linkFacebookId() method
+        - Test lookupByIdentifier() method
+        - Test multiple external identities per user
+        - Test identity verification
+        - Test useIdentity hooks
+        - Test IdentityLinkManager component
+        - Create Firestore rules tests: tests/firestore/identityLinks.test.ts
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Identity linking data model created (identityLinks collection)</criterion>
+    <criterion id="2">Can link phone number to user ID</criterion>
+    <criterion id="3">Can link email to user ID</criterion>
+    <criterion id="4">Can link Facebook ID to user ID</criterion>
+    <criterion id="5">Identity lookup by external identifier returns user ID</criterion>
+    <criterion id="6">Multiple external identities can link to same user</criterion>
+    <criterion id="7">Identity verification status tracked</criterion>
+    <criterion id="8">UI for manually linking identities (admin)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" section="Story 1.3: Identity Linking System" title="Epic Breakdown">
+        Story requirements and acceptance criteria for Identity Linking System. Establishes external identifier linking to internal user IDs for message routing across channels.
+      </doc>
+      <doc path="docs/architecture.md" section="Epic 3.2.1: Identity Linking System" title="Decision Architecture">
+        Identity Linking System architecture specification. IdentityService with services in src/services/identity.ts, hooks in src/hooks/useIdentity.ts, and identityLinks collection data model.
+      </doc>
+      <doc path="docs/architecture.md" section="Data Architecture" title="Decision Architecture">
+        identityLinks collection data model specification with fields: id, userId, organizationId, externalIdentities[], createdAt. ExternalIdentity interface with type, value, verified fields.
+      </doc>
+      <doc path="docs/architecture.md" section="Security Architecture" title="Decision Architecture">
+        Identity verification strategy: phone numbers via SMS code, email addresses via email link, Facebook IDs via OAuth flow. Verification status stored in identityLinks collection.
+      </doc>
+      <doc path="docs/stories/1-2-sms-channel-adapter-twilio-integration.md" section="Dev Agent Record" title="Story 1.2 Completion Notes">
+        SMS adapter uses senderIdentifier and recipientIdentifier fields (phone numbers in E.164 format) that need identity linking to resolve to user IDs for message routing.
+      </doc>
+      <doc path="docs/stories/1-1-channel-abstraction-interface-design.md" section="Dev Agent Record" title="Story 1.1 Completion Notes">
+        UnifiedMessage interface uses senderIdentifier and recipientIdentifier fields - identity linking service will resolve these to user IDs for message routing.
+      </doc>
+      <doc path="src/services/channels/README.md" section="Channel Types" title="Channel Adapter Documentation">
+        Channel types ('sms', 'messenger', 'email', 'in-app') align with identity types ('phone', 'email', 'facebook_id', etc.) for identity linking.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/types/User.ts" kind="type-definition" symbol="User" lines="3-16" reason="Existing User interface - identity linking will link external identifiers to user.id field" />
+      <artifact path="src/services/users.ts" kind="service" symbol="getUser, upsertCurrentUser" lines="12-75" reason="Existing user service - identity service will work with user IDs from this service" />
+      <artifact path="src/services/channels/sms.ts" kind="service" symbol="TwilioSMSAdapter" lines="1-50" reason="SMS adapter uses senderIdentifier and recipientIdentifier (phone numbers) - will need identity lookup to resolve to user IDs" />
+      <artifact path="src/types/Channel.ts" kind="type-definition" symbol="UnifiedMessage" lines="95-105" reason="UnifiedMessage uses senderIdentifier and recipientIdentifier fields - identity linking will resolve these to user IDs" />
+      <artifact path="functions/src/channels/sms.ts" kind="cloud-function" symbol="smsWebhookHandler" lines="1-50" reason="SMS webhook handler receives messages with phone numbers - will need identity lookup to route messages to correct threads (future story)" />
+      <artifact path="src/hooks/useAuth.ts" kind="hook" symbol="useAuth" lines="6-44" reason="Example React hook pattern - useIdentity hooks should follow similar structure with loading and error states" />
+      <artifact path="firestore.rules" kind="security-rules" symbol="firestore rules" lines="1-90" reason="Existing Firestore security rules - need to add identityLinks collection rules following similar patterns for users and threads" />
+    </code>
+    <dependencies>
+      <ecosystem name="node" type="npm">
+        <package name="typescript" version="^5.0.0" />
+        <package name="react" version="19.1.0" />
+        <package name="react-native" version="0.81.5" />
+        <package name="expo" version="^54.0.18" />
+        <package name="firebase" version="^12.4.0" />
+        <package name="zustand" version="^5.0.8" />
+      </ecosystem>
+      <ecosystem name="dev" type="npm">
+        <package name="@typescript-eslint/eslint-plugin" version="^8.46.2" />
+        <package name="@typescript-eslint/parser" version="^8.46.2" />
+        <package name="eslint" version="^9.38.0" />
+        <package name="jest" version="^29.0.0" />
+        <package name="ts-jest" version="^29.4.5" />
+        <package name="@types/jest" version="^29.0.0" />
+        <package name="@types/node" version="^24.9.1" />
+        <package name="firebase-admin" version="^12.6.0" />
+        <package name="firebase-functions" version="^5.0.0" />
+        <package name="@testing-library/react-native" version="^12.0.0" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must use E.164 phone number format for consistency with SMS adapter (regex: /^\+[1-9]\d{1,14}$/)</constraint>
+    <constraint>Must support organization scoping for multi-tenancy (organizationId field required)</constraint>
+    <constraint>Must implement verification for security (verified/unverified status per external identity)</constraint>
+    <constraint>Must handle identity lookup efficiently (consider Firestore indexing on externalIdentities array field)</constraint>
+    <constraint>Admin UI must be accessible (screen reader support, keyboard navigation) and responsive</constraint>
+    <constraint>Firestore security rules must enforce access control (users can read their own, admins can read/write all)</constraint>
+    <constraint>Follow existing project patterns: services in src/services/, hooks in src/hooks/, types in src/types/, tests co-located in __tests__/</constraint>
+    <constraint>TypeScript strict mode must be satisfied</constraint>
+    <constraint>Must prevent duplicate external identities (same type and value cannot be linked twice)</constraint>
+    <constraint>Identity lookup must return user ID or null (never undefined)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="IdentityLink" kind="TypeScript interface" signature="interface IdentityLink { id: string; userId: string; organizationId: string; externalIdentities: ExternalIdentity[]; createdAt: Timestamp; }" path="docs/architecture.md#Data-Architecture" />
+    <interface name="ExternalIdentity" kind="TypeScript interface" signature="interface ExternalIdentity { type: 'phone' | 'email' | 'facebook_id' | 'whatsapp_id'; value: string; verified: boolean; }" path="docs/architecture.md#Data-Architecture" />
+    <interface name="IdentityService" kind="TypeScript class" signature="class IdentityService { linkPhoneNumber(userId, phoneNumber, organizationId): Promise&lt;IdentityLink&gt;; linkEmail(userId, email, organizationId): Promise&lt;IdentityLink&gt;; linkFacebookId(userId, facebookId, organizationId): Promise&lt;IdentityLink&gt;; lookupByIdentifier(externalIdentifier, organizationId): Promise&lt;string | null&gt;; addExternalIdentity(userId, externalIdentity, organizationId): Promise&lt;IdentityLink&gt;; verifyPhoneNumber(phoneNumber, verificationCode): Promise&lt;void&gt;; verifyEmail(email, verificationLink): Promise&lt;void&gt;; }" path="docs/architecture.md#Epic-3.2.1" />
+    <interface name="Firestore identityLinks collection" kind="Firestore collection" signature="identityLinks/{id} { userId: string; organizationId: string; externalIdentities: Array&lt;{type, value, verified}&gt;; createdAt: Timestamp; }" path="docs/architecture.md#Data-Architecture" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      TypeScript strict mode must be satisfied. All code must pass type checking with tsc --noEmit. Unit tests should verify IdentityService methods (link, lookup, verify) with mocked Firestore. Integration tests should verify identity operations with Firestore emulator. Component tests should verify IdentityLinkManager component with React Testing Library. Hook tests should verify useIdentity hooks with mocked service. Security rules tests should verify Firestore security rules for identityLinks collection. Performance tests should verify identity lookup performance with large datasets. Use Jest as the testing framework. Tests should be co-located with source files in __tests__/ directories.
+    </standards>
+    <locations>
+      <location>src/services/__tests__/</location>
+      <location>src/hooks/__tests__/</location>
+      <location>src/components/admin/__tests__/</location>
+      <location>tests/firestore/</location>
+    </locations>
+    <ideas>
+      <test ac="1" idea="Test IdentityLink and ExternalIdentity type structures by creating test instances with all required fields" />
+      <test ac="2" idea="Test linkPhoneNumber() method creates identity link with phone number in E.164 format" />
+      <test ac="3" idea="Test linkEmail() method creates identity link with email address" />
+      <test ac="4" idea="Test linkFacebookId() method creates identity link with Facebook ID" />
+      <test ac="5" idea="Test lookupByIdentifier() method queries identityLinks collection and returns user ID for matching external identifier" />
+      <test ac="6" idea="Test multiple external identities per user by adding phone, email, and Facebook ID to same user" />
+      <test ac="7" idea="Test identity verification updates verified status in identityLinks collection" />
+      <test ac="8" idea="Test IdentityLinkManager component renders form, links identities, displays existing links, and handles verification" />
+      <test general="true" idea="Test Firestore security rules allow users to read their own identity links but not others" />
+      <test general="true" idea="Test Firestore security rules allow admins to read/write all identity links" />
+      <test general="true" idea="Test identity lookup performance with large datasets (1000+ identity links)" />
+      <test general="true" idea="Test duplicate external identity prevention (same type and value cannot be linked twice)" />
+      <test general="true" idea="Test useIdentity hooks with loading and error states" />
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

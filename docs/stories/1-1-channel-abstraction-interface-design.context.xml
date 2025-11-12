@@ -1,0 +1,141 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.1</storyId>
+    <title>Channel Abstraction Interface Design</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 15:58:31</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-channel-abstraction-interface-design.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>a standardized channel adapter interface</iWant>
+    <soThat>new channels can be integrated without modifying core messaging logic</soThat>
+    <tasks>
+      <task id="1" ac="1">Define ChannelAdapter interface
+        - Create `src/services/channels/adapter.ts` with ChannelAdapter interface
+        - Define send() method signature returning Promise&lt;ChannelMessageResult&gt;
+        - Define receive() method signature accepting webhook payload and returning UnifiedMessage
+        - Define getStatus() method signature returning Promise&lt;MessageStatus&gt;
+        - Add id and type properties to interface
+        - Write JSDoc comments for all methods and properties
+      </task>
+      <task id="2" ac="2">Define UnifiedMessage interface
+        - Create `src/types/Channel.ts` file
+        - Define UnifiedMessage interface with required fields: id, threadId, channel, direction, senderIdentifier, recipientIdentifier, text, timestamp, status, metadata
+        - Add supporting types: ChannelMessage, ChannelMessageResult, MessageStatus
+      </task>
+      <task id="3" ac="3">Export TypeScript types and create documentation
+        - Export ChannelAdapter interface from adapter.ts
+        - Export UnifiedMessage and related types from Channel.ts
+        - Create index.ts barrel export in `src/services/channels/`
+        - Create index.ts barrel export in `src/types/`
+        - Write README.md in `src/services/channels/` explaining the adapter pattern
+        - Include usage examples in documentation
+      </task>
+      <task id="4" ac="4">Code review and interface design approval
+        - Run TypeScript type checking (tsc --noEmit)
+        - Run linter (eslint)
+        - Self-review interface design against architecture requirements
+        - Verify interfaces align with architecture document specifications
+        - Create review checklist documenting design decisions
+      </task>
+      <task id="testing">Unit tests for type definitions
+        - Create test file: `src/services/channels/__tests__/adapter.test.ts`
+        - Test ChannelAdapter interface can be implemented
+        - Test UnifiedMessage type structure
+        - Test type exports are accessible
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">ChannelAdapter interface defined with send(), receive(), and getStatus() methods</criterion>
+    <criterion id="2">UnifiedMessage interface defined with all required fields (channel, direction, senderIdentifier, etc.)</criterion>
+    <criterion id="3">TypeScript types exported and documented</criterion>
+    <criterion id="4">Interface design reviewed and approved</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" section="Story 1.1: Channel Abstraction Interface Design" title="Epic Breakdown">
+        Story requirements and acceptance criteria for Channel Abstraction Interface Design. Establishes foundational channel adapter pattern for multi-channel messaging.
+      </doc>
+      <doc path="docs/architecture.md" section="Channel Adapter Interface" title="Decision Architecture">
+        ChannelAdapter interface specification with send(), receive(), and getStatus() methods. Includes UnifiedMessage interface definition.
+      </doc>
+      <doc path="docs/architecture.md" section="API Contracts" title="Decision Architecture">
+        Complete UnifiedMessage interface specification with all required fields: id, threadId, channel, direction, senderIdentifier, recipientIdentifier, text, timestamp, status, metadata.
+      </doc>
+      <doc path="docs/architecture.md" section="Implementation Patterns" title="Decision Architecture">
+        Channel Adapter Pattern implementation details. Adapter pattern for channel abstraction with examples of how adapters normalize external APIs to UnifiedMessage format.
+      </doc>
+      <doc path="docs/architecture.md" section="Project Structure" title="Decision Architecture">
+        Project structure showing new channel services directory at `src/services/channels/` and types at `src/types/Channel.ts`.
+      </doc>
+      <doc path="docs-spec/project/PRD.md" section="Three-Phase Development Plan" title="Phased Development PRD">
+        High-level project context. Phase 3 goal: Transform into embeddable multi-channel communication platform with channel abstraction layer.
+      </doc>
+      <doc path="docs/PRD-Phase3-Addendum.md" section="Channel Abstraction Interface" title="PRD Phase 3 Addendum">
+        Channel abstraction interface examples showing ChannelAdapter and UnifiedMessage structure with channel types and methods.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/types/Message.ts" kind="type-definition" symbol="Message" lines="1-22" reason="Existing Message interface - will need alignment with UnifiedMessage in future stories. Current Message type has senderId, senderName, text, status fields that need to be mapped to UnifiedMessage format." />
+      <artifact path="src/services/messaging.ts" kind="service" symbol="sendMessage, createOptimisticMessage" lines="1-50" reason="Existing messaging service - will need to extend to use UnifiedMessage in future stories. Currently uses Message type with Firestore integration." />
+      <artifact path="src/types/Thread.ts" kind="type-definition" symbol="Thread" lines="1-23" reason="Existing Thread interface - will need extension with channelSources array in future stories (Story 1.4)." />
+      <artifact path="src/services/messaging.ts" kind="type-definition" symbol="MessageStatus" lines="21" reason="Existing MessageStatus type: 'sending' | 'sent' | 'delivered' | 'read'. UnifiedMessage status extends this with 'failed' status." />
+    </code>
+    <dependencies>
+      <ecosystem name="node" type="npm">
+        <package name="typescript" version="^5.0.0" />
+        <package name="react" version="19.1.0" />
+        <package name="react-native" version="0.81.5" />
+        <package name="expo" version="^54.0.18" />
+        <package name="firebase" version="^12.4.0" />
+        <package name="zustand" version="^5.0.8" />
+      </ecosystem>
+      <ecosystem name="dev" type="npm">
+        <package name="@typescript-eslint/eslint-plugin" version="^8.46.2" />
+        <package name="@typescript-eslint/parser" version="^8.46.2" />
+        <package name="eslint" version="^9.38.0" />
+        <package name="jest" version="^29.0.0" />
+        <package name="ts-jest" version="^29.4.5" />
+        <package name="@types/jest" version="^29.0.0" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must maintain backward compatibility with existing message structure where possible</constraint>
+    <constraint>TypeScript strict mode must be satisfied</constraint>
+    <constraint>Interface design must support future channel additions without modification</constraint>
+    <constraint>Follow existing project structure: services in `src/services/`, types in `src/types/`, tests co-located in `__tests__/`</constraint>
+    <constraint>Naming conventions: Interfaces PascalCase (ChannelAdapter), types file PascalCase (Channel.ts), service directory camelCase (channels/)</constraint>
+    <constraint>No runtime tests required - this is a pure type definition story with no runtime behavior to test</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="ChannelAdapter" kind="TypeScript interface" signature="interface ChannelAdapter { id: string; type: 'sms' | 'messenger' | 'email' | 'in-app'; send(message: ChannelMessage): Promise&lt;ChannelMessageResult&gt;; receive(webhookPayload: any): UnifiedMessage; getStatus(messageId: string): Promise&lt;MessageStatus&gt;; }" path="docs/architecture.md#Channel-Adapter-Interface" />
+    <interface name="UnifiedMessage" kind="TypeScript interface" signature="interface UnifiedMessage { id: string; threadId: string; channel: 'sms' | 'messenger' | 'email' | 'in-app'; direction: 'incoming' | 'outgoing'; senderIdentifier: string; recipientIdentifier: string; text: string; timestamp: Date; status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'; metadata?: { channelSpecific?: any }; }" path="docs/architecture.md#API-Contracts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      TypeScript strict mode must be satisfied. All interfaces must pass type checking with `tsc --noEmit`. Unit tests should verify interface contracts can be implemented. Tests should be co-located with source files in `__tests__/` directories. Use Jest as the testing framework. This is a pure type definition story - no runtime behavior to test, only type structure validation.
+    </standards>
+    <locations>
+      <location>src/services/channels/__tests__/</location>
+      <location>src/types/__tests__/</location>
+    </locations>
+    <ideas>
+      <test ac="1" idea="Test that ChannelAdapter interface can be implemented by creating a mock adapter class" />
+      <test ac="2" idea="Test UnifiedMessage type structure by creating test instances with all required fields" />
+      <test ac="3" idea="Test type exports are accessible by importing from barrel exports and verifying type definitions" />
+      <test ac="4" idea="Test TypeScript strict mode compliance by running tsc --noEmit and verifying no type errors" />
+    </ideas>
+  </tests>
+</story-context>
+

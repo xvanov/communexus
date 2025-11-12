@@ -86,5 +86,124 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/threads/$(resource.data.threadId)) &&
         request.auth.uid in get(/databases/$(database)/documents/threads/$(resource.data.threadId)).data.participants;
     }
+    
+    // Identity Links - users can read their own identity links, admins can read/write all
+    match /identityLinks/{identityLinkId} {
+      // Helper function to check if user is admin
+      // Note: This assumes admin role is stored in the user document or token claim
+      function isAdmin() {
+        return request.auth != null && 
+               exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+               get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      }
+      
+      // Helper function to validate external identity format
+      // Note: Firestore rules have limited regex support, so we do basic validation
+      // Full format validation (E.164, email regex) is done in the service layer
+      function isValidExternalIdentity(identity) {
+        return identity.keys().hasAll(['type', 'value', 'verified']) &&
+               identity.type is string &&
+               identity.type in ['phone', 'email', 'facebook_id', 'whatsapp_id'] &&
+               identity.value is string &&
+               identity.value.size() > 0 &&
+               identity.verified is bool &&
+               // Basic format checks (limited regex support in Firestore rules)
+               // Phone: Must start with +
+               (identity.type != 'phone' || identity.value.matches('^\\+.*')) &&
+               // Email: Must contain @
+               (identity.type != 'email' || identity.value.matches('.*@.*')) &&
+               // Facebook/WhatsApp ID: Non-empty string
+               (identity.type == 'phone' || identity.type == 'email' || 
+                (identity.type == 'facebook_id' || identity.type == 'whatsapp_id'));
+      }
+      
+      // Allow read: Users can read their own identity links, admins can read all
+      allow read: if request.auth != null && (
+        // Allow if user is admin
+        isAdmin() ||
+        // Allow if user is reading their own identity link
+        (resource != null &&
+         resource.data != null &&
+         resource.data.userId == request.auth.uid)
+      );
+      
+      // Allow create: Users can create their own identity links, admins can create any
+      allow create: if request.auth != null && (
+        // Allow if user is admin
+        isAdmin() ||
+        // Allow if user is creating their own identity link
+        (request.resource.data.userId == request.auth.uid &&
+         // Basic validation - externalIdentities must be a list
+         request.resource.data.externalIdentities is list &&
+         request.resource.data.externalIdentities.size() > 0 &&
+         // Validate required fields
+         request.resource.data.userId is string &&
+         request.resource.data.organizationId is string)
+         // Note: Full format validation (E.164, email regex) is done in the service layer
+         // Firestore rules don't support iterating over array items with lambdas
+      );
+      
+      // Allow update: Users can update their own identity links, admins can update any
+      allow update: if request.auth != null && (
+        // Allow if user is admin
+        isAdmin() ||
+        // Allow if user is updating their own identity link
+        (resource.data.userId == request.auth.uid &&
+         // Ensure userId doesn't change
+         request.resource.data.userId == resource.data.userId &&
+         request.resource.data.organizationId == resource.data.organizationId &&
+         // Basic validation - externalIdentities must be a list
+         request.resource.data.externalIdentities is list)
+         // Note: Full format validation (E.164, email regex) is done in the service layer
+         // Firestore rules don't support iterating over array items with lambdas
+      );
+      
+      // Allow delete: Users can delete their own identity links, admins can delete any
+      allow delete: if request.auth != null && (
+        // Allow if user is admin
+        isAdmin() ||
+        // Allow if user is deleting their own identity link
+        (resource.data.userId == request.auth.uid)
+      );
+    }
+    
+    // Incoming Messages - Cloud Functions can write, authenticated users can read their own
+    match /incomingMessages/{messageId} {
+      // Allow read: Users can read messages for their organization
+      // Note: This assumes organizationId is stored in the message
+      allow read: if request.auth != null;
+      
+      // Allow write: Only Cloud Functions (server-side) can write
+      // Client-side writes are not allowed for security
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Pending Routing - Cloud Functions can write, authenticated users can read
+    match /pending_routing/{pendingMessageId} {
+      // Allow read: Users can read pending messages for manual assignment
+      allow read: if request.auth != null;
+      
+      // Allow create: Only Cloud Functions (server-side) can create
+      allow create: if false; // Only Cloud Functions can create
+      
+      // Allow update: Authenticated users can assign pending messages
+      allow update: if request.auth != null &&
+        // Allow assignment of pending messages
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['assignedThreadId', 'assignedAt', 'assignedBy']) ||
+         // Allow status updates
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
+      
+      // Allow delete: Users can delete assigned messages
+      allow delete: if request.auth != null;
+    }
+    
+    // Routing Logs - Cloud Functions can write, authenticated users can read
+    match /routing_logs/{logId} {
+      // Allow read: Users can read routing logs for their organization
+      allow read: if request.auth != null;
+      
+      // Allow write: Only Cloud Functions (server-side) can write
+      allow write: if false; // Only Cloud Functions can write
+    }
   }
 }

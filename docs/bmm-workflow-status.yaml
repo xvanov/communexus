@@ -38,14 +38,14 @@ workflow_status:
   product-brief: recommended
 
   # Phase 2: Planning
-  prd: required
+  prd: docs/PRD.md
   validate-prd: optional
   create-design: conditional
 
   # Phase 3: Solutioning
   architecture-review: required
   integration-planning: required
-  create-architecture: required
+  create-architecture: docs/architecture.md
   validate-architecture: optional
   solutioning-gate-check: required
 

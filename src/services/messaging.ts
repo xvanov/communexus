@@ -2,6 +2,8 @@
 import { Message } from '../types/Message';
 import { Thread } from '../types/Thread';
 import { getDb } from './firebase';
+import type { ChannelType, UnifiedMessage } from '../types/Channel';
+import { updateChannelSourcesForMessage } from './threads';
 import {
   addDoc,
   collection,
@@ -26,7 +28,13 @@ export const createOptimisticMessage = (
   senderId: string,
   senderName: string,
   text: string,
-  senderPhotoUrl?: string
+  senderPhotoUrl?: string,
+  channel?: ChannelType,
+  senderIdentifier?: string,
+  recipientIdentifier?: string,
+  direction?: 'incoming' | 'outgoing',
+  channelMessageId?: string,
+  channelMetadata?: Record<string, any>
 ): Message => {
   const now = new Date();
   return {
@@ -41,6 +49,12 @@ export const createOptimisticMessage = (
     readBy: [],
     readTimestamps: {},
     createdAt: now,
+    ...(channel && { channel }),
+    ...(channelMessageId && { channelMessageId }),
+    ...(senderIdentifier && { senderIdentifier }),
+    ...(recipientIdentifier && { recipientIdentifier }),
+    ...(direction && { direction }),
+    ...(channelMetadata && { channelMetadata }),
   };
 };
 
@@ -77,7 +91,24 @@ export const sendMessage = async (message: Message): Promise<string> => {
         isDecision: message.isDecision,
       }),
       ...(message.deleted !== undefined && { deleted: message.deleted }),
+      // Channel-related fields
+      ...(message.channel && { channel: message.channel }),
+      ...(message.channelMessageId && { channelMessageId: message.channelMessageId }),
+      ...(message.senderIdentifier && { senderIdentifier: message.senderIdentifier }),
+      ...(message.recipientIdentifier && { recipientIdentifier: message.recipientIdentifier }),
+      ...(message.direction && { direction: message.direction }),
+      ...(message.channelMetadata && { channelMetadata: message.channelMetadata }),
     });
+
+    // Automatically update thread's channelSources when message from new channel is added
+    if (message.channel) {
+      try {
+        await updateChannelSourcesForMessage(message.threadId, message.channel);
+      } catch (error) {
+        // Log error but don't fail message creation if channel source update fails
+        console.error('Failed to update channel sources for thread:', error);
+      }
+    }
 
     console.log('✅ Message saved with ID:', docRef.id);
     console.log('🔥 Message saved - Cloud Function should trigger now');
@@ -160,6 +191,13 @@ export const subscribeToMessages = async (
           priority: data.priority,
           isDecision: data.isDecision || false,
           deleted: data.deleted || false,
+          // Channel-related fields
+          channel: data.channel,
+          channelMessageId: data.channelMessageId,
+          senderIdentifier: data.senderIdentifier,
+          recipientIdentifier: data.recipientIdentifier,
+          direction: data.direction,
+          channelMetadata: data.channelMetadata,
         });
       });
 
@@ -205,6 +243,7 @@ export const subscribeToThread = async (
               timestamp: new Date(),
             },
         unreadCount: data.unreadCount || {},
+        channelSources: data.channelSources || [],
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date(),
       });
@@ -310,6 +349,13 @@ export const searchMessages = async (
       priority: data.priority,
       isDecision: data.isDecision || false,
       deleted: data.deleted || false,
+      // Channel-related fields
+      channel: data.channel,
+      channelMessageId: data.channelMessageId,
+      senderIdentifier: data.senderIdentifier,
+      recipientIdentifier: data.recipientIdentifier,
+      direction: data.direction,
+      channelMetadata: data.channelMetadata,
     });
   });
 
@@ -329,4 +375,40 @@ export const deleteMessage = async (
     text: '[Message deleted]',
     updatedAt: serverTimestamp(),
   });
+};
+
+/**
+ * Convert UnifiedMessage to Message format
+ * Used when receiving messages from channel adapters
+ * 
+ * @param unifiedMessage - The unified message from channel adapter
+ * @param senderId - Internal user ID (resolved from identity service)
+ * @param senderName - Internal user name (resolved from identity service)
+ * @param senderPhotoUrl - Optional user photo URL
+ * @returns Message object ready for Firestore
+ */
+export const convertUnifiedMessageToMessage = (
+  unifiedMessage: UnifiedMessage,
+  senderId: string,
+  senderName: string,
+  senderPhotoUrl?: string
+): Message => {
+  return {
+    id: unifiedMessage.id,
+    threadId: unifiedMessage.threadId,
+    senderId,
+    senderName,
+    ...(senderPhotoUrl && { senderPhotoUrl }),
+    text: unifiedMessage.text,
+    status: unifiedMessage.status === 'failed' ? 'sent' : unifiedMessage.status,
+    deliveredTo: [],
+    readBy: [],
+    readTimestamps: {},
+    createdAt: unifiedMessage.timestamp,
+    channel: unifiedMessage.channel,
+    senderIdentifier: unifiedMessage.senderIdentifier,
+    recipientIdentifier: unifiedMessage.recipientIdentifier,
+    direction: unifiedMessage.direction,
+    channelMetadata: unifiedMessage.metadata?.channelSpecific,
+  };
 };

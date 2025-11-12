@@ -1,0 +1,282 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.5</storyId>
+    <title>Message Routing Logic</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 18:02:36</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-5-message-routing-logic.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>property manager</asA>
+    <iWant>inbound SMS messages to be routed to the correct thread automatically</iWant>
+    <soThat>conversations stay organized without manual assignment</soThat>
+    <tasks>
+      <task id="1" ac="1">Create routing service structure
+        - Create src/services/routing.ts file
+        - Define RoutingService class
+        - Define routing result interface (threadId, confidence, method, reason)
+        - Define routing decision log interface
+        - Add JSDoc comments for all classes and interfaces
+        - Export RoutingService and types
+      </task>
+      <task id="2" ac="2">Implement identity-based routing
+        - Create routeByIdentity() method
+        - Use IdentityService.lookupByIdentifier() to resolve sender identifier
+        - Query threads by participant userId
+        - Filter threads by organizationId (if provided)
+        - Return thread with highest confidence (most recent activity)
+        - Handle case where identity lookup returns null
+        - Handle case where multiple threads match
+        - Write unit tests for identity-based routing
+      </task>
+      <task id="3" ac="3">Implement metadata-based routing
+        - Create routeByMetadata() method
+        - Extract property address or project ID from message text or metadata
+        - Query threads by propertyId or projectId
+        - Filter threads by organizationId (if provided)
+        - Match threads based on property address keywords
+        - Return thread with highest confidence (most recent activity)
+        - Handle case where no property/project metadata found
+        - Write unit tests for metadata-based routing
+      </task>
+      <task id="4" ac="4">Implement context-based routing
+        - Create routeByContext() method
+        - Extract keywords from message text
+        - Query threads by organizationId
+        - Score threads based on keyword matches in recent messages
+        - Score threads based on conversation context (property mentions, names, etc.)
+        - Return thread with highest score above threshold
+        - Handle case where no matches found above threshold
+        - Write unit tests for context-based routing
+      </task>
+      <task id="5" ac="1-7">Implement main routing method
+        - Create routeMessage() method that orchestrates routing strategies
+        - Implement routing strategy priority: Identity-based routing (highest priority) → Metadata-based routing (medium priority) → Context-based routing (fallback)
+        - Return routing result with confidence score
+        - Handle case where all strategies fail (return null)
+        - Log routing decision with method, confidence, and reason
+        - Write unit tests for main routing method
+      </task>
+      <task id="6" ac="5">Implement manual assignment fallback
+        - Create createUnassignedMessage() method
+        - Store unassigned message in pending_routing collection
+        - Create UI for manual thread assignment (future story)
+        - Add method to assign unassigned message to thread
+        - Handle case where routing returns null (manual assignment required)
+        - Write unit tests for manual assignment
+      </task>
+      <task id="7" ac="6">Implement thread creation for new conversations
+        - Create createThreadForMessage() method
+        - Use IdentityService to get or create user for sender identifier
+        - Create new thread with participant details
+        - Initialize thread with channelSources array
+        - Link identity if not already linked
+        - Return new thread ID
+        - Write unit tests for thread creation
+      </task>
+      <task id="8" ac="7">Handle edge cases
+        - Handle multiple matches in identity-based routing (return most recent)
+        - Handle multiple matches in metadata-based routing (return most recent)
+        - Handle case where identity link doesn't exist (create link or skip)
+        - Handle case where sender identifier is invalid format
+        - Handle case where organizationId is missing
+        - Handle case where message text is empty
+        - Write unit tests for all edge cases
+      </task>
+      <task id="9" ac="8">Implement routing decision logging
+        - Create logRoutingDecision() method
+        - Store routing decisions in routing_logs collection (or Firestore)
+        - Log routing method used (identity, metadata, context, manual)
+        - Log confidence score
+        - Log reason for routing decision
+        - Log message details (sender identifier, channel, timestamp)
+        - Log thread ID if matched, null if not matched
+        - Add query methods for retrieving routing logs
+        - Write unit tests for routing logging
+      </task>
+      <task id="10" ac="1-8">Create routing hook for UI
+        - Create src/hooks/useRouting.ts hook
+        - Implement useRouteMessage() hook
+        - Add loading and error states
+        - Add routing result state
+        - Add routing decision log state
+        - Export hook from hooks directory
+        - Write unit tests for routing hook
+      </task>
+      <task id="11" ac="1-8">Create Cloud Function for webhook routing
+        - Create functions/src/routing.ts file
+        - Create routeWebhookMessage() Cloud Function
+        - Accept UnifiedMessage from webhook handler
+        - Call RoutingService.routeMessage()
+        - Create thread if routing returns null
+        - Save message to routed thread
+        - Handle errors and return appropriate HTTP response
+        - Write unit tests for Cloud Function
+      </task>
+      <task id="12" ac="1-8">Integration with webhook handlers
+        - Update SMS webhook handler to use routing service
+        - Update messaging service to use routing for incoming UnifiedMessages
+        - Ensure routing is called before message is saved
+        - Handle routing errors gracefully
+        - Write integration tests for webhook routing
+      </task>
+      <task id="13" ac="1-8">Update Firestore schema and rules
+        - Create pending_routing collection structure (if needed)
+        - Create routing_logs collection structure (if needed)
+        - Update firestore.rules for routing collections
+        - Add indexes for routing queries (by organizationId, by senderIdentifier, etc.)
+        - Document schema changes in architecture.md
+      </task>
+      <task id="14" ac="1-8">Integration testing
+        - Test routing with SMS webhook (Story 1.2 integration)
+        - Test routing with identity linking (Story 1.3 integration)
+        - Test routing with multi-channel threads (Story 1.4 integration)
+        - Test routing with new thread creation
+        - Test routing with manual assignment fallback
+        - Test routing edge cases (multiple matches, no identity link, etc.)
+        - Write integration tests for routing scenarios
+      </task>
+      <task id="15" ac="1-8">Update documentation
+        - Update architecture.md with routing service specification
+        - Document routing strategy priority
+        - Document routing decision logging
+        - Create usage examples for routing service
+        - Document routing edge cases and handling
+      </task>
+      <task id="16" ac="1-8">Testing
+        - Unit tests for RoutingService class
+        - Unit tests for identity-based routing
+        - Unit tests for metadata-based routing
+        - Unit tests for context-based routing
+        - Unit tests for main routing method
+        - Unit tests for manual assignment
+        - Unit tests for thread creation
+        - Unit tests for edge cases
+        - Unit tests for routing logging
+        - Unit tests for routing hook
+        - Unit tests for Cloud Function
+        - Integration tests for webhook routing
+        - Integration tests for routing scenarios
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Message routing service created</criterion>
+    <criterion id="2">Routes inbound messages based on participant identity matching</criterion>
+    <criterion id="3">Routes messages based on thread metadata (property address, project ID)</criterion>
+    <criterion id="4">Uses conversation context (keyword matching) as fallback</criterion>
+    <criterion id="5">Manual thread assignment fallback for ambiguous cases</criterion>
+    <criterion id="6">Creates new thread if no match found</criterion>
+    <criterion id="7">Routing logic handles edge cases (multiple matches, no identity link)</criterion>
+    <criterion id="8">Routing decisions logged for debugging</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 1.5" snippet="Story 1.5: Message Routing Logic - As a property manager, I want inbound SMS messages to be routed to the correct thread automatically, so that conversations stay organized without manual assignment." />
+      <doc path="docs/architecture.md" title="Architecture Documentation" section="Epic 3.2.2" snippet="Message Routing Logic architecture specification: RoutingService pattern with identity-based routing, metadata-based routing, and context-based routing fallback strategies." />
+      <doc path="docs/architecture.md" title="Architecture Documentation" section="Message Routing Pattern" snippet="Message routing pattern: Identity-based routing with AI fallback. Flow: Incoming Message → Identity Lookup → Thread Matching → (Match Found) → Route to Thread, (No Match) → AI Classification → Create Thread or Manual Assignment." />
+      <doc path="docs/PRD-Phase3-Addendum.md" title="PRD Phase 3 Addendum" section="3.1.4 Message Routing Logic" snippet="Message routing requirements: Identity linking, thread matching based on participant identity, thread metadata (property address, project ID), conversation context (keyword matching, AI classification), and manual thread assignment fallback." />
+      <doc path="docs/stories/1-1-channel-abstraction-interface-design.md" title="Story 1.1: Channel Abstraction Interface Design" section="Story" snippet="Defined ChannelAdapter interface and UnifiedMessage type. Provides UnifiedMessage format for routing input with channel, direction, senderIdentifier, recipientIdentifier fields." />
+      <doc path="docs/stories/1-2-sms-channel-adapter-twilio-integration.md" title="Story 1.2: SMS Channel Adapter" section="Story" snippet="Implemented TwilioSMSAdapter converting Twilio webhooks to UnifiedMessage format. Provides SMS webhook handler that produces UnifiedMessage for routing." />
+      <doc path="docs/stories/1-3-identity-linking-system.md" title="Story 1.3: Identity Linking System" section="Story" snippet="Implemented IdentityService with lookupByIdentifier() method for resolving external identifiers to internal user IDs. Provides identity-based routing foundation." />
+      <doc path="docs/stories/1-4-unified-thread-model-with-channel-support.md" title="Story 1.4: Unified Thread Model" section="Story" snippet="Extended Thread and Message models with channel fields. Provides ThreadService with createThread(), addChannelSource(), updateChannelSourcesForMessage() methods for thread creation and management." />
+    </docs>
+    <code>
+      <artifact path="src/services/identity.ts" kind="service" symbol="IdentityService, lookupByIdentifier" lines="462-550" reason="IdentityService provides lookupByIdentifier() method for identity-based routing. Returns userId for external identifier with organization scoping." />
+      <artifact path="src/services/threads.ts" kind="service" symbol="createThread, addChannelSource, updateChannelSourcesForMessage" lines="18-62" reason="ThreadService provides createThread() method that initializes channelSources array, addChannelSource() and updateChannelSourcesForMessage() methods for channel management when routing messages." />
+      <artifact path="src/services/messaging.ts" kind="service" symbol="convertUnifiedMessageToMessage, sendMessage" lines="1-100" reason="MessageService provides convertUnifiedMessageToMessage() helper function for converting UnifiedMessage to Message format, and sendMessage() for saving routed messages." />
+      <artifact path="src/types/Channel.ts" kind="type-definition" symbol="UnifiedMessage, ChannelType, MessageDirection" lines="63-150" reason="UnifiedMessage interface provides input format for routing with channel, direction, senderIdentifier, recipientIdentifier, text, timestamp, status, metadata fields." />
+      <artifact path="src/types/Thread.ts" kind="type-definition" symbol="Thread" lines="1-23" reason="Thread interface includes channelSources field for filtering threads by channel. May include propertyId and projectId fields for metadata-based routing." />
+      <artifact path="src/types/Message.ts" kind="type-definition" symbol="Message" lines="1-22" reason="Message interface includes channel fields (channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, channelMetadata) that routing must preserve when saving messages." />
+      <artifact path="functions/src/channels/sms.ts" kind="cloud-function" symbol="smsWebhookHandler" lines="50-135" reason="SMS webhook handler converts Twilio webhooks to UnifiedMessage format. Will need to call routing service before saving messages to Firestore." />
+      <artifact path="firestore.rules" kind="configuration" symbol="threads, messages" lines="1-171" reason="Firestore security rules for threads and messages collections. May need updates for pending_routing and routing_logs collections if created." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="node" package="react" version="19.1.0" />
+      <dependency ecosystem="node" package="react-native" version="0.81.5" />
+      <dependency ecosystem="node" package="firebase" version="^12.4.0" />
+      <dependency ecosystem="node" package="firebase-admin" version="^12.6.0" />
+      <dependency ecosystem="node" package="firebase-functions" version="^5.0.0" />
+      <dependency ecosystem="node" package="typescript" version="^5.0.0" />
+      <dependency ecosystem="node" package="@types/react" version="~19.1.10" />
+      <dependency ecosystem="node" package="@types/react-native" version="~0.73.0" />
+      <dependency ecosystem="node" package="jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="@types/jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="ts-jest" version="^29.4.5" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Routing service must use multi-strategy approach: identity-based routing (highest priority) → metadata-based routing (medium priority) → context-based routing (fallback)</constraint>
+    <constraint>Each routing strategy must return confidence score (0-1) indicating routing certainty</constraint>
+    <constraint>High confidence (&gt;0.8) routes automatically, medium confidence (0.5-0.8) may require manual review, low confidence (&lt;0.5) requires manual assignment</constraint>
+    <constraint>Identity-based routing must use IdentityService.lookupByIdentifier() with organization scoping</constraint>
+    <constraint>Metadata-based routing must extract property address or project ID from message text or metadata</constraint>
+    <constraint>Context-based routing must score threads based on keyword matches in recent messages</constraint>
+    <constraint>Routing must handle multiple matches by returning most recent thread</constraint>
+    <constraint>Routing must handle case where identity link doesn't exist (create link or skip)</constraint>
+    <constraint>Routing must handle invalid sender identifier format gracefully</constraint>
+    <constraint>Routing must require organizationId for multi-tenancy support</constraint>
+    <constraint>Routing must preserve all channel fields (channel, channelMessageId, senderIdentifier, recipientIdentifier, direction, channelMetadata) when saving messages</constraint>
+    <constraint>Thread creation must initialize channelSources array and link identity if not already linked</constraint>
+    <constraint>Routing decisions must be logged with method, confidence, reason, and message details for debugging and analytics</constraint>
+    <constraint>Webhook handlers must call routing service before saving messages to Firestore</constraint>
+    <constraint>Firestore security rules must allow reading/writing routing collections (pending_routing, routing_logs) if created</constraint>
+    <constraint>Firestore indexes may be needed for routing queries (by organizationId, by senderIdentifier, by propertyId, by projectId)</constraint>
+    <constraint>All routing methods must have unit tests with Jest</constraint>
+    <constraint>Integration tests must verify routing works with SMS webhook, identity linking, and multi-channel threads</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="RoutingService" kind="TypeScript class" signature="class RoutingService { routeMessage(unifiedMessage: UnifiedMessage, organizationId: string): Promise&lt;RoutingResult | null&gt;; routeByIdentity(senderIdentifier: string, organizationId: string): Promise&lt;RoutingResult | null&gt;; routeByMetadata(unifiedMessage: UnifiedMessage, organizationId: string): Promise&lt;RoutingResult | null&gt;; routeByContext(unifiedMessage: UnifiedMessage, organizationId: string): Promise&lt;RoutingResult | null&gt;; createThreadForMessage(unifiedMessage: UnifiedMessage, organizationId: string): Promise&lt;string&gt;; logRoutingDecision(decision: RoutingDecision): Promise&lt;void&gt;; }" path="src/services/routing.ts" />
+    <interface name="RoutingResult" kind="TypeScript interface" signature="interface RoutingResult { threadId: string; confidence: number; method: 'identity' | 'metadata' | 'context' | 'manual'; reason: string; }" path="src/services/routing.ts" />
+    <interface name="RoutingDecision" kind="TypeScript interface" signature="interface RoutingDecision { messageId: string; senderIdentifier: string; channel: ChannelType; timestamp: Date; method: 'identity' | 'metadata' | 'context' | 'manual'; confidence: number; reason: string; threadId: string | null; organizationId: string; }" path="src/services/routing.ts" />
+    <interface name="IdentityService.lookupByIdentifier" kind="TypeScript method" signature="lookupByIdentifier(externalIdentifier: string, organizationId: string): Promise&lt;string | null&gt;" path="src/services/identity.ts" />
+    <interface name="ThreadService.createThread" kind="TypeScript function" signature="createThread(participants: string[], participantDetails: { id: string; name: string; photoUrl?: string }[], isGroup?: boolean, groupName?: string, groupPhotoUrl?: string): Promise&lt;string&gt;" path="src/services/threads.ts" />
+    <interface name="ThreadService.addChannelSource" kind="TypeScript function" signature="addChannelSource(threadId: string, channel: ChannelType): Promise&lt;void&gt;" path="src/services/threads.ts" />
+    <interface name="UnifiedMessage" kind="TypeScript interface" signature="interface UnifiedMessage { id: string; threadId: string; channel: ChannelType; direction: 'incoming' | 'outgoing'; senderIdentifier: string; recipientIdentifier: string; text: string; timestamp: Date; status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'; metadata?: { channelSpecific?: any }; }" path="src/types/Channel.ts" />
+    <interface name="useRouteMessage" kind="React hook" signature="useRouteMessage(): { routeMessage: (unifiedMessage: UnifiedMessage, organizationId: string) =&gt; Promise&lt;RoutingResult | null&gt;; loading: boolean; error: string | null; routingResult: RoutingResult | null; routingLog: RoutingDecision | null; }" path="src/hooks/useRouting.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing standards follow Jest framework with React Testing Library for component tests. Unit tests should cover all routing methods including identity-based, metadata-based, and context-based routing strategies. Integration tests should verify routing works correctly with SMS webhook handler, identity linking service, and multi-channel thread management. All tests should use TypeScript and follow existing test patterns in src/services/__tests__/ and src/hooks/__tests__/ directories.
+    </standards>
+    <locations>
+      - src/services/__tests__/ - Unit tests for RoutingService class and routing methods
+      - src/hooks/__tests__/ - Unit tests for useRouting hook
+      - functions/src/__tests__/ - Unit tests for Cloud Function routing
+      - tests/integration/ - Integration tests for webhook routing and routing scenarios
+    </locations>
+    <ideas>
+      <test ac="1">Test RoutingService class structure - verify RoutingService class is defined, routing result interface is defined, routing decision log interface is defined</test>
+      <test ac="2">Test identity-based routing - verify routeByIdentity() uses IdentityService.lookupByIdentifier(), queries threads by participant userId, filters by organizationId, returns most recent thread, handles null identity lookup, handles multiple matches</test>
+      <test ac="3">Test metadata-based routing - verify routeByMetadata() extracts property address or project ID, queries threads by propertyId or projectId, filters by organizationId, matches by property address keywords, returns most recent thread, handles no metadata found</test>
+      <test ac="4">Test context-based routing - verify routeByContext() extracts keywords from message text, queries threads by organizationId, scores threads based on keyword matches, scores threads based on conversation context, returns highest score above threshold, handles no matches above threshold</test>
+      <test ac="1-7">Test main routing method - verify routeMessage() orchestrates routing strategies in priority order, returns routing result with confidence score, handles all strategies fail (returns null), logs routing decision</test>
+      <test ac="5">Test manual assignment fallback - verify createUnassignedMessage() stores unassigned message in pending_routing collection, handles case where routing returns null</test>
+      <test ac="6">Test thread creation for new conversations - verify createThreadForMessage() uses IdentityService to get/create user, creates new thread with participant details, initializes channelSources array, links identity if not already linked</test>
+      <test ac="7">Test edge cases - verify routing handles multiple matches (returns most recent), handles no identity link (creates link or skips), handles invalid sender identifier format, handles missing organizationId, handles empty message text</test>
+      <test ac="8">Test routing decision logging - verify logRoutingDecision() stores routing decisions, logs method, confidence, reason, message details, thread ID</test>
+      <test ac="1-8">Test routing hook - verify useRouteMessage() hook provides routeMessage function, loading and error states, routing result state, routing decision log state</test>
+      <test ac="1-8">Test Cloud Function routing - verify routeWebhookMessage() accepts UnifiedMessage, calls RoutingService.routeMessage(), creates thread if routing returns null, saves message to routed thread, handles errors</test>
+      <test ac="1-8">Integration test: SMS webhook routing - verify SMS webhook handler calls routing service, routing routes message to correct thread based on identity, message is saved to routed thread</test>
+      <test ac="1-8">Integration test: Identity-based routing - verify routing uses IdentityService.lookupByIdentifier() to find user, routes message to thread with matching participant</test>
+      <test ac="1-8">Integration test: Multi-channel routing - verify routing routes messages from different channels to same thread based on identity, channelSources is updated correctly</test>
+      <test ac="1-8">Integration test: New thread creation - verify routing creates new thread when no match found, initializes channelSources array, links identity</test>
+      <test ac="1-8">Integration test: Manual assignment fallback - verify unassigned messages are stored in pending_routing collection when routing fails</test>
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

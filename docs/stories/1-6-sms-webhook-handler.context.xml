@@ -1,0 +1,247 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.6</storyId>
+    <title>SMS Webhook Handler</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-03 18:49:13</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-6-sms-webhook-handler.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>system</asA>
+    <iWant>to receive SMS webhooks from Twilio</iWant>
+    <soThat>inbound SMS messages are processed in real-time</soThat>
+    <tasks>
+      <task id="1" ac="1,4">Complete webhook endpoint integration
+        - Review existing webhook handler in functions/src/channels/sms.ts
+        - Remove TODOs and implement full routing integration
+        - Import routeWebhookMessage from routing Cloud Function
+        - Call routing service after converting to UnifiedMessage
+        - Ensure routing is called before message is saved
+        - Handle routing result (route to thread or create new thread)
+        - Update channelSources when message is routed
+        - Save message to routed thread
+        - Remove temporary incomingMessages collection usage (if routing is synchronous)
+        - Write unit tests for webhook routing integration
+      </task>
+      <task id="2" ac="2">Ensure webhook signature validation
+        - Review existing validateTwilioWebhookSignature() function
+        - Verify signature validation uses validateRequest() from Twilio SDK
+        - Ensure authToken is properly retrieved from environment
+        - Ensure signature validation happens before any processing
+        - Test signature validation with valid and invalid signatures
+        - Write unit tests for signature validation
+      </task>
+      <task id="3" ac="3">Ensure UnifiedMessage conversion
+        - Review existing TwilioSMSAdapter.receive() method
+        - Verify webhook handler calls adapter.receive() correctly
+        - Ensure all required fields are converted (MessageSid, From, To, Body, Timestamp)
+        - Ensure timestamp is parsed correctly from Twilio format
+        - Ensure status is mapped correctly using mapTwilioStatusToUnifiedStatus
+        - Ensure Twilio-specific data is stored in metadata.channelSpecific
+        - Test conversion with various Twilio webhook payloads
+        - Write unit tests for UnifiedMessage conversion
+      </task>
+      <task id="4" ac="4">Implement routing integration
+        - Ensure webhook handler calls routeWebhookMessage() Cloud Function
+        - Pass UnifiedMessage and organizationId to routing function
+        - Handle routing result (threadId or null)
+        - If routing returns threadId, save message to that thread
+        - If routing returns null, create new thread using createThreadForMessage()
+        - Update thread channelSources when message is routed
+        - Ensure message is saved with correct threadId
+        - Test routing integration with various scenarios
+        - Write integration tests for routing integration
+      </task>
+      <task id="5" ac="5">Implement delivery status update handling
+        - Review existing status update handling in webhook handler
+        - Ensure status updates are detected correctly (MessageStatus field)
+        - Ensure message is found by Twilio MessageSid
+        - Ensure status is mapped correctly using mapTwilioStatusToUnifiedStatus
+        - Ensure message status is updated in Firestore
+        - Handle case where message is not found (log warning)
+        - Test status update handling with various statuses
+        - Write unit tests for status update handling
+      </task>
+      <task id="6" ac="6">Ensure correct Twilio response
+        - Review existing TwiML response format
+        - Ensure response is sent as text/xml content type
+        - Ensure response is valid TwiML XML
+        - Ensure response is sent quickly (acknowledge receipt to Twilio)
+        - Ensure response is sent even if routing fails (async processing)
+        - Test response format with Twilio validation
+        - Write unit tests for TwiML response
+      </task>
+      <task id="7" ac="7">Improve error handling
+        - Review existing error handling in webhook handler
+        - Add error handling for invalid HTTP method (already exists)
+        - Add error handling for invalid webhook signature (already exists)
+        - Add error handling for invalid webhook payload (missing required fields)
+        - Add error handling for routing failures
+        - Add error handling for message saving failures
+        - Add error handling for status update failures
+        - Ensure errors are logged with context
+        - Ensure errors don't crash the webhook handler
+        - Return appropriate HTTP status codes for different error types
+        - Write unit tests for error handling
+      </task>
+      <task id="8" ac="8">Implement retry logic
+        - Create retry mechanism for failed routing
+        - Store failed messages in pending_retry collection
+        - Create Cloud Function trigger to retry failed messages
+        - Implement exponential backoff for retries
+        - Set maximum retry attempts (e.g., 3 attempts)
+        - Mark messages as failed after max retries
+        - Handle transient failures (retry) vs permanent failures (manual review)
+        - Test retry logic with various failure scenarios
+        - Write unit tests for retry logic
+      </task>
+      <task id="9" ac="1-8">Update webhook handler configuration
+        - Review webhook handler Cloud Function configuration
+        - Ensure proper region configuration (us-central1)
+        - Ensure CORS is enabled for webhook endpoint
+        - Ensure environment variables are properly configured
+        - Ensure webhook URL is properly configured in Twilio
+        - Document webhook configuration in README
+        - Test webhook handler with Twilio webhook simulator
+      </task>
+      <task id="10" ac="1-8">Integration testing
+        - Test webhook handler with incoming SMS messages
+        - Test webhook handler with delivery status updates
+        - Test routing integration (identity-based, metadata-based, context-based)
+        - Test thread creation for new conversations
+        - Test channelSources update when message is routed
+        - Test error handling with invalid webhooks
+        - Test retry logic with failed messages
+        - Test webhook handler with Twilio webhook simulator
+        - Write integration tests for webhook handler
+      </task>
+      <task id="11" ac="1-8">Update documentation
+        - Update architecture.md with webhook handler specification
+        - Document webhook handler flow (signature validation → conversion → routing → saving)
+        - Document retry logic and error handling
+        - Create usage examples for webhook handler
+        - Document webhook configuration in Twilio
+        - Document troubleshooting guide for webhook issues
+      </task>
+      <task id="12" ac="1-8">Testing
+        - Unit tests for webhook handler
+        - Unit tests for signature validation
+        - Unit tests for UnifiedMessage conversion
+        - Unit tests for routing integration
+        - Unit tests for status update handling
+        - Unit tests for TwiML response
+        - Unit tests for error handling
+        - Unit tests for retry logic
+        - Integration tests for webhook handler
+        - Integration tests with Twilio webhook simulator
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Webhook endpoint created for Twilio SMS</criterion>
+    <criterion id="2">Webhook validates Twilio request signature</criterion>
+    <criterion id="3">Webhook converts Twilio payload to UnifiedMessage</criterion>
+    <criterion id="4">Webhook routes message using routing logic</criterion>
+    <criterion id="5">Webhook handles delivery status updates</criterion>
+    <criterion id="6">Webhook responds correctly to Twilio</criterion>
+    <criterion id="7">Error handling for invalid webhooks</criterion>
+    <criterion id="8">Webhook retry logic for failed processing</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 1.6" snippet="Story 1.6: SMS Webhook Handler - As a system, I want to receive SMS webhooks from Twilio, so that inbound SMS messages are processed in real-time." />
+      <doc path="docs/architecture.md" title="Architecture Documentation" section="Epic 3.1.2" snippet="SMS Integration architecture specification: TwilioSMSAdapter implementation, Cloud Functions webhook handler at functions/src/channels/sms.ts, channelConfigs collection for Twilio credentials." />
+      <doc path="docs/architecture.md" title="Architecture Documentation" section="Message Routing Pattern" snippet="Message routing pattern: Cloud Function integration with routeWebhookMessage() handles routing for webhook messages, SMS webhook handler stores messages in incomingMessages collection for routing, routing can be done synchronously or asynchronously." />
+      <doc path="docs/stories/1-1-channel-abstraction-interface-design.md" title="Story 1.1: Channel Abstraction Interface Design" section="Story" snippet="Defined ChannelAdapter interface and UnifiedMessage type. Provides UnifiedMessage format for webhook handler conversion." />
+      <doc path="docs/stories/1-2-sms-channel-adapter-twilio-integration.md" title="Story 1.2: SMS Channel Adapter" section="Story" snippet="Implemented TwilioSMSAdapter with receive() method for converting Twilio webhooks to UnifiedMessage format. Provides webhook signature validation using validateRequest() from Twilio SDK." />
+      <doc path="docs/stories/1-5-message-routing-logic.md" title="Story 1.5: Message Routing Logic" section="Story" snippet="Implemented RoutingService and routeWebhookMessage() Cloud Function for routing UnifiedMessages to correct threads. Provides routing integration for webhook handlers." />
+    </docs>
+    <code>
+      <artifact path="functions/src/channels/sms.ts" kind="cloud-function" symbol="smsWebhookHandler, validateTwilioWebhookSignature" lines="1-265" reason="Existing SMS webhook handler implementation - needs routing integration completed. Currently stores messages in incomingMessages collection. Has TODOs for full routing service integration." />
+      <artifact path="functions/src/routing.ts" kind="cloud-function" symbol="routeWebhookMessage" lines="242-398" reason="Routing Cloud Function with routeWebhookMessage() function for routing UnifiedMessages to correct threads using Admin SDK. Provides identity-based routing, thread creation, and message saving." />
+      <artifact path="src/services/channels/sms.ts" kind="service" symbol="TwilioSMSAdapter, receive" lines="214-250" reason="TwilioSMSAdapter provides receive() method for converting Twilio webhook payloads to UnifiedMessage format. Handles MessageSid, From, To, Body, Timestamp conversion." />
+      <artifact path="src/services/channels/twilioStatusMapper.ts" kind="utility" symbol="mapTwilioStatusToUnifiedStatus" lines="36-51" reason="Status mapper utility for mapping Twilio message statuses to UnifiedMessage statuses. Used by webhook handler for status updates." />
+      <artifact path="src/types/Channel.ts" kind="type-definition" symbol="UnifiedMessage, ChannelType" lines="63-150" reason="UnifiedMessage interface provides format for webhook handler conversion and routing. Includes channel, direction, senderIdentifier, recipientIdentifier, text, timestamp, status, metadata fields." />
+      <artifact path="functions/src/routing.ts" kind="cloud-function" symbol="lookupIdentityByIdentifier, getThreadsForUser, createIdentityLink, createThreadAdmin, addChannelSourceAdmin, routeByIdentityAdmin" lines="35-231" reason="Helper functions for routing using Admin SDK: identity lookup, thread queries, identity link creation, thread creation, channel source management, identity-based routing." />
+      <artifact path="firestore.rules" kind="configuration" symbol="threads, messages" lines="1-171" reason="Firestore security rules for threads and messages collections. May need updates for pending_retry collection if created." />
+    </code>
+    <dependencies>
+      <dependency ecosystem="node" package="twilio" version="^4.23.0" />
+      <dependency ecosystem="node" package="firebase" version="^12.4.0" />
+      <dependency ecosystem="node" package="firebase-admin" version="^12.6.0" />
+      <dependency ecosystem="node" package="firebase-functions" version="^5.0.0" />
+      <dependency ecosystem="node" package="typescript" version="^5.0.0" />
+      <dependency ecosystem="node" package="@types/node" version="^24.9.1" />
+      <dependency ecosystem="node" package="jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="@types/jest" version="^29.0.0" />
+      <dependency ecosystem="node" package="ts-jest" version="^29.4.5" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Webhook handler must validate Twilio request signature using validateRequest() from Twilio SDK before processing</constraint>
+    <constraint>Webhook handler must acknowledge receipt to Twilio immediately (return TwiML response) even if routing fails</constraint>
+    <constraint>Webhook handler must call routeWebhookMessage() Cloud Function for routing with Admin SDK</constraint>
+    <constraint>Webhook handler must handle both incoming messages (MessageSid field) and status updates (MessageStatus field)</constraint>
+    <constraint>Webhook handler must convert Twilio payload to UnifiedMessage using TwilioSMSAdapter.receive() method</constraint>
+    <constraint>Webhook handler must update thread channelSources when message is routed</constraint>
+    <constraint>Webhook handler must save message to routed thread with correct threadId</constraint>
+    <constraint>Webhook handler must handle routing failures gracefully (store in pending_retry collection for retry)</constraint>
+    <constraint>Webhook handler must implement retry logic with exponential backoff for failed routing</constraint>
+    <constraint>Webhook handler must return appropriate HTTP status codes (403 for invalid signature, 400 for invalid payload, 500 for server errors)</constraint>
+    <constraint>Webhook handler must log all errors with context for debugging</constraint>
+    <constraint>Webhook handler must extract organizationId from request or environment variables</constraint>
+    <constraint>Status updates must find message by Twilio MessageSid using collectionGroup query</constraint>
+    <constraint>Status updates must map Twilio status to UnifiedMessage status using mapTwilioStatusToUnifiedStatus</constraint>
+    <constraint>Webhook handler must be configured with proper region (us-central1) and CORS enabled</constraint>
+    <constraint>All webhook handler methods must have unit tests with Jest</constraint>
+    <constraint>Integration tests must verify webhook handler works with Twilio webhook simulator</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="smsWebhookHandler" kind="Cloud Function" signature="export const smsWebhookHandler = onRequest(async (request, response) =&gt; { ... })" path="functions/src/channels/sms.ts" />
+    <interface name="validateTwilioWebhookSignature" kind="TypeScript function" signature="function validateTwilioWebhookSignature(request: any, authToken: string): boolean" path="functions/src/channels/sms.ts" />
+    <interface name="TwilioSMSAdapter.receive" kind="TypeScript method" signature="receive(webhookPayload: any): UnifiedMessage" path="src/services/channels/sms.ts" />
+    <interface name="routeWebhookMessage" kind="Cloud Function" signature="export const routeWebhookMessage = onCall(async request =&gt; { ... })" path="functions/src/routing.ts" />
+    <interface name="mapTwilioStatusToUnifiedStatus" kind="TypeScript function" signature="mapTwilioStatusToUnifiedStatus(twilioStatus: string): MessageStatus" path="src/services/channels/twilioStatusMapper.ts" />
+    <interface name="UnifiedMessage" kind="TypeScript interface" signature="interface UnifiedMessage { id: string; threadId: string; channel: ChannelType; direction: 'incoming' | 'outgoing'; senderIdentifier: string; recipientIdentifier: string; text: string; timestamp: Date; status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'; metadata?: { channelSpecific?: any }; }" path="src/types/Channel.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing standards follow Jest framework for unit tests and integration tests. Unit tests should cover webhook handler, signature validation, UnifiedMessage conversion, routing integration, status update handling, TwiML response, error handling, and retry logic. Integration tests should verify webhook handler works correctly with Twilio webhook simulator and routing service. All tests should use TypeScript and follow existing test patterns in functions/src/__tests__/ directory.
+    </standards>
+    <locations>
+      - functions/src/__tests__/ - Unit tests for webhook handler and routing Cloud Functions
+      - tests/integration/ - Integration tests for webhook handler with Twilio simulator
+    </locations>
+    <ideas>
+      <test ac="1">Test webhook endpoint creation - verify smsWebhookHandler Cloud Function is exported and configured correctly</test>
+      <test ac="2">Test webhook signature validation - verify validateTwilioWebhookSignature() uses validateRequest() from Twilio SDK, validates signature correctly, rejects invalid signatures</test>
+      <test ac="3">Test UnifiedMessage conversion - verify TwilioSMSAdapter.receive() converts webhook payload correctly, handles all required fields (MessageSid, From, To, Body, Timestamp), parses timestamp correctly, maps status correctly</test>
+      <test ac="4">Test routing integration - verify webhook handler calls routeWebhookMessage() Cloud Function, passes UnifiedMessage and organizationId, handles routing result (threadId or null), saves message to routed thread, updates channelSources</test>
+      <test ac="5">Test delivery status update handling - verify status updates are detected correctly, message is found by Twilio MessageSid, status is mapped correctly, message status is updated in Firestore</test>
+      <test ac="6">Test Twilio response - verify response is sent as text/xml content type, response is valid TwiML XML, response is sent quickly, response is sent even if routing fails</test>
+      <test ac="7">Test error handling - verify error handling for invalid HTTP method, invalid webhook signature, invalid webhook payload, routing failures, message saving failures, status update failures, errors are logged with context, errors don't crash handler</test>
+      <test ac="8">Test retry logic - verify retry mechanism stores failed messages in pending_retry collection, retries with exponential backoff, sets maximum retry attempts, marks messages as failed after max retries</test>
+      <test ac="1-8">Integration test: Incoming SMS message - verify webhook handler receives incoming SMS, validates signature, converts to UnifiedMessage, routes message, saves to thread, responds to Twilio</test>
+      <test ac="1-8">Integration test: Delivery status update - verify webhook handler receives status update, finds message by MessageSid, updates status in Firestore, responds to Twilio</test>
+      <test ac="1-8">Integration test: Routing integration - verify routing integration works with identity-based routing, metadata-based routing, context-based routing, thread creation for new conversations</test>
+      <test ac="1-8">Integration test: Error handling - verify error handling works with invalid webhooks, routing failures, message saving failures</test>
+      <test ac="1-8">Integration test: Retry logic - verify retry logic works with failed routing, exponential backoff, maximum retry attempts</test>
+      <test ac="1-8">Integration test: Twilio webhook simulator - verify webhook handler works correctly with Twilio webhook simulator</test>
+    </ideas>
+  </tests>
+</story-context>
+
+
+
+
+
+
+

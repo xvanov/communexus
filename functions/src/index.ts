@@ -9,3 +9,6 @@ export { aiProactiveAgent } from './aiProactiveAgent';
 export { sendNotification } from './sendNotification';
 
 export { sendMessageNotification } from './sendMessageNotification';
+export { smsWebhookHandler } from './channels/sms';
+export { routeWebhookMessage } from './routing';
+export { retryFailedMessages } from './retry';
