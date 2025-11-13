@@ -15,6 +15,7 @@ import ChatScreen from './src/screens/ChatScreen';
 import GroupCreateScreen from './src/screens/GroupCreateScreen';
 import ContactsScreen from './src/screens/ContactsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import ChecklistsScreen from './src/screens/ChecklistsScreen';
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,16 @@ export default function App() {
 
     // Global error handler to prevent unhandled errors from showing alerts
     const errorHandler = (error: Error, isFatal?: boolean) => {
+      const errorMessage = error?.message || String(error);
+      
+      // Handle NativeEventEmitter errors from voice library (non-fatal - voice just won't work)
+      if (errorMessage.includes('NativeEventEmitter') || 
+          errorMessage.includes('requires a non-null argument')) {
+        console.log('⚠️ Voice module not linked - voice features disabled. Rebuild app to enable: npx expo prebuild --platform ios && npx expo run:ios');
+        // Make this non-fatal - app can continue without voice
+        return;
+      }
+      
       console.error('Global error caught:', error, 'Fatal:', isFatal);
       // Don't show alerts - just log to console
     };
@@ -129,6 +140,11 @@ export default function App() {
           name="Settings"
           component={SettingsScreen}
           options={{ title: 'Settings' }}
+        />
+        <Stack.Screen
+          name="Checklists"
+          component={ChecklistsScreen}
+          options={{ title: 'Checklists' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

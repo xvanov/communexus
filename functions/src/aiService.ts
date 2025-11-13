@@ -666,6 +666,777 @@ Provide 3-5 specific, actionable suggestions with confidence scores.`;
 
     return suggestions;
   }
+
+  /**
+   * Classify checklist intent from natural language text
+   * Returns: 'create_item' | 'mark_complete' | 'query_status' | 'unknown'
+   */
+  async classifyChecklistIntent(text: string): Promise<string> {
+    try {
+      const startTime = Date.now();
+
+      const prompt = `Analyze this natural language command about a checklist and classify the intent.
+
+Command: "${text}"
+
+Possible intents:
+1. "create_item" - User wants to add a new item to the checklist (e.g., "add new task: install tiles", "create item: paint walls")
+2. "mark_complete" - User wants to mark an item as complete (e.g., "mark item 3 complete", "complete install tiles", "done with painting", "Kitchen is ready", "Bathroom done", "[item] is finished")
+3. "query_status" - User wants to query the checklist status (e.g., "what's next?", "show incomplete tasks", "how many done?")
+
+Return ONLY one of these exact strings: "create_item", "mark_complete", "query_status", or "unknown" if unclear.
+
+IMPORTANT: Phrases like "[item] is ready", "[item] is done", "[item] is complete", "[item] finished" should be classified as "mark_complete".
+
+Examples:
+- "mark item 3 complete" → "mark_complete"
+- "Kitchen is ready" → "mark_complete"
+- "Bathroom done" → "mark_complete"
+- "Kitchen finished" → "mark_complete"
+- "add new task: install tiles" → "create_item"
+- "what's next?" → "query_status"
+- "show incomplete tasks" → "query_status"
+- "hello" → "unknown"
+
+Return ONLY the intent string, nothing else.`;
+
+      const response = await getOpenAI().chat.completions.create({
+        model: this.config.openai.model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant that classifies checklist commands. Return only the intent string: "create_item", "mark_complete", "query_status", or "unknown".',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3, // Lower for more consistent classification
+        max_tokens: 50,
+      });
+
+      const content = response.choices[0]?.message?.content?.trim().toLowerCase();
+      if (!content) {
+        return 'unknown';
+      }
+
+      // Extract intent from response (handle cases where GPT adds extra text)
+      if (content.includes('create_item')) return 'create_item';
+      if (content.includes('mark_complete')) return 'mark_complete';
+      if (content.includes('query_status')) return 'query_status';
+      if (content.includes('unknown')) return 'unknown';
+
+      // Fallback: try to infer from content
+      if (content.includes('create') || content.includes('add') || content.includes('new')) {
+        return 'create_item';
+      }
+      if (content.includes('complete') || content.includes('done') || content.includes('mark')) {
+        return 'mark_complete';
+      }
+      if (content.includes('query') || content.includes('what') || content.includes('show') || content.includes('how')) {
+        return 'query_status';
+      }
+
+      const responseTime = Date.now() - startTime;
+      console.log(`Checklist intent classified in ${responseTime}ms: ${content}`);
+
+      return 'unknown';
+    } catch (error) {
+      console.error('Error classifying checklist intent:', error);
+      return 'unknown';
+    }
+  }
+
+  /**
+   * Match natural language text to a checklist item
+   * Uses semantic similarity and exact matching
+   */
+  async matchChecklistItem(
+    text: string,
+    checklistId: string,
+    items: Array<{ id: string; title: string; status: string; order: number }>
+  ): Promise<{ id: string; title: string; confidence: number; additionalMatches?: Array<{ id: string; title: string; confidence: number }> } | null> {
+    if (!items || items.length === 0) {
+      return null;
+    }
+
+    try {
+      const startTime = Date.now();
+
+      // First, try exact matching for item numbers (e.g., "item 3", "item 1")
+      const itemNumberMatch = text.match(/item\s+(\d+)/i);
+      if (itemNumberMatch) {
+        const itemIndex = parseInt(itemNumberMatch[1], 10) - 1; // Convert to 0-based index
+        if (itemIndex >= 0 && itemIndex < items.length) {
+          const sortedItems = [...items].sort((a, b) => a.order - b.order);
+          const matched = sortedItems[itemIndex];
+          return {
+            id: matched.id,
+            title: matched.title,
+            confidence: 1.0,
+            additionalMatches: undefined,
+          };
+        }
+      }
+
+      // Try exact title matching
+      const exactMatch = items.find(item =>
+        item.title.toLowerCase() === text.toLowerCase().trim()
+      );
+      if (exactMatch) {
+        return {
+          id: exactMatch.id,
+          title: exactMatch.title,
+          confidence: 1.0,
+          additionalMatches: undefined,
+        };
+      }
+
+      // Use GPT-4 for semantic similarity matching
+      const itemsList = items
+        .map((item, idx) => `${idx + 1}. "${item.title}" (id: ${item.id})`)
+        .join('\n');
+
+      const prompt = `Match this natural language reference to one or more of these checklist items.
+
+User said: "${text}"
+
+Available items:
+${itemsList}
+
+Find matching items. Be flexible and consider:
+- Exact matches (same words: "Kitchen" = "Kitchen")
+- Semantic similarity (similar meaning: "Kitchen is ready" matches "Kitchen")
+- Partial matches (contains key words: "the kitchen" matches "Kitchen")
+- Room/area names (if user says "bathroom is done", match "Bathroom" item)
+- Status phrases (if user says "[item] is ready/done/complete", match that item)
+- Natural variations ("kitchen done" = "Kitchen", "bathroom finished" = "Bathroom")
+
+IMPORTANT: If the user mentions a room/area name or item name (even in a phrase like "Kitchen is ready"), match it to the corresponding checklist item with high confidence.
+
+Examples:
+- "Kitchen is ready" → match "Kitchen" item (high confidence)
+- "Bathroom done" → match "Bathroom" item (high confidence)
+- "mark kitchen complete" → match "Kitchen" item (high confidence)
+
+Return ONLY a JSON array in this EXACT format (sorted by confidence, highest first):
+[
+  {
+    "id": "item_id_here",
+    "title": "item_title_here",
+    "confidence": 0.95
+  },
+  {
+    "id": "item_id_2",
+    "title": "item_title_2",
+    "confidence": 0.85
+  }
+]
+
+Include all items with confidence >= 0.6. If no good matches, return empty array [].
+
+Return ONLY valid JSON array, no markdown, no extra text.`;
+
+      const response = await getOpenAI().chat.completions.create({
+        model: this.config.openai.model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant that matches natural language to checklist items. Return only valid JSON with id, title, and confidence.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+      });
+
+      const content = response.choices[0]?.message?.content?.trim();
+      if (!content) {
+        return null;
+      }
+
+      // Parse JSON response
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(cleanContent);
+
+      // Handle both single object (legacy) and array (new) formats
+      const matches = Array.isArray(parsed) ? parsed : [parsed];
+      
+      // Filter matches with confidence >= 0.6
+      const validMatches = matches.filter(m => m.id && m.confidence >= 0.6);
+
+      if (validMatches.length === 0) {
+        return null;
+      }
+
+      // Return best match (first in sorted array)
+      const bestMatch = validMatches[0];
+      
+      const responseTime = Date.now() - startTime;
+      console.log(`Item matched in ${responseTime}ms: ${bestMatch.title} (confidence: ${bestMatch.confidence})${validMatches.length > 1 ? `, ${validMatches.length - 1} additional matches` : ''}`);
+
+      return {
+        id: bestMatch.id,
+        title: bestMatch.title,
+        confidence: bestMatch.confidence,
+        // Include additional matches if confidence is similar (within 0.15)
+        additionalMatches: validMatches.length > 1 && validMatches[1].confidence >= bestMatch.confidence - 0.15
+          ? validMatches.slice(1).map(m => ({ id: m.id, title: m.title, confidence: m.confidence }))
+          : undefined,
+      };
+    } catch (error) {
+      console.error('Error matching checklist item:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Process a checklist command and generate preview
+   * Orchestrates: intent classification → item matching → preview generation
+   */
+  async processChecklistCommand(
+    text: string,
+    checklistId: string,
+    items: Array<{ id: string; title: string; status: string; order: number }>
+  ): Promise<{
+    intent: string;
+    matchedItem?: { id: string; title: string; confidence: number; additionalMatches?: Array<{ id: string; title: string; confidence: number }> };
+    suggestedAction: string;
+    confidence: number;
+    newItemTitle?: string;
+    queryResult?: string;
+  }> {
+    try {
+      // Step 1: Classify intent
+      const intent = await this.classifyChecklistIntent(text);
+
+      if (intent === 'unknown') {
+        // Provide helpful suggestions based on common patterns
+        const lowerText = text.toLowerCase();
+        let suggestion = 'Unable to understand command. ';
+        
+        if (lowerText.includes('complete') || lowerText.includes('done') || lowerText.includes('finish')) {
+          suggestion += 'Did you mean to mark an item complete? Try: "mark item 3 complete"';
+        } else if (lowerText.includes('add') || lowerText.includes('create') || lowerText.includes('new')) {
+          suggestion += 'Did you mean to create a new item? Try: "add new task: [task name]"';
+        } else if (lowerText.includes('what') || lowerText.includes('show') || lowerText.includes('how')) {
+          suggestion += 'Did you mean to query status? Try: "what\'s next?" or "show incomplete tasks"';
+        } else {
+          suggestion += 'Please try: "mark item 3 complete", "add new task: [name]", or "what\'s next?"';
+        }
+
+        return {
+          intent: 'unknown',
+          suggestedAction: suggestion,
+          confidence: 0,
+        };
+      }
+
+      // Step 2: Match item (if needed for mark_complete)
+      let matchedItem: { id: string; title: string; confidence: number; additionalMatches?: Array<{ id: string; title: string; confidence: number }> } | null = null;
+      if (intent === 'mark_complete') {
+        matchedItem = await this.matchChecklistItem(text, checklistId, items);
+      }
+
+      // Step 3: Generate preview based on intent
+      if (intent === 'create_item') {
+        // Extract item title from command
+        const titleMatch = text.match(/(?:add|create|new).*?:(.+)|(?:add|create|new)\s+(?:task|item)\s+(.+)/i);
+        const newTitle = titleMatch
+          ? (titleMatch[1] || titleMatch[2]).trim()
+          : text.replace(/(?:add|create|new)\s+(?:task|item)\s*/i, '').trim();
+
+        return {
+          intent: 'create_item',
+          suggestedAction: `Add new item: "${newTitle}"`,
+          confidence: 0.8,
+          newItemTitle: newTitle,
+        };
+      }
+
+      if (intent === 'mark_complete') {
+        if (!matchedItem) {
+          // Suggest similar items if available
+          const suggestions = items
+            .filter(item => item.status !== 'completed')
+            .slice(0, 3)
+            .map(item => `"${item.title}"`)
+            .join(', ');
+
+          const errorMessage = suggestions
+            ? `Unable to find matching item. Did you mean: ${suggestions}?`
+            : 'Unable to find matching item. Please specify which item to mark complete.';
+
+          return {
+            intent: 'mark_complete',
+            suggestedAction: errorMessage,
+            confidence: 0,
+          };
+        }
+
+        return {
+          intent: 'mark_complete',
+          matchedItem: {
+            id: matchedItem.id,
+            title: matchedItem.title,
+            confidence: matchedItem.confidence,
+            additionalMatches: matchedItem.additionalMatches,
+          },
+          suggestedAction: `Mark "${matchedItem.title}" as complete`,
+          confidence: matchedItem.confidence,
+        };
+      }
+
+      if (intent === 'query_status') {
+        // For MVP, return simple query result
+        const incompleteItems = items.filter(item => item.status !== 'completed');
+        const completedCount = items.filter(item => item.status === 'completed').length;
+        const totalCount = items.length;
+
+        let queryResult = '';
+        if (text.toLowerCase().includes('next') || text.toLowerCase().includes("what's")) {
+          if (incompleteItems.length > 0) {
+            const sorted = incompleteItems.sort((a, b) => a.order - b.order);
+            queryResult = `Next task: "${sorted[0].title}"`;
+          } else {
+            queryResult = 'All tasks are complete!';
+          }
+        } else if (text.toLowerCase().includes('incomplete')) {
+          if (incompleteItems.length > 0) {
+            queryResult = `Incomplete tasks: ${incompleteItems.map(item => `"${item.title}"`).join(', ')}`;
+          } else {
+            queryResult = 'All tasks are complete!';
+          }
+        } else if (text.toLowerCase().includes('how many') || text.toLowerCase().includes('done')) {
+          queryResult = `${completedCount} of ${totalCount} tasks complete`;
+        } else {
+          queryResult = `${completedCount} of ${totalCount} tasks complete. ${incompleteItems.length} remaining.`;
+        }
+
+        return {
+          intent: 'query_status',
+          suggestedAction: queryResult,
+          confidence: 0.9,
+          queryResult,
+        };
+      }
+
+      return {
+        intent: 'unknown',
+        suggestedAction: 'Unable to process command.',
+        confidence: 0,
+      };
+    } catch (error) {
+      console.error('Error processing checklist command:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Analyze an image for checklist completion detection using GPT-4 Vision API
+   * Returns detected tasks and completion status
+   */
+  async analyzeImageForChecklist(
+    imageUrl: string,
+    checklistId: string
+  ): Promise<{
+    detectedTasks: Array<{
+      description: string;
+      confidence: 'high' | 'medium' | 'low';
+      confidenceScore: number;
+    }>;
+    completionStatus: 'complete' | 'incomplete' | 'partial' | 'unknown';
+    summary: string;
+  }> {
+    try {
+      const startTime = Date.now();
+
+      // Get checklist context for better analysis
+      // Note: We don't import checklistService here to avoid circular dependencies
+      // The checklist context can be passed separately if needed, but for MVP we'll analyze the image independently
+
+      const prompt = `Analyze this construction/contractor work image and identify:
+1. What tasks or work items are visible in the image
+2. Whether the work appears complete, incomplete, or partially complete
+3. A brief summary of what you see
+
+Focus on identifying specific construction tasks that might match checklist items (e.g., "install cabinets", "paint walls", "install countertops", "electrical work", "plumbing fixtures").
+
+Return ONLY a JSON object in this EXACT format:
+{
+  "detectedTasks": [
+    {
+      "description": "Task description (e.g., 'Install kitchen cabinets')",
+      "confidenceScore": 0.95
+    }
+  ],
+  "completionStatus": "complete" | "incomplete" | "partial" | "unknown",
+  "summary": "Brief 1-2 sentence summary of what's visible"
+}
+
+Confidence scores should be 0-1, where:
+- 0.85-1.0 = high confidence
+- 0.70-0.84 = medium confidence
+- 0.0-0.69 = low confidence
+
+Return ONLY valid JSON, no markdown, no extra text.`;
+
+      // Use GPT-4 Vision (gpt-4-vision-preview or gpt-4o)
+      // For vision, we need to use the chat completions API with image content
+      const response = await getOpenAI().chat.completions.create({
+        model: 'gpt-4o', // GPT-4o supports vision, fallback to gpt-4-vision-preview if needed
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant that analyzes construction/contractor work images. Identify tasks and completion status. Return only valid JSON.',
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: prompt,
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: imageUrl,
+                },
+              },
+            ],
+          },
+        ],
+        temperature: 0.3, // Lower for more consistent analysis
+        max_tokens: 1000,
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error('No response from OpenAI Vision API');
+      }
+
+      // Parse JSON response
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleanContent);
+
+      // Convert confidence scores to confidence levels
+      const detectedTasks = (parsed.detectedTasks || []).map((task: any) => {
+        const score = parseFloat(task.confidenceScore || 0);
+        let confidence: 'high' | 'medium' | 'low' = 'low';
+        if (score >= 0.85) confidence = 'high';
+        else if (score >= 0.70) confidence = 'medium';
+
+        return {
+          description: task.description || '',
+          confidence,
+          confidenceScore: score,
+        };
+      });
+
+      const responseTime = Date.now() - startTime;
+      console.log(
+        `Image analyzed in ${responseTime}ms: ${detectedTasks.length} tasks detected`
+      );
+
+      return {
+        detectedTasks,
+        completionStatus:
+          parsed.completionStatus || 'unknown',
+        summary: parsed.summary || 'No summary available',
+      };
+    } catch (error) {
+      console.error('Error analyzing image for checklist:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Match detected tasks from image analysis to checklist items
+   * Uses semantic similarity and exact matching
+   */
+  async matchImageToChecklistItems(
+    detectedTasks: Array<{ description: string; confidenceScore: number }>,
+    checklistId: string,
+    items: Array<{ id: string; title: string; status: string; order: number }>
+  ): Promise<
+    Array<{
+      itemId: string;
+      confidence: 'high' | 'medium' | 'low';
+      confidenceScore: number;
+      reasoning?: string;
+    }>
+  > {
+    if (!detectedTasks || detectedTasks.length === 0) {
+      return [];
+    }
+
+    if (!items || items.length === 0) {
+      return [];
+    }
+
+    try {
+      const startTime = Date.now();
+
+      // Build items list for matching
+      const itemsList = items
+        .map((item, idx) => `${idx + 1}. "${item.title}" (id: ${item.id}, status: ${item.status})`)
+        .join('\n');
+
+      // Build detected tasks list
+      const tasksList = detectedTasks
+        .map((task, idx) => `${idx + 1}. "${task.description}" (confidence: ${task.confidenceScore})`)
+        .join('\n');
+
+      const prompt = `Match these detected tasks from an image analysis to checklist items.
+
+Detected Tasks from Image:
+${tasksList}
+
+Available Checklist Items:
+${itemsList}
+
+For each detected task, find the best matching checklist item(s). Be flexible and consider:
+- Exact matches (same words/phrases like "bathroom" = "Bathroom")
+- Semantic similarity (similar meaning: "install vanity" matches "Bathroom")
+- Partial matches (contains key words: "bathroom fixtures" matches "Bathroom")
+- Construction/contractor terminology variations ("cabinet installation" = "Kitchen")
+- Room/area matches (if image shows bathroom, match "Bathroom" item)
+- General category matches (if image shows kitchen work, match "Kitchen" item)
+
+IMPORTANT: If a detected task clearly relates to a checklist item (even if wording differs), include it with appropriate confidence.
+
+Examples:
+- Image shows bathroom → match "Bathroom" checklist item (high confidence)
+- Image shows kitchen cabinets → match "Kitchen" checklist item (high confidence)
+- Image shows "install vanity" → match "Bathroom" item (high confidence)
+
+Return ONLY a JSON array in this EXACT format (one entry per match, sorted by confidence):
+[
+  {
+    "itemId": "item_id_here",
+    "confidenceScore": 0.95,
+    "reasoning": "Brief explanation of why this matches"
+  }
+]
+
+Include matches with confidenceScore >= 0.6. If no good matches, return empty array [].
+
+Return ONLY valid JSON array, no markdown, no extra text.`;
+
+      const response = await getOpenAI().chat.completions.create({
+        model: this.config.openai.model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant that matches detected tasks to checklist items. Return only valid JSON with itemId, confidenceScore, and reasoning.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+
+      const content = response.choices[0]?.message?.content?.trim();
+      if (!content) {
+        return [];
+      }
+
+      // Parse JSON response
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleanContent);
+      const matches = Array.isArray(parsed) ? parsed : [parsed];
+
+      // Filter and convert to confidence levels
+      const validMatches = matches
+        .filter((m: any) => m.itemId && m.confidenceScore >= 0.6)
+        .map((m: any) => {
+          const score = parseFloat(m.confidenceScore || 0);
+          let confidence: 'high' | 'medium' | 'low' = 'low';
+          if (score >= 0.85) confidence = 'high';
+          else if (score >= 0.70) confidence = 'medium';
+
+          return {
+            itemId: m.itemId,
+            confidence,
+            confidenceScore: score,
+            reasoning: m.reasoning,
+          };
+        });
+
+      const responseTime = Date.now() - startTime;
+      console.log(
+        `Items matched in ${responseTime}ms: ${validMatches.length} matches found`
+      );
+
+      return validMatches;
+    } catch (error) {
+      console.error('Error matching image to checklist items:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Process a natural language query about checklist status
+   * Handles queries like: "what's next?", "show incomplete", "how many done?"
+   */
+  async processChecklistQuery(
+    query: string,
+    checklistId: string,
+    items: Array<{ id: string; title: string; status: string; order: number }>
+  ): Promise<{
+    query: string;
+    answer: string;
+    nextTask?: { id: string; title: string; status: string; order: number };
+    incompleteItems?: Array<{ id: string; title: string; status: string; order: number }>;
+    progress?: {
+      total: number;
+      completed: number;
+      percentage: number;
+    };
+    relatedItems?: Array<{ id: string; title: string; status: string; order: number }>;
+  }> {
+    try {
+      const startTime = Date.now();
+      const lowerQuery = query.toLowerCase().trim();
+
+      // Handle simple queries with direct logic
+      if (lowerQuery.includes("what's next") || lowerQuery.includes("what is next") || lowerQuery === "next") {
+        const incompleteItems = items.filter(item => item.status !== 'completed');
+        const sorted = incompleteItems.sort((a, b) => a.order - b.order);
+        const nextTask = sorted[0];
+
+        return {
+          query,
+          answer: nextTask
+            ? `Next task: ${nextTask.title}`
+            : 'All tasks are complete!',
+          nextTask: nextTask || undefined,
+        };
+      }
+
+      if (lowerQuery.includes("show incomplete") || lowerQuery.includes("show pending") || lowerQuery.includes("incomplete")) {
+        const incompleteItems = items.filter(item => item.status !== 'completed');
+        const sorted = incompleteItems.sort((a, b) => a.order - b.order);
+
+        return {
+          query,
+          answer: incompleteItems.length === 0
+            ? 'All tasks are complete!'
+            : `Found ${incompleteItems.length} incomplete task${incompleteItems.length > 1 ? 's' : ''}: ${sorted.map(i => i.title).join(', ')}`,
+          incompleteItems: sorted,
+        };
+      }
+
+      if (lowerQuery.includes("how many") && (lowerQuery.includes("done") || lowerQuery.includes("complete"))) {
+        const completedCount = items.filter(item => item.status === 'completed').length;
+        const totalCount = items.length;
+        const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+        return {
+          query,
+          answer: `${completedCount} of ${totalCount} tasks complete${percentage > 0 ? ` (${percentage}%)` : ''}`,
+          progress: {
+            total: totalCount,
+            completed: completedCount,
+            percentage,
+          },
+        };
+      }
+
+      // For complex queries, use GPT-4
+      const itemsList = items
+        .map((item, idx) => `${idx + 1}. "${item.title}" (status: ${item.status}, order: ${item.order})`)
+        .join('\n');
+
+      const prompt = `Answer this question about a checklist:
+
+Question: "${query}"
+
+Checklist Items:
+${itemsList}
+
+Provide a helpful answer. Consider:
+- What tasks are next (incomplete items sorted by order)
+- Which items are incomplete
+- Progress statistics (completed vs total)
+- Specific item details if asked
+
+Return ONLY a JSON object in this EXACT format:
+{
+  "answer": "Your answer here",
+  "nextTask": { "id": "item_id", "title": "item_title", "status": "pending", "order": 1 } or null,
+  "incompleteItems": [array of incomplete items] or [],
+  "progress": { "total": 10, "completed": 5, "percentage": 50 } or null,
+  "relatedItems": [array of relevant items] or []
+}
+
+Return ONLY valid JSON, no markdown, no extra text.`;
+
+      const response = await getOpenAI().chat.completions.create({
+        model: this.config.openai.model,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an AI assistant that answers questions about checklist status. Return only valid JSON with answer, nextTask, incompleteItems, progress, and relatedItems.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+
+      const content = response.choices[0]?.message?.content?.trim();
+      if (!content) {
+        throw new Error('No response from OpenAI');
+      }
+
+      // Parse JSON response
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleanContent);
+
+      const responseTime = Date.now() - startTime;
+      console.log(`Query processed in ${responseTime}ms`);
+
+      return {
+        query,
+        answer: parsed.answer || 'Unable to process query',
+        nextTask: parsed.nextTask || undefined,
+        incompleteItems: parsed.incompleteItems || undefined,
+        progress: parsed.progress || undefined,
+        relatedItems: parsed.relatedItems || undefined,
+      };
+    } catch (error) {
+      console.error('Error processing checklist query:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

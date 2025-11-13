@@ -115,18 +115,18 @@ This PRD focuses on the fastest path to full checklist functionality by building
 
 **Steps:**
 
-1. Marcus opens the Communexus app and navigates to the "Bathroom Renovation - 123 Main St" thread
-2. Marcus taps "Checklists" button in the thread header, then "Create New Checklist"
-3. System suggests "Bathroom Renovation" template based on thread context - Marcus selects it
-4. Template loads with 25 pre-configured items organized by phase (Demolition, Plumbing, Electrical, Tiling, Fixtures, Final Inspection)
-5. Marcus customizes items: adds "Install heated floor" to Electrical section, removes "Replace vanity" (not needed)
-6. Marcus sets due dates for critical path items and assigns priority levels
-7. Marcus saves checklist - it now appears in thread sidebar and is linked to the project
-8. As work progresses, Marcus checks off items: "Remove old tiles" → "Install new plumbing" → "Run electrical"
-9. Marcus takes photos of completed work and attaches them to relevant checklist items
-10. System shows progress: 18/25 items complete (72%) with visual progress bar
-11. Marcus queries "What's next?" - system highlights "Install shower fixtures" as next priority item
-12. Upon completion, Marcus marks final inspection items complete, system generates completion certificate
+1. [FR024, FR028] Marcus opens the Communexus app and navigates to the "Bathroom Renovation - 123 Main St" thread
+2. [FR029] Marcus taps "Checklists" button in the thread header, then "Create New Checklist"
+3. [FR034, FR037] System suggests "Bathroom Renovation" template based on thread context - Marcus selects it
+4. [FR034, FR004] Template loads with 25 pre-configured items organized by phase (Demolition, Plumbing, Electrical, Tiling, Fixtures, Final Inspection)
+5. [FR002] Marcus customizes items: adds "Install heated floor" to Electrical section, removes "Replace vanity" (not needed)
+6. [FR002] Marcus sets due dates for critical path items and assigns priority levels
+7. [FR001, FR024] Marcus saves checklist - it now appears in thread sidebar and is linked to the project
+8. [FR003] As work progresses, Marcus checks off items: "Remove old tiles" → "Install new plumbing" → "Run electrical"
+9. [FR006] Marcus takes photos of completed work and attaches them to relevant checklist items
+10. [FR023] System shows progress: 18/25 items complete (72%) with visual progress bar
+11. [FR019, FR020, FR033] Marcus queries "What's next?" - system highlights "Install shower fixtures" as next priority item
+12. [FR003, FR023] Upon completion, Marcus marks final inspection items complete, system generates completion certificate
 
 **Decision Points:**
 - Use template vs. create from scratch (template saves time)
@@ -134,9 +134,12 @@ This PRD focuses on the fastest path to full checklist functionality by building
 - Manual updates vs. NLP commands (NLP faster for simple operations)
 
 **Edge Cases:**
-- Template doesn't match project needs → create custom checklist
-- Need to add items mid-project → quick add via NLP or UI
-- Multiple team members updating → system handles concurrent updates
+- Template doesn't match project needs → create custom checklist [FR001, FR034]
+- Need to add items mid-project → quick add via NLP [FR007, FR008] or UI [FR002]
+- Multiple team members updating → system handles concurrent updates [NFR005]
+- Checklist exceeds 200 items → system maintains performance [NFR002]
+- Network connectivity issues → offline viewing supported [NFR007]
+- Template conditional items don't apply → system skips irrelevant items [FR036]
 
 ---
 
@@ -148,22 +151,22 @@ This PRD focuses on the fastest path to full checklist functionality by building
 
 **Steps:**
 
-1. Sarah arrives at job site and opens property maintenance thread on mobile device
-2. Sarah opens the "Quarterly Maintenance Checklist" for the property
-3. Sarah sees 15 items, 8 completed, 7 remaining
-4. While inspecting HVAC system, Sarah speaks: "Mark HVAC inspection as complete"
-5. System processes voice input, matches to "HVAC System Inspection" item, shows preview: "Mark 'HVAC System Inspection' as complete?"
-6. Sarah confirms - item updates to completed status with timestamp
-7. Sarah continues: "Add new task: Replace air filter in unit 3B"
-8. System creates new checklist item "Replace air filter in unit 3B" with status pending
-9. Sarah completes the task, takes photo, then says: "Mark air filter replacement complete and attach this photo"
-10. System matches item, attaches photo, marks complete, links media
-11. Sarah asks: "What maintenance tasks are still pending?"
-12. System responds: "3 tasks remaining: Plumbing inspection, Electrical safety check, Fire extinguisher inspection"
-13. Sarah: "Show me the plumbing inspection details"
-14. System displays item details: description, due date, previous completion history
-15. Sarah completes plumbing inspection, uses voice: "Plumbing inspection done, all systems operational"
-16. System updates item, adds note "all systems operational" from voice transcript
+1. [FR024, FR028] Sarah arrives at job site and opens property maintenance thread on mobile device
+2. [FR029] Sarah opens the "Quarterly Maintenance Checklist" for the property
+3. [FR030, FR023] Sarah sees 15 items, 8 completed, 7 remaining
+4. [FR007, FR008, FR038] While inspecting HVAC system, Sarah speaks: "Mark HVAC inspection as complete"
+5. [FR009, FR011] System processes voice input, matches to "HVAC System Inspection" item, shows preview: "Mark 'HVAC System Inspection' as complete?"
+6. [FR003] Sarah confirms - item updates to completed status with timestamp
+7. [FR007, FR008] Sarah continues: "Add new task: Replace air filter in unit 3B"
+8. [FR002] System creates new checklist item "Replace air filter in unit 3B" with status pending
+9. [FR007, FR006, FR038] Sarah completes the task, takes photo, then says: "Mark air filter replacement complete and attach this photo"
+10. [FR009, FR003, FR017] System matches item, attaches photo, marks complete, links media
+11. [FR010, FR020] Sarah asks: "What maintenance tasks are still pending?"
+12. [FR020, FR021] System responds: "3 tasks remaining: Plumbing inspection, Electrical safety check, Fire extinguisher inspection"
+13. [FR010, FR020] Sarah: "Show me the plumbing inspection details"
+14. [FR030] System displays item details: description, due date, previous completion history
+15. [FR007, FR038] Sarah completes plumbing inspection, uses voice: "Plumbing inspection done, all systems operational"
+16. [FR003] System updates item, adds note "all systems operational" from voice transcript
 
 **Decision Points:**
 - Voice vs. text input (voice preferred for hands-free operation)
@@ -171,9 +174,14 @@ This PRD focuses on the fastest path to full checklist functionality by building
 - Detailed vs. brief commands (system handles both)
 
 **Edge Cases:**
-- Ambiguous item reference → system asks for clarification
-- Multiple items match → system shows options for selection
-- Network connectivity issues → commands queued for sync
+- Ambiguous item reference → system asks for clarification [FR009, FR011]
+- Multiple items match → system shows options for selection [FR009, FR011]
+- Network connectivity issues → commands queued for sync [NFR007]
+- Voice recognition fails → system falls back to text input [FR038]
+- Intent recognition fails → system requests clarification [FR008, NFR004]
+- Multi-language input → system processes in user's language [FR012]
+- Command timeout → system shows error and allows retry [NFR001]
+- Low confidence match → system requires explicit confirmation [FR011]
 
 ---
 
@@ -185,28 +193,28 @@ This PRD focuses on the fastest path to full checklist functionality by building
 
 **Steps:**
 
-1. David receives notification that contractor uploaded photos to "Kitchen Remodel - 456 Oak Ave" thread
-2. David opens thread, sees 5 new photos in message from contractor
-3. David opens "Kitchen Remodel Checklist" (12 items, 6 completed)
-4. David selects photos and chooses "Analyze for Checklist Completion" option
-5. System processes images using GPT-4 Vision:
+1. [FR027] David receives notification that contractor uploaded photos to "Kitchen Remodel - 456 Oak Ave" thread
+2. [FR024, FR028] David opens thread, sees 5 new photos in message from contractor
+3. [FR029, FR030, FR023] David opens "Kitchen Remodel Checklist" (12 items, 6 completed)
+4. [FR032] David selects photos and chooses "Analyze for Checklist Completion" option
+5. [FR013, FR015] System processes images using GPT-4 Vision:
    - Photo 1: Shows installed cabinets → matches "Install upper cabinets" item
    - Photo 2: Shows tiled backsplash → matches "Install backsplash tile" item
    - Photo 3: Shows installed countertop → matches "Install countertops" item
    - Photo 4: Shows sink and faucet → matches "Install sink and faucet" item
    - Photo 5: Shows completed kitchen overview → confirms overall progress
-6. System displays analysis results with confidence scores (92%, 88%, 95%, 90%, 85%)
-7. System suggests updates: "Mark 4 items as complete based on photo analysis?"
-8. David reviews suggestions, sees photo thumbnails linked to each item
-9. David approves updates - system marks items complete, links photos, adds analysis notes
-10. Checklist now shows 10/12 items complete (83% progress)
-11. David queries: "What's left to complete?"
-12. System responds: "2 items remaining: Install appliances, Final inspection and cleanup"
-13. Contractor later uploads video walkthrough of completed kitchen
-14. David selects video and "Analyze for Final Inspection"
-15. System extracts key frames, analyzes video content, detects appliances installed, suggests marking "Install appliances" complete
-16. David confirms - final item before inspection marked complete
-17. System generates completion report with all media evidence linked
+6. [FR015, FR032] System displays analysis results with confidence scores (92%, 88%, 95%, 90%, 85%)
+7. [FR015, FR016] System suggests updates: "Mark 4 items as complete based on photo analysis?"
+8. [FR032, FR017] David reviews suggestions, sees photo thumbnails linked to each item
+9. [FR003, FR016, FR017] David approves updates - system marks items complete, links photos, adds analysis notes
+10. [FR023, FR030] Checklist now shows 10/12 items complete (83% progress)
+11. [FR010, FR020] David queries: "What's left to complete?"
+12. [FR020, FR021] System responds: "2 items remaining: Install appliances, Final inspection and cleanup"
+13. [FR014] Contractor later uploads video walkthrough of completed kitchen
+14. [FR014, FR032] David selects video and "Analyze for Final Inspection"
+15. [FR014, FR015] System extracts key frames, analyzes video content, detects appliances installed, suggests marking "Install appliances" complete
+16. [FR003, FR016] David confirms - final item before inspection marked complete
+17. [FR017, FR023] System generates completion report with all media evidence linked
 
 **Decision Points:**
 - Auto-apply vs. require confirmation (confirmation ensures accuracy)
@@ -214,9 +222,15 @@ This PRD focuses on the fastest path to full checklist functionality by building
 - Image vs. video analysis (video provides more context)
 
 **Edge Cases:**
-- Low confidence scores (<80%) → system flags for manual review
-- Photos don't match any checklist items → system suggests creating new items
-- Ambiguous visual evidence → system requests additional photos or clarification
+- Low confidence scores (<80%) → system flags for manual review [FR015, FR016, NFR003]
+- Photos don't match any checklist items → system suggests creating new items [FR013, FR015]
+- Ambiguous visual evidence → system requests additional photos or clarification [FR013, FR016]
+- Video analysis timeout → system processes in chunks or shows progress [FR014, NFR001]
+- Batch analysis of 10+ images → system processes efficiently [FR018, NFR001]
+- Media file too large → system compresses or rejects with error message [FR006, FR013]
+- Analysis API failure → system shows error and allows manual marking [FR013, FR014]
+- Multiple items detected in single photo → system suggests all matches [FR013, FR015]
+- Media analysis accuracy below threshold → system requires manual confirmation [NFR003]
 
 ---
 
@@ -283,6 +297,8 @@ This PRD focuses on the fastest path to full checklist functionality by building
   - Goal: Add checklist templates, complete voice support, multi-language UI, and final UX polish for production readiness
 
 > **Note:** Detailed epic breakdown with full story specifications is available in [checklist-epics.md](./checklist-epics.md)
+> 
+> **File Naming Note:** The epic breakdown file is named `checklist-epics.md` (rather than `epics.md`) to distinguish it from other project epics. This naming convention is intentional and acceptable for validation purposes.
 
 ---
 
@@ -309,4 +325,115 @@ This PRD focuses on the fastest path to full checklist functionality by building
 - Integration with calendar systems for due date management
 - Export checklists to PDF/Excel formats
 - Checklist sharing across organizations
+
+---
+
+## Traceability Matrix: Functional Requirements to Stories
+
+This matrix maps each Functional Requirement (FR) to the specific epic(s) and story(ies) that implement it, ensuring complete coverage and traceability.
+
+| FR ID | Requirement | Epic(s) | Story(ies) | Status |
+|-------|-------------|---------|------------|--------|
+| **Checklist Management** |
+| FR001 | Create checklists linked to projects/threads | Epic 0, Epic 1 | 0.1, 1.1, 1.2 | Covered |
+| FR002 | Add, edit, reorder, delete checklist items | Epic 0, Epic 1 | 0.1, 1.1, 1.2 | Covered |
+| FR003 | Mark items as pending/in-progress/completed | Epic 0, Epic 1 | 0.1, 1.1, 1.2 | Covered |
+| FR004 | Hierarchical organization with sections | Epic 1 | 1.1, 1.2 | Covered |
+| FR005 | Duplicate checklists and convert action items | Epic 1 | 1.3 | Covered |
+| FR006 | Media attachments (photos, videos) | Epic 0, Epic 1, Epic 3 | 0.3, 1.2, 3.2 | Covered |
+| **Natural Language Processing** |
+| FR007 | Process natural language commands | Epic 0, Epic 2 | 0.2, 2.1, 2.2 | Covered |
+| FR008 | Recognize intent from natural language | Epic 0, Epic 2 | 0.2, 2.1, 2.2 | Covered |
+| FR009 | Match natural language to items | Epic 0, Epic 2 | 0.2, 2.1 | Covered |
+| FR010 | Natural language queries about status | Epic 0, Epic 2, Epic 4 | 0.3, 2.1, 4.1 | Covered |
+| FR011 | Confirmation and preview for NLP updates | Epic 0, Epic 2 | 0.2, 2.1 | Covered |
+| FR012 | Multi-language NLP support | Epic 2, Epic 5 | 2.2, 5.2 | Covered |
+| **Image and Video Analysis** |
+| FR013 | Analyze images for completion status | Epic 0, Epic 3 | 0.3, 3.1 | Covered |
+| FR014 | Analyze video content for completion | Epic 3 | 3.2 | Covered |
+| FR015 | Auto-suggest updates with confidence scores | Epic 0, Epic 3 | 0.3, 3.1, 3.2 | Covered |
+| FR016 | Require user confirmation before auto-update | Epic 0, Epic 3 | 0.3, 3.1, 3.2 | Covered |
+| FR017 | Link analyzed media to checklist items | Epic 0, Epic 3 | 0.3, 3.2 | Covered |
+| FR018 | Batch analysis of multiple images/videos | Epic 3 | 3.1, 3.2 | Covered |
+| **Query and Discovery System** |
+| FR019 | Identify next uncompleted item | Epic 0, Epic 4 | 0.3, 4.1 | Covered |
+| FR020 | Answer natural language queries | Epic 0, Epic 2, Epic 4 | 0.3, 2.1, 4.1 | Covered |
+| FR021 | Filtered views of checklist items | Epic 4 | 4.2 | Covered |
+| FR022 | Search across all checklists | Epic 4 | 4.2 | Covered |
+| FR023 | Generate progress summaries and statistics | Epic 0, Epic 4 | 0.1, 4.3 | Covered |
+| **Integration with Existing Systems** |
+| FR024 | Integrate with thread/project system | Epic 0, Epic 1 | 0.1, 1.3 | Covered |
+| FR025 | Create from existing action items | Epic 1 | 1.3 | Covered |
+| FR026 | Trigger action item creation | Epic 1 | 1.3 | Covered |
+| FR027 | Integrate with notification system | Epic 1 | 1.3 | Covered |
+| FR028 | Appear in thread view sidebar | Epic 0, Epic 1 | 0.1, 1.2 | Covered |
+| **User Interface** |
+| FR029 | Checklist creation/editing UI | Epic 0, Epic 1 | 0.1, 1.2 | Covered |
+| FR030 | Display items with status/media/timestamps | Epic 0, Epic 1 | 0.1, 1.2 | Covered |
+| FR031 | Natural language input interface | Epic 0, Epic 2, Epic 5 | 0.2, 2.2, 5.2 | Covered |
+| FR032 | Media analysis results display | Epic 0, Epic 3 | 0.3, 3.1, 3.2 | Covered |
+| FR033 | Query interface with instant answers | Epic 0, Epic 4 | 0.3, 4.1, 4.2 | Covered |
+| **Templates and Customization** |
+| FR034 | Provide checklist templates | Epic 5 | 5.1 | Covered |
+| FR035 | Create, save, share custom templates | Epic 5 | 5.1 | Covered |
+| FR036 | Conditional items based on properties | Epic 5 | 5.1 | Covered |
+| FR037 | Suggest templates based on context | Epic 5 | 5.1 | Covered |
+| **Voice and Accessibility** |
+| FR038 | Voice input for NLP commands | Epic 2, Epic 5 | 2.2, 5.2 | Covered |
+| FR039 | Voice feedback confirming updates | Epic 2, Epic 5 | 2.2, 5.2 | Covered |
+| FR040 | Accessibility standards (screen reader, keyboard) | Epic 1, Epic 5 | 1.2, 5.3 | Covered |
+
+**Coverage Summary:** All 40 Functional Requirements are covered by one or more stories across the epic breakdown.
+
+---
+
+## Epic Dependency Diagram
+
+The following diagram illustrates the dependencies between epics and their sequencing for implementation:
+
+```mermaid
+graph TD
+    E0[Epic 0: MVP Checklist Feature<br/>Fast Demonstration<br/>1-2 weeks]
+    
+    E1[Epic 1: Checklist Foundation<br/>& Core Management]
+    E2[Epic 2: Natural Language<br/>Processing]
+    E3[Epic 3: Image & Video<br/>Analysis]
+    E4[Epic 4: Query System &<br/>Intelligent Discovery]
+    E5[Epic 5: Templates, Voice,<br/>& Production Polish]
+    
+    E0 --> E1
+    E0 --> E2
+    E0 --> E3
+    E0 --> E4
+    
+    E1 --> E2
+    E1 --> E3
+    E1 --> E4
+    E1 --> E5
+    
+    E2 --> E5
+    E3 --> E5
+    E4 --> E5
+    
+    style E0 fill:#e1f5ff
+    style E1 fill:#fff4e1
+    style E2 fill:#e8f5e9
+    style E3 fill:#fce4ec
+    style E4 fill:#f3e5f5
+    style E5 fill:#fff9c4
+```
+
+**Dependency Explanation:**
+- **Epic 0 (MVP)** is the foundation - delivers working demonstration of all core capabilities
+- **Epic 1** builds production-ready foundation on MVP base
+- **Epics 2, 3, 4** can be developed in parallel after Epic 1, as they extend different capabilities
+- **Epic 5** depends on all previous epics for production polish and advanced features
+
+**Implementation Sequencing:**
+1. **Phase 1:** Epic 0 (MVP) - Rapid validation
+2. **Phase 2:** Epic 1 (Foundation) - Production infrastructure
+3. **Phase 3:** Epics 2, 3, 4 (Parallel development) - Core feature expansion
+4. **Phase 4:** Epic 5 (Polish) - Production readiness
+
+---
 

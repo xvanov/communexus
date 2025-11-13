@@ -1,0 +1,162 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>0.1</storyId>
+    <title>MVP Checklist Core - Data Model, Service, & Basic UI</title>
+    <status>drafted</status>
+    <generatedAt>2025-01-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/0-1-mvp-checklist-core-data-model-service-basic-ui.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>contractor</asA>
+    <iWant>to create and manage checklists with basic UI</iWant>
+    <soThat>I can track project tasks in a structured way</soThat>
+    <tasks>
+      <task id="1" ac="1">Define TypeScript data models - Create Checklist and ChecklistItem interfaces</task>
+      <task id="2" ac="2">Set up Firestore collection and security rules - Create checklists collection with thread-based access</task>
+      <task id="3" ac="3">Implement checklistService.ts - Core CRUD operations for checklists and items</task>
+      <task id="4" ac="4">Create ChecklistList component - Display checklists for a thread</task>
+      <task id="5" ac="5">Create ChecklistDetailView component - Show items as checkboxes</task>
+      <task id="6" ac="6">Create ChecklistForm component - Form for creating checklists</task>
+      <task id="7" ac="7">Integrate checklists into thread view - Add "Checklists" button to header</task>
+      <task id="8" ac="8">Implement progress indicator - Show X/Y items complete</task>
+      <task id="9" ac="9">End-to-end integration testing - Verify full workflow</task>
+      <task id="10" ac="10">Thread integration verification - Verify threadId linking and access control</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">Checklist data model defined: Checklist interface (id, threadId, title, items[]) and ChecklistItem interface (id, title, status, order)</ac>
+    <ac id="2">Firestore collections created: `checklists` collection with basic security rules</ac>
+    <ac id="3">Checklist service layer (`checklistService.ts`) with: createChecklist, getChecklist, updateChecklist, createChecklistItem, updateChecklistItem, markItemComplete</ac>
+    <ac id="4">Basic ChecklistList component showing checklists for a thread with title and item count</ac>
+    <ac id="5">Basic ChecklistDetailView component showing items as checkboxes that can be toggled complete</ac>
+    <ac id="6">Checklist creation form (title input, add items button, save)</ac>
+    <ac id="7">Checklists accessible from thread view via "Checklists" button in header</ac>
+    <ac id="8">Progress indicator showing X/Y items complete</ac>
+    <ac id="9">All operations work end-to-end: create → view → update → complete items</ac>
+    <ac id="10">Integration with existing thread/project system (checklists linked to threadId)</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Checklist Management">
+        Functional requirements for checklist creation, management, and integration with threads. FR001-FR006 cover basic checklist operations.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="Data Models and Contracts">
+        Complete Checklist and ChecklistItem interface definitions with Firestore schema. Specifies embedded array storage for MVP simplicity.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="Services and Modules">
+        checklistService.ts responsibilities: CRUD operations, progress calculation, thread-based queries. Follows existing service patterns.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="APIs and Interfaces">
+        Complete API signatures for checklistService methods including createChecklist, getChecklist, updateChecklist, item operations, and progress calculation.
+      </doc>
+      <doc path="docs/checklist-epics.md" title="Epic Breakdown" section="Story 0.1">
+        Story acceptance criteria and implementation notes. Emphasizes simplest data model, reusing ActionItemList patterns, core CRUD only.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Project Structure">
+        Project structure shows src/services/, src/components/, src/types/ organization. Checklist components should follow existing patterns.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Data Architecture">
+        Firestore schema patterns and security rules. Checklists should follow thread-based access control similar to actionItems collection.
+      </doc>
+    </docs>
+    <code>
+      <file path="src/services/messaging.ts" kind="service" symbol="createOptimisticMessage, sendMessage" lines="1-59" reason="Service pattern example for Firestore operations, optimistic updates, error handling" />
+      <file path="src/services/threads.ts" kind="service" symbol="getThread, createThread" lines="1-93" reason="Thread service pattern for Firestore queries and thread-based operations" />
+      <file path="src/components/ai/ActionItemList.tsx" kind="component" symbol="ActionItemList" lines="1-285" reason="UI pattern to reuse: list display, filtering, status toggling, progress indicators. Similar structure needed for ChecklistList" />
+      <file path="src/components/ai/ActionItemModal.tsx" kind="component" symbol="ActionItemModal" lines="6-111" reason="Modal pattern for displaying list items. Can be adapted for ChecklistList modal" />
+      <file path="src/screens/ChatScreen.tsx" kind="screen" symbol="ChatScreen" lines="33-441" reason="Thread view screen where Checklists button should be added to header. Shows ActionItemModal integration pattern" />
+      <file path="firestore.rules" kind="config" symbol="actionItems security rules" lines="64-88" reason="Security rules pattern for thread-based access control. Checklists should follow same pattern: verify user is thread participant" />
+      <file path="src/services/firebase.ts" kind="service" symbol="getDb, getAuth" lines="1-50" reason="Firebase initialization and database access. Use getDb() for Firestore operations" />
+      <file path="src/types/Message.ts" kind="type" symbol="Message interface" reason="TypeScript interface pattern example. Checklist types should follow similar structure" />
+      <file path="src/types/Thread.ts" kind="type" symbol="Thread interface" reason="Thread type definition. Checklists link via threadId field" />
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="firebase" version="^12.4.0" purpose="Firestore database, authentication, storage" />
+        <package name="react-native" version="0.81.5" purpose="Mobile UI framework" />
+        <package name="expo" version="^54.0.18" purpose="React Native development platform" />
+        <package name="typescript" version="^5.0.0" purpose="Type safety" />
+        <package name="zustand" version="^5.0.8" purpose="State management (if needed for checklist state)" />
+        <package name="@react-navigation/native" version="^7.1.18" purpose="Navigation for checklist screens" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Service layer pattern: checklistService.ts must follow existing service patterns similar to messaging.ts. Location: src/services/checklistService.ts</constraint>
+    <constraint type="architecture">Component reuse: UI components must leverage existing ActionItemList patterns. Checklist components in src/components/checklist/ subdirectory</constraint>
+    <constraint type="data">Firestore schema: Checklists collection with embedded items array for MVP simplicity. Fields: id, threadId, title, items[], createdAt, updatedAt, createdBy</constraint>
+    <constraint type="security">Security rules: Checklists inherit thread-level permissions. Users must be thread participants to access checklists. Follow actionItems security rule pattern</constraint>
+    <constraint type="integration">Thread integration: Checklists linked via threadId. Access control based on thread participation. Checklists accessible from thread view header</constraint>
+    <constraint type="performance">Performance target: Standard checklist operations must complete within 2 seconds (NFR001)</constraint>
+    <constraint type="data">Data model: Simplest possible model - no templates, priorities, due dates, sections for MVP. Only core fields: id, title, status, order</constraint>
+    <constraint type="ui">UI patterns: Reuse ActionItemList component patterns for list display, filtering, status toggling. Use existing design system (Colors, Spacing, BorderRadius)</constraint>
+    <constraint type="testing">Testing: Unit tests for service layer (Jest), integration tests for Firestore (Firebase emulator), E2E tests for workflows (WebdriverIO). Coverage target: 80% for service layer</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="checklistService API" kind="function signatures" signature="createChecklist(threadId: string, title: string): Promise&lt;Checklist&gt;
+getChecklist(checklistId: string): Promise&lt;Checklist&gt;
+updateChecklist(checklistId: string, updates: Partial&lt;Checklist&gt;): Promise&lt;Checklist&gt;
+createChecklistItem(checklistId: string, item: Omit&lt;ChecklistItem, 'id'&gt;): Promise&lt;ChecklistItem&gt;
+updateChecklistItem(checklistId: string, itemId: string, updates: Partial&lt;ChecklistItem&gt;): Promise&lt;ChecklistItem&gt;
+markItemComplete(checklistId: string, itemId: string): Promise&lt;ChecklistItem&gt;
+getChecklistsByThread(threadId: string): Promise&lt;Checklist[]&gt;
+calculateProgress(checklistId: string): Promise&lt;{total: number, completed: number, percentage: number}&gt;" path="src/services/checklistService.ts" />
+    <interface name="Checklist interface" kind="TypeScript interface" signature="interface Checklist {
+  id: string;
+  threadId: string;
+  title: string;
+  items: ChecklistItem[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  createdBy: string;
+  progress?: { total: number; completed: number; percentage: number; };
+}" path="src/types/Checklist.ts" />
+    <interface name="ChecklistItem interface" kind="TypeScript interface" signature="interface ChecklistItem {
+  id: string;
+  checklistId: string;
+  title: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  order: number;
+  completedAt?: Timestamp;
+  completedBy?: string;
+  mediaAttachments?: string[];
+}" path="src/types/Checklist.ts" />
+    <interface name="Firestore security rules" kind="Firestore rules" signature="match /checklists/{checklistId} {
+  allow read, write: if request.auth != null &amp;&amp;
+    exists(/databases/$(database)/documents/threads/$(resource.data.threadId)) &amp;&amp;
+    request.auth.uid in get(/databases/$(database)/documents/threads/$(resource.data.threadId)).data.participants;
+}" path="firestore.rules" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Unit tests use Jest framework. Integration tests use Jest with Firebase emulator. E2E tests use WebdriverIO. Service layer coverage target: 80%. Test locations: tests/unit/ for unit tests, tests/integration/ for integration tests, tests/e2e/ for E2E tests. Follow existing test patterns from actionItems tests.
+    </standards>
+    <locations>
+      <location>tests/unit/services/</location>
+      <location>tests/integration/</location>
+      <location>tests/e2e/specs/</location>
+    </locations>
+    <ideas>
+      <test ac="1" type="unit">Validate Checklist and ChecklistItem interface structure matches TypeScript definitions</test>
+      <test ac="2" type="integration">Verify checklists collection creation and security rules using Firebase emulator</test>
+      <test ac="3" type="unit">Test all checklistService methods: create, read, update, delete, mark complete, get by thread, calculate progress</test>
+      <test ac="4" type="e2e">E2E test: Display checklists in thread view, verify title and item count display</test>
+      <test ac="5" type="e2e">E2E test: Display items with checkboxes, verify toggle complete/incomplete functionality</test>
+      <test ac="6" type="e2e">E2E test: Create checklist flow - open form, enter title, add items, save, verify creation</test>
+      <test ac="7" type="e2e">E2E test: Navigate to checklists from thread header button</test>
+      <test ac="8" type="unit">Verify progress calculation logic: total, completed, percentage calculation</test>
+      <test ac="9" type="e2e">E2E test: Full workflow - create checklist, view items, update items, mark complete, verify progress</test>
+      <test ac="10" type="integration">Verify checklist threadId linking and access control (thread participants only)</test>
+    </ideas>
+  </tests>
+</story-context>
+
+

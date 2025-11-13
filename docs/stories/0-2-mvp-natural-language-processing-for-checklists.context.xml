@@ -1,0 +1,166 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>0.2</storyId>
+    <title>MVP Natural Language Processing for Checklists</title>
+    <status>drafted</status>
+    <generatedAt>2025-01-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/0-2-mvp-natural-language-processing-for-checklists.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>contractor</asA>
+    <iWant>to update checklists using natural language commands</iWant>
+    <soThat>I can manage tasks hands-free during field work</soThat>
+    <tasks>
+      <task id="1" ac="1">Create checklistNLPService.ts extending aiService</task>
+      <task id="2" ac="2">Implement intent recognition</task>
+      <task id="3" ac="3">Implement item matching with semantic similarity</task>
+      <task id="4" ac="4">Implement command processing orchestration</task>
+      <task id="5" ac="5">Create ChecklistNLPInput UI component</task>
+      <task id="6" ac="6,8">Implement command support and execution</task>
+      <task id="7" ac="7">Create confirmation dialog with preview</task>
+      <task id="8" ac="9">Implement error handling for ambiguous commands</task>
+      <task id="9" ac="10">End-to-end integration testing</task>
+      <task id="10" ac="1,8">Integration with existing checklist system</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">NLP service (`checklistNLPService.ts`) that extends existing aiService</ac>
+    <ac id="2">Intent recognition: classifyChecklistIntent(text) returns: create_item, mark_complete, query_status</ac>
+    <ac id="3">Item matching: matchChecklistItem(text, checklistId) using semantic similarity with existing items</ac>
+    <ac id="4">Command processing: processChecklistCommand(text, checklistId) orchestrates intent → matching → execution</ac>
+    <ac id="5">Natural language input UI component (text input + voice button) integrated into checklist view</ac>
+    <ac id="6">Commands supported: "mark item 3 complete", "add new task: install tiles", "what's next?", "show incomplete tasks"</ac>
+    <ac id="7">Confirmation dialog shows preview of changes before applying</ac>
+    <ac id="8">Commands execute and update checklist items via checklistService</ac>
+    <ac id="9">Error handling for ambiguous commands with user-friendly messages</ac>
+    <ac id="10">Works end-to-end: user speaks/types command → system processes → preview shown → user confirms → checklist updated</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/checklist-epics.md" title="Checklist Feature Epic Breakdown" section="Story 0.2: MVP Natural Language Processing for Checklists">
+        Defines the story requirements, acceptance criteria, and implementation notes for NLP checklist operations.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic Technical Specification: MVP Checklist Feature" section="Story 0.2: MVP Natural Language Processing for Checklists">
+        Technical specification detailing NLP service architecture, API contracts, workflows, and acceptance criteria.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic Technical Specification: MVP Checklist Feature" section="Services and Modules">
+        Describes checklistNLPService.ts structure, responsibilities, and integration with existing aiService.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic Technical Specification: MVP Checklist Feature" section="APIs and Interfaces">
+        Defines checklistNLPService API methods: classifyChecklistIntent, matchChecklistItem, processChecklistCommand, executeCommand.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic Technical Specification: MVP Checklist Feature" section="Workflows and Sequencing">
+        Details Workflow 2: Update Checklist via Natural Language, showing complete user flow from input to execution.
+      </doc>
+      <doc path="docs/PRD.md" title="Communexus Product Requirements Document" section="Natural Language Processing for Checklists">
+        Functional requirements for NLP checklist operations including intent recognition, item matching, and command processing.
+      </doc>
+      <doc path="docs/architecture.md" title="Decision Architecture" section="AI Framework">
+        Architecture patterns for AI service integration using LangChain and GPT-4 API.
+      </doc>
+      <doc path="docs/architecture.md" title="Decision Architecture" section="Project Structure">
+        Project structure guidelines for services and components, including checklist subdirectory patterns.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/services/ai.ts" kind="service" symbol="AIService" lines="13-112" reason="Base AI service class that checklistNLPService should extend. Provides pattern for Cloud Function integration via httpsCallable." />
+      <artifact path="src/services/ai.ts" kind="service" symbol="aiService" lines="112" reason="Exported singleton instance of AIService. checklistNLPService should extend this class or use it as a dependency." />
+      <artifact path="src/services/checklistService.ts" kind="service" symbol="getChecklist" lines="126-136" reason="Method to fetch checklist data needed for item matching. Returns Checklist with items array." />
+      <artifact path="src/services/checklistService.ts" kind="service" symbol="markItemComplete" lines="280-290" reason="Method to mark items complete, called by NLP service when executing mark_complete intent." />
+      <artifact path="src/services/checklistService.ts" kind="service" symbol="createChecklistItem" lines="190-228" reason="Method to create new checklist items, called by NLP service when executing create_item intent." />
+      <artifact path="src/services/checklistService.ts" kind="service" symbol="updateChecklistItem" lines="233-275" reason="Method to update checklist items, used for status changes and other updates." />
+      <artifact path="src/types/Checklist.ts" kind="type" symbol="Checklist" lines="33-46" reason="Checklist interface defining data structure. Used for type safety in NLP service." />
+      <artifact path="src/types/Checklist.ts" kind="type" symbol="ChecklistItem" lines="16-25" reason="ChecklistItem interface defining item structure. Used for item matching and updates." />
+      <artifact path="src/types/Checklist.ts" kind="type" symbol="ChecklistItemStatus" lines="8" reason="Status enum type: 'pending' | 'in-progress' | 'completed'. Used for status transitions." />
+      <artifact path="src/components/checklist/ChecklistDetailView.tsx" kind="component" symbol="ChecklistDetailView" lines="24-189" reason="Component where ChecklistNLPInput should be integrated. Shows checklist items and handles item toggling." />
+      <artifact path="functions/src/aiSmartSearch.ts" kind="cloud-function" symbol="aiSmartSearch" lines="1-37" reason="Example Cloud Function pattern for AI operations. Shows how to call aiService methods from Cloud Functions." />
+      <artifact path="functions/src/aiService.ts" kind="service" symbol="aiService" reason="Backend AI service implementation. May need new method for checklist NLP operations." />
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="react" version="19.1.0" />
+        <package name="react-native" version="0.81.5" />
+        <package name="typescript" version="^5.0.0" />
+        <package name="firebase" version="^12.4.0" />
+        <package name="zustand" version="^5.0.8" />
+        <package name="@react-native-voice/voice" reason="Required for voice input (speech-to-text)" />
+        <package name="react-native-tts" reason="Optional for voice feedback (text-to-speech)" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must extend existing aiService from src/services/ai.ts rather than creating parallel implementation</constraint>
+    <constraint>Performance target: &lt; 5 seconds for NLP processing (per NFR001)</constraint>
+    <constraint>English only for MVP (multi-language support deferred to Epic 2)</constraint>
+    <constraint>Simple item matching (exact + semantic similarity, no advanced fuzzy matching)</constraint>
+    <constraint>Single-item commands only (batch operations deferred to Epic 2)</constraint>
+    <constraint>Follow existing service patterns (similar to messaging service)</constraint>
+    <constraint>Components use React Query for data fetching (existing pattern)</constraint>
+    <constraint>Firestore operations use existing Firebase configuration</constraint>
+    <constraint>Checklist components in checklist/ subdirectory (established in Story 0.1)</constraint>
+    <constraint>All NLP-driven updates require user confirmation before applying</constraint>
+    <constraint>Error handling must provide user-friendly messages with actionable suggestions</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="checklistNLPService API" kind="TypeScript class interface" signature="class ChecklistNLPService {
+  classifyChecklistIntent(text: string): Promise&lt;'create_item' | 'mark_complete' | 'query_status' | 'unknown'&gt;;
+  matchChecklistItem(text: string, checklistId: string): Promise&lt;ChecklistItem | null&gt;;
+  processChecklistCommand(text: string, checklistId: string): Promise&lt;CommandPreview&gt;;
+  executeCommand(preview: CommandPreview, checklistId: string): Promise&lt;CommandResult&gt;;
+}" path="src/services/checklistNLPService.ts" />
+    <interface name="CommandPreview" kind="TypeScript interface" signature="interface CommandPreview {
+  intent: 'create_item' | 'mark_complete' | 'query_status';
+  matchedItem?: ChecklistItem;
+  suggestedAction: string;
+  confidence: number;
+}" path="src/services/checklistNLPService.ts" />
+    <interface name="checklistService.getChecklist" kind="function signature" signature="getChecklist(checklistId: string): Promise&lt;Checklist | null&gt;" path="src/services/checklistService.ts" />
+    <interface name="checklistService.markItemComplete" kind="function signature" signature="markItemComplete(checklistId: string, itemId: string, completedBy?: string): Promise&lt;ChecklistItem&gt;" path="src/services/checklistService.ts" />
+    <interface name="checklistService.createChecklistItem" kind="function signature" signature="createChecklistItem(checklistId: string, item: Omit&lt;ChecklistItem, 'id'&gt;): Promise&lt;ChecklistItem&gt;" path="src/services/checklistService.ts" />
+    <interface name="aiService pattern" kind="class pattern" signature="class AIService {
+  async methodName(params): Promise&lt;Result&gt; {
+    const fn = httpsCallable(await getFunctionsClient(), 'cloudFunctionName');
+    const result = await fn({ params });
+    return result.data;
+  }
+}" path="src/services/ai.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Unit tests use Jest framework. Service layer methods require unit tests with 80% coverage target. Integration tests use Jest with Firebase emulator for Firestore operations and real API calls (test environment) for GPT-4 integration. E2E tests use WebdriverIO for full user workflows including voice input flow. Testing patterns established in Story 0.1 should be followed for consistency.
+    </standards>
+    <locations>
+      <location>tests/unit/</location>
+      <location>tests/integration/</location>
+      <location>tests/e2e/</location>
+      <location>src/services/__tests__/</location>
+      <location>src/components/checklist/__tests__/</location>
+    </locations>
+    <ideas>
+      <test ac="1">Unit test: verify checklistNLPService extends aiService correctly</test>
+      <test ac="2">Unit test: test intent classification with various command phrasings</test>
+      <test ac="2">Integration test: verify GPT-4 API integration for intent classification</test>
+      <test ac="3">Unit test: test exact matching, semantic matching, no match scenarios</test>
+      <test ac="3">Integration test: verify matching with real checklist data</test>
+      <test ac="4">Unit test: test command processing for each intent type</test>
+      <test ac="4">Integration test: verify full orchestration flow</test>
+      <test ac="5">E2E test: test text input and voice input functionality</test>
+      <test ac="6,8">Integration test: test each command type execution</test>
+      <test ac="7">E2E test: test confirmation dialog flow</test>
+      <test ac="9">Unit test: test error handling scenarios</test>
+      <test ac="10">E2E test: full voice command flow (speak → transcribe → process → preview → confirm → update)</test>
+      <test ac="10">E2E test: full text command flow (type → process → preview → confirm → update)</test>
+      <test ac="10">E2E test: error handling flow (ambiguous command → error message → retry)</test>
+    </ideas>
+  </tests>
+</story-context>
+
+

@@ -4,31 +4,41 @@ import { ChatOpenAI } from '@langchain/openai';
 // Lazy initialization of OpenAI client
 let _openai: OpenAI | null = null;
 let _chatModel: ChatOpenAI | null = null;
+let _cachedApiKey: string | null = null;
 
 export const getOpenAI = (): OpenAI => {
-  if (!_openai) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is not set');
-    }
-    _openai = new OpenAI({ apiKey });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not set');
   }
+  
+  // Reinitialize if API key changed (for hot reloading in emulator)
+  if (!_openai || _cachedApiKey !== apiKey) {
+    _openai = new OpenAI({ apiKey });
+    _cachedApiKey = apiKey;
+    console.log('OpenAI client initialized with API key:', apiKey.substring(0, 10) + '...');
+  }
+  
   return _openai;
 };
 
 export const getChatModel = (): ChatOpenAI => {
-  if (!_chatModel) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is not set');
-    }
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not set');
+  }
+  
+  // Reinitialize if API key changed (for hot reloading in emulator)
+  if (!_chatModel || _cachedApiKey !== apiKey) {
     _chatModel = new ChatOpenAI({
       openAIApiKey: apiKey,
       modelName: 'gpt-4',
       temperature: 0.7,
       maxTokens: 1000,
     });
+    _cachedApiKey = apiKey;
   }
+  
   return _chatModel;
 };
 

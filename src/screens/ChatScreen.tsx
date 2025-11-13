@@ -268,6 +268,15 @@ export default function ChatScreen({ route, navigation }: any) {
         <View style={styles.headerButtons}>
           <TouchableOpacity
             onPress={() => {
+              navigation.navigate('Checklists', { threadId });
+            }}
+            style={styles.checklistButton}
+            testID="checklists-button"
+          >
+            <Text style={styles.checklistButtonText}>✓</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
               console.log('📋 Action button pressed!');
               extractActionItems();
             }}
@@ -441,6 +450,19 @@ export default function ChatScreen({ route, navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  checklistButton: {
+    alignItems: 'center',
+    backgroundColor: '#34C759',
+    borderRadius: BorderRadius.round,
+    height: 36,
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+    width: 36,
+  },
+  checklistButtonText: {
+    color: Colors.textPrimary,
+    fontSize: 18,
+  },
   actionButton: {
     alignItems: 'center',
     backgroundColor: Colors.primary,

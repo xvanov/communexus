@@ -166,6 +166,14 @@ So that all checklist operations are reliable, performant, and maintainable.
 - Implement proper Firestore indexing for performance
 - Add comprehensive error handling and validation
 
+**Working State Clarification:**
+This story establishes the data model and service layer foundation. The system is in a "working state" when:
+- All service methods are implemented and unit tested
+- Data model is complete and validated
+- Service can be called via API or test harness
+- Subsequent stories (1.2, 1.3) will add UI components that use this foundation
+- The foundation is demonstrable through automated tests and API calls, even without full UI
+
 ---
 
 ### Story 1.2: Production Checklist UI Components
@@ -635,6 +643,7 @@ So that [benefit/value].
 - **No forward dependencies** - Only depend on previous work
 - **AI-agent sized** - Completable in 2-4 hour focused session (though stories are now more comprehensive)
 - **Value-focused** - Integrate technical enablers into value-delivering stories
+- **Working state** - Each story leaves the system in a testable, demonstrable state. For infrastructure stories (e.g., data models, service layers), "working state" means the system can be tested via unit tests, API calls, or minimal UI, even if full UI components are delivered in subsequent stories. The key is that functionality is complete, testable, and demonstrable, not necessarily user-facing.
 
 ---
 

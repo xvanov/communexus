@@ -15,7 +15,6 @@
         {
           "icon": "./assets/icon.png",
           "color": "#1E3A8A",
-          "sounds": ["./assets/notification.wav"],
           "mode": "production"
         }
       ]
@@ -32,7 +31,9 @@
       "bundleIdentifier": "com.communexus.communexus",
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification", "remote-notification"],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "This app needs microphone access for voice input in checklists",
+        "NSSpeechRecognitionUsageDescription": "This app needs speech recognition to process voice commands for checklists"
       }
     },
     "android": {

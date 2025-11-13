@@ -10,6 +10,7 @@ import {
   query,
   where,
   getDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { User } from '../types/User';
 
@@ -162,19 +163,32 @@ export const updateUserOnlineStatus = async (
 
   try {
     // Update user's own status in users collection
-    await setDoc(
+    // Use updateDoc instead of setDoc to ensure document exists and avoid create permission issues
+    await updateDoc(
       userRef,
       {
         online,
-        lastSeen: new Date(),
-      },
-      { merge: true }
+        lastSeen: serverTimestamp(),
+      }
     );
 
     console.log(`Updated online status for ${userId}: ${online}`);
-  } catch (error) {
-    console.error('Failed to update online status:', error);
-    throw error;
+  } catch (error: any) {
+    // If document doesn't exist, fall back to setDoc with merge
+    if (error?.code === 'not-found' || error?.message?.includes('NOT_FOUND')) {
+      await setDoc(
+        userRef,
+        {
+          online,
+          lastSeen: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      console.log(`Created and updated online status for ${userId}: ${online}`);
+    } else {
+      console.error('Failed to update online status:', error);
+      // Don't throw - this is a non-critical feature
+    }
   }
 };
 

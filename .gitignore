@@ -236,3 +236,4 @@ feedback/agent/
 test-results/agent-feedback/
 mcp_agent_mail/*
 mcp_agent_mail/
+*.env*

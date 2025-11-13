@@ -1,0 +1,190 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>0</epicId>
+    <storyId>0.3</storyId>
+    <title>MVP Image Analysis & Query System</title>
+    <status>drafted</status>
+    <generatedAt>2025-01-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/0-3-mvp-image-analysis-query-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>contractor</asA>
+    <iWant>analyze photos for checklist completion and query checklist status</iWant>
+    <soThat>I can verify work and find next tasks quickly</soThat>
+    <tasks>
+      <task id="1" ac="1">Create visionAnalysisService.ts using GPT-4 Vision API</task>
+      <task id="2" ac="2">Implement analyzeImageForChecklist function</task>
+      <task id="3" ac="3">Implement item matching from analysis</task>
+      <task id="4" ac="4">Create image analysis UI components</task>
+      <task id="5" ac="5">Implement approve/reject workflow for analysis suggestions</task>
+      <task id="6" ac="6">Create checklistQueryService.ts for query processing</task>
+      <task id="7" ac="7">Implement getNextTask function</task>
+      <task id="8" ac="8">Create query UI component</task>
+      <task id="9" ac="9">Implement query results display</task>
+      <task id="10" ac="10">End-to-end integration testing</task>
+      <task id="11" ac="1,2,3,5,6,7">Integration with existing checklist system</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">Vision analysis service (`visionAnalysisService.ts`) using GPT-4 Vision API</ac>
+    <ac id="2">Image analysis function: analyzeImageForChecklist(imageUrl, checklistId) returns detected tasks and completion status</ac>
+    <ac id="3">Item matching from analysis: matchImageToChecklistItems(analysis, checklistId) links photos to items</ac>
+    <ac id="4">Image analysis UI: "Analyze for Checklist" option on photo messages, results modal with suggested updates</ac>
+    <ac id="5">User can approve/reject analysis suggestions, approved updates mark items complete and link photos</ac>
+    <ac id="6">Query service: processChecklistQuery(query, checklistId) answers: "what's next?", "show incomplete", "how many done?"</ac>
+    <ac id="7">Next task identification: getNextTask(checklistId) returns highest priority uncompleted item</ac>
+    <ac id="8">Query UI component integrated into checklist view with text/voice input</ac>
+    <ac id="9">Query results display in readable format with links to items</ac>
+    <ac id="10">Works end-to-end: upload photo → analyze → review suggestions → approve → item marked complete with photo linked; ask query → get answer → navigate to relevant items</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/checklist-epics.md" title="Checklist Epics" section="Story 0.3: MVP Image Analysis & Query System">
+        Defines story requirements, acceptance criteria, and implementation notes for image analysis and query system.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="Story 0.3: MVP Image Analysis &amp; Query System">
+        Detailed technical specification including services, APIs, workflows, and acceptance criteria for vision analysis and query functionality.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="Services and Modules">
+        Defines visionAnalysisService and checklistQueryService architecture, responsibilities, and dependencies.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="APIs and Interfaces">
+        API contracts for visionAnalysisService and checklistQueryService including method signatures and error codes.
+      </doc>
+      <doc path="docs/tech-spec-epic-0.md" title="Epic 0 Technical Specification" section="Workflows and Sequencing">
+        Detailed workflows for image analysis and query processing including step-by-step user flows.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Image and Video Analysis">
+        Functional requirements for image analysis including FR013-FR018 covering vision analysis, confidence scoring, and media linking.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Query and Discovery System">
+        Functional requirements for query system including FR019-FR023 covering next task identification and status queries.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="AI Framework">
+        AI infrastructure patterns and integration points for extending aiService for vision analysis.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture Document" section="Project Structure">
+        Project structure patterns for services, components, and Cloud Functions.
+      </doc>
+      <doc path="docs/stories/0-2-mvp-natural-language-processing-for-checklists.md" title="Story 0.2" section="Dev Agent Record">
+        Learnings from previous story including service patterns, component patterns, and integration approaches to reuse.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="src/services/checklistService.ts" kind="service" symbol="checklistService" reason="Core checklist CRUD operations - visionAnalysisService and checklistQueryService will use this for checklist/item operations">
+        <lines>1-348</lines>
+        <interface>createChecklist, getChecklist, updateChecklist, createChecklistItem, updateChecklistItem, markItemComplete, markItemIncomplete, calculateProgress</interface>
+      </artifact>
+      <artifact path="src/services/checklistNLPService.ts" kind="service" symbol="ChecklistNLPService" reason="Pattern reference for creating visionAnalysisService and checklistQueryService - follows same AI service extension pattern">
+        <lines>1-245</lines>
+        <interface>classifyChecklistIntent, matchChecklistItem, processChecklistCommand, executeCommand</interface>
+      </artifact>
+      <artifact path="functions/src/aiService.ts" kind="service" symbol="AIService" reason="Backend AI service to extend for vision analysis methods - follow pattern of classifyChecklistIntent/matchChecklistItem">
+        <lines>1-1007</lines>
+        <interface>generateThreadSummary, classifyChecklistIntent, matchChecklistItem, processChecklistCommand</interface>
+      </artifact>
+      <artifact path="functions/src/aiChecklistNLP.ts" kind="cloud-function" symbol="aiChecklistNLP" reason="Pattern reference for creating aiChecklistVision Cloud Function - same structure with vision operations">
+        <lines>1-64</lines>
+        <interface>onCall handler with operation switch (classifyIntent, matchItem, processCommand)</interface>
+      </artifact>
+      <artifact path="src/components/checklist/ChecklistDetailView.tsx" kind="component" symbol="ChecklistDetailView" reason="Component to integrate ImageAnalysisModal and ChecklistQueryInput - already has ChecklistNLPInput integration pattern">
+        <lines>1-390</lines>
+        <interface>ChecklistDetailViewProps with checklistId, onBack</interface>
+      </artifact>
+      <artifact path="src/components/checklist/ChecklistNLPInput.tsx" kind="component" symbol="ChecklistNLPInput" reason="Pattern reference for ChecklistQueryInput - reuse voice input patterns and component structure">
+        <lines>1-289</lines>
+        <interface>ChecklistNLPInputProps with checklistId, items, onCommandPreview, onError</interface>
+      </artifact>
+      <artifact path="src/types/Checklist.ts" kind="type" symbol="Checklist, ChecklistItem" reason="Data model interfaces - visionAnalysisService and checklistQueryService will use these types">
+        <lines>1-76</lines>
+        <interface>Checklist, ChecklistItem, ChecklistItemStatus, ChecklistFirestore, ChecklistItemFirestore</interface>
+      </artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="firebase" version="^12.4.0">Firestore, Cloud Functions, Storage</package>
+        <package name="firebase-admin" version="^12.6.0">Server-side Firebase operations</package>
+        <package name="react-native" version="0.81.5">Mobile UI framework</package>
+        <package name="expo" version="^54.0.18">React Native development platform</package>
+        <package name="typescript" version="^5.0.0">Type safety</package>
+        <package name="@react-native-voice/voice" version="latest">Speech-to-text for voice input (reuse from Story 0.2)</package>
+        <package name="openai" version="^6.7.0">GPT-4 API integration (already in functions)</package>
+        <package name="langchain" version="^1.0.1">AI framework (already in functions)</package>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Must extend existing AI infrastructure (aiService pattern) - do not create parallel implementation</constraint>
+    <constraint>Performance target: &lt; 10 seconds for image analysis (per NFR001)</constraint>
+    <constraint>Simple confidence scoring (high/medium/low) for MVP - high (≥85%), medium (70-84%), low (&lt;70%)</constraint>
+    <constraint>Single image analysis only - batch processing deferred to Epic 3</constraint>
+    <constraint>Video analysis deferred to Epic 3</constraint>
+    <constraint>English only for MVP - multi-language support deferred to Epic 2</constraint>
+    <constraint>Always require user confirmation before applying analysis suggestions</constraint>
+    <constraint>Image URLs validated before analysis (prevent malicious image processing)</constraint>
+    <constraint>Follow existing service patterns for consistency (similar to checklistNLPService)</constraint>
+    <constraint>Cloud Functions follow existing patterns (similar to aiChecklistNLP)</constraint>
+    <constraint>Components use React Query for data fetching (existing pattern)</constraint>
+    <constraint>Firestore operations use existing Firebase configuration</constraint>
+    <constraint>Checklist components in `checklist/` subdirectory (established in Story 0.1)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="visionAnalysisService API" kind="TypeScript service class" signature="class VisionAnalysisService {
+  analyzeImageForChecklist(imageUrl: string, checklistId: string): Promise&lt;ImageAnalysisResult&gt;
+  matchImageToChecklistItems(analysis: ImageAnalysisResult, checklistId: string): Promise&lt;MatchedItem[]&gt;
+  linkPhotoToItem(checklistId: string, itemId: string, photoUrl: string): Promise&lt;void&gt;
+}" path="src/services/visionAnalysisService.ts" />
+    <interface name="checklistQueryService API" kind="TypeScript service class" signature="class ChecklistQueryService {
+  processChecklistQuery(query: string, checklistId: string): Promise&lt;QueryResult&gt;
+  getNextTask(checklistId: string): Promise&lt;ChecklistItem | null&gt;
+}" path="src/services/checklistQueryService.ts" />
+    <interface name="aiChecklistVision Cloud Function" kind="Cloud Function" signature="export const aiChecklistVision = onCall(async request =&gt; {
+  const { operation, imageUrl, checklistId, items } = request.data;
+  // Operations: analyzeImage, matchItems
+})" path="functions/src/aiChecklistVision.ts" />
+    <interface name="checklistService API" kind="TypeScript service functions" signature="markItemComplete(checklistId: string, itemId: string): Promise&lt;ChecklistItem&gt;
+getChecklist(checklistId: string): Promise&lt;Checklist&gt;
+updateChecklistItem(checklistId: string, itemId: string, updates: Partial&lt;ChecklistItem&gt;): Promise&lt;ChecklistItem&gt;" path="src/services/checklistService.ts" />
+    <interface name="ChecklistItem interface" kind="TypeScript interface" signature="interface ChecklistItem {
+  id: string;
+  checklistId: string;
+  title: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  order: number;
+  completedAt?: Date;
+  completedBy?: string;
+  mediaAttachments?: string[];
+}" path="src/types/Checklist.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Unit tests use Jest framework with 80% coverage target for service layer. Integration tests use Jest with Firebase emulator for Firestore operations and real API calls (test environment) for GPT-4 Vision API. E2E tests use WebdriverIO for full user workflows. All tests follow existing patterns established in Story 0.1 and 0.2.
+    </standards>
+    <locations>
+      <location>tests/unit/</location>
+      <location>tests/integration/</location>
+      <location>tests/e2e/</location>
+    </locations>
+    <ideas>
+      <test ac="1" idea="Unit test: verify visionAnalysisService structure and GPT-4 Vision API integration" />
+      <test ac="2" idea="Integration test: test analyzeImageForChecklist with sample images and verify GPT-4 Vision API call" />
+      <test ac="3" idea="Unit test: test matchImageToChecklistItems with exact matching, semantic matching, no match scenarios" />
+      <test ac="4" idea="E2E test: test image analysis UI flow from photo selection to modal display" />
+      <test ac="5" idea="E2E test: test approval/rejection flow for analysis suggestions" />
+      <test ac="6" idea="Unit test: test processChecklistQuery for each query type ('what's next?', 'show incomplete', 'how many done?')" />
+      <test ac="7" idea="Unit test: test getNextTask logic with various checklist states (all complete, empty, mixed)" />
+      <test ac="8" idea="E2E test: test query input component with text and voice input" />
+      <test ac="9" idea="E2E test: verify query results display format and navigation links" />
+      <test ac="10" idea="E2E test: full end-to-end flow - upload photo → analyze → approve → query → navigate" />
+    </ideas>
+  </tests>
+</story-context>
+
+
